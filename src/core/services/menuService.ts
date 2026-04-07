@@ -3,15 +3,43 @@ import { Category, Product, ProductBranchSettings } from '../types';
 
 export const menuService = {
   fetchCategories: async (merchantId: string) => {
-    return supabase.from('categories').select('*').eq('merchant_id', merchantId).order('name');
+    const result = await supabase.from('categories').select('*').eq('merchant_id', merchantId);
+    if (result.error) {
+      return result;
+    }
+
+    const mapped: Category[] = (result.data ?? []).map((row: any) => ({
+      id: row.id,
+      name: row.name ?? row.title ?? 'Categoría',
+      merchant_id: row.merchant_id ?? undefined,
+    }));
+
+    mapped.sort((a, b) => a.name.localeCompare(b.name));
+    return { data: mapped, error: null };
   },
 
   fetchProducts: async (merchantId: string) => {
-    return supabase
+    const result = await supabase
       .from('products')
-      .select('id, name, description, price, category_id, active, merchant_id')
-      .eq('merchant_id', merchantId)
-      .order('name');
+      .select('*')
+      .eq('merchant_id', merchantId);
+
+    if (result.error) {
+      return result;
+    }
+
+    const mapped: Product[] = (result.data ?? []).map((row: any) => ({
+      id: row.id,
+      name: row.name ?? row.title ?? 'Producto',
+      description: row.description ?? undefined,
+      price: Number(row.price ?? row.base_price ?? 0),
+      category_id: row.category_id ?? undefined,
+      active: Boolean(row.active ?? row.is_active ?? true),
+      merchant_id: row.merchant_id ?? undefined,
+    }));
+
+    mapped.sort((a, b) => a.name.localeCompare(b.name));
+    return { data: mapped, error: null };
   },
 
   fetchBranchProductSettings: async (branchId: string) => {
@@ -19,11 +47,20 @@ export const menuService = {
   },
 
   updateProduct: async (product: Partial<Product> & { id: string }) => {
-    return supabase.from('products').update(product).eq('id', product.id).select();
+    const payload: any = { ...product };
+    if (typeof product.active === 'boolean') {
+      payload.active = product.active;
+      payload.is_active = product.active;
+    }
+    return supabase.from('products').update(payload).eq('id', product.id).select();
   },
 
   toggleProductActive: async (productId: string, active: boolean) => {
-    return supabase.from('products').update({ active }).eq('id', productId).select();
+    let result = await supabase.from('products').update({ active }).eq('id', productId).select();
+    if (result.error && /column\s+products\.active\s+does not exist/i.test(result.error.message || '')) {
+      result = await supabase.from('products').update({ is_active: active }).eq('id', productId).select();
+    }
+    return result;
   },
 
   updateBranchProductSetting: async (settingId: string, payload: Partial<ProductBranchSettings>) => {

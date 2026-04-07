@@ -24,9 +24,7 @@ export const authService = {
 
     const staffResult = await supabase
       .from('merchant_staff')
-      .select(
-        'id, user_id, merchant_id, role, merchant:merchant_id(id, name, slug, active)'
-      )
+      .select('*')
       .eq('user_id', userId)
       .maybeSingle();
 
@@ -35,42 +33,80 @@ export const authService = {
     }
 
     if (!staffResult.data) {
-      return { error: new Error('No se encontró asignación de staff para el usuario') };
+      return {
+        profile: profileResult.data
+          ? { id: profileResult.data.user_id, full_name: profileResult.data.full_name, email: profileResult.data.email, phone: profileResult.data.phone }
+          : null,
+        staffAssignment: null,
+        merchant: null,
+        branches: [],
+        currentBranch: null,
+      };
     }
 
     const staffRow = staffResult.data as any;
-    let merchant = staffRow?.merchant ?? null;
-    if (Array.isArray(merchant)) {
-      merchant = merchant[0] ?? null;
+    const merchantResult = staffRow?.merchant_id
+      ? await supabase.from('merchants').select('*').eq('id', staffRow.merchant_id).maybeSingle()
+      : { data: null, error: null };
+
+    if (merchantResult.error) {
+      return { error: merchantResult.error };
     }
+
+    const merchantRow = merchantResult.data as any;
+    const merchant: Merchant | null = merchantRow
+      ? {
+          id: merchantRow.id,
+          name: merchantRow.name ?? merchantRow.trade_name ?? 'Comercio',
+          slug: merchantRow.slug ?? undefined,
+          active: merchantRow.active ?? merchantRow.is_active ?? undefined,
+        }
+      : null;
 
     const staffAssignment: MerchantStaff = {
       id: staffRow.id,
       user_id: staffRow.user_id,
       merchant_id: staffRow.merchant_id,
-      role: staffRow.role,
+      role: staffRow.role ?? staffRow.staff_role ?? 'staff',
       merchant: merchant ?? undefined,
     };
 
     const branchRelationResult = await supabase
       .from('merchant_staff_branches')
-      .select('id, merchant_staff_id, branch_id, role, merchant_branch:branch_id(id, name, slug, is_open, accepting_orders, merchant_id)')
+      .select('*')
       .eq('merchant_staff_id', staffRow.id);
 
     if (branchRelationResult.error) {
       return { error: branchRelationResult.error };
     }
 
-    const branches: MerchantBranch[] = [];
-    if (Array.isArray(branchRelationResult.data)) {
-      for (const item of branchRelationResult.data as any[]) {
-        if (item?.merchant_branch) {
-          branches.push(item.merchant_branch as MerchantBranch);
-        }
+    const relationRows = Array.isArray(branchRelationResult.data) ? (branchRelationResult.data as any[]) : [];
+    const branchIds = relationRows.map((row) => row?.branch_id).filter(Boolean);
+
+    let branches: MerchantBranch[] = [];
+    if (branchIds.length > 0) {
+      const branchResult = await supabase
+        .from('merchant_branches')
+        .select('*')
+        .in('id', branchIds);
+
+      if (branchResult.error) {
+        return { error: branchResult.error };
       }
+
+      branches = (branchResult.data ?? []).map((row: any) => ({
+        id: row.id,
+        name: row.name ?? row.trade_name ?? 'Sucursal',
+        slug: row.slug ?? undefined,
+        is_open: row.is_open ?? row.open ?? undefined,
+        accepting_orders: row.accepting_orders ?? undefined,
+        address: row.address ?? undefined,
+        merchant_id: row.merchant_id ?? undefined,
+      }));
     }
 
-    const currentBranch = branches[0] ?? null;
+    const primaryBranchId = relationRows.find((row) => row?.is_primary)?.branch_id;
+    const currentBranch = branches.find((branch) => branch.id === primaryBranchId) ?? branches[0] ?? null;
 
     return {
       profile: profileResult.data

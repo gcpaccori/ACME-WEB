@@ -13,7 +13,8 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<'form' | 'waiting'>('form');
+  const [mode, setMode] = useState<'password' | 'magic'>('password');
+  const [magicSent, setMagicSent] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -34,18 +35,29 @@ export function LoginPage() {
     setError(null);
     setLoading(true);
 
-    if (step === 'form') {
-      const { error } = await supabase.auth.signInWithOtp({ email });
+    if (mode === 'password') {
+      const result = await portal.signIn(email, password);
       setLoading(false);
-      if (error) {
-        setError(error.message ?? 'No se pudo enviar el correo de verificación');
+      if (result?.error) {
+        setError(result.error.message ?? 'No se pudo iniciar sesión con contraseña');
         return;
       }
-      setStep('waiting');
+
+      navigate(AppRoutes.portal.dashboard);
+      return;
     }
+
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    setLoading(false);
+    if (error) {
+      setError(error.message ?? 'No se pudo enviar el correo de verificación');
+      return;
+    }
+
+    setMagicSent(true);
   };
 
-  if (step === 'waiting') {
+  if (magicSent) {
     return (
       <section style={{
         minHeight: '100vh',
@@ -104,7 +116,7 @@ export function LoginPage() {
           </div>
 
           <Button
-            onClick={() => setStep('form')}
+            onClick={() => setMagicSent(false)}
             style={{
               marginTop: '4px',
               background: 'transparent',
@@ -164,6 +176,55 @@ export function LoginPage() {
           flexDirection: 'column',
           gap: '1rem',
         }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '8px',
+            background: '#f3f4f6',
+            border: '1px solid #e5e7eb',
+            borderRadius: '10px',
+            padding: '6px',
+          }}>
+            <button
+              type="button"
+              onClick={() => {
+                setMode('password');
+                setError(null);
+              }}
+              style={{
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 10px',
+                background: mode === 'password' ? '#111827' : 'transparent',
+                color: mode === 'password' ? '#ffffff' : '#374151',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Con contraseña
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode('magic');
+                setError(null);
+              }}
+              style={{
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 10px',
+                background: mode === 'magic' ? '#111827' : 'transparent',
+                color: mode === 'magic' ? '#ffffff' : '#374151',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Verificar correo
+            </button>
+          </div>
+
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <label style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>
@@ -179,19 +240,34 @@ export function LoginPage() {
               />
             </label>
 
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>
-                Contraseña
-              </span>
-              <TextField
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
-              />
-            </label>
+            {mode === 'password' ? (
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>
+                  Contraseña
+                </span>
+                <TextField
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
+                />
+              </label>
+            ) : (
+              <p style={{
+                fontSize: '12px',
+                color: '#6b7280',
+                margin: 0,
+                lineHeight: '1.5',
+                background: '#f9fafb',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                padding: '10px 12px',
+              }}>
+                Te enviaremos un enlace seguro al correo para ingresar sin contraseña.
+              </p>
+            )}
 
             {error && (
               <div style={{
@@ -222,7 +298,13 @@ export function LoginPage() {
                 marginTop: '4px',
               }}
             >
-              {loading ? 'Enviando verificación...' : 'Verificar correo'}
+              {loading
+                ? mode === 'password'
+                  ? 'Ingresando...'
+                  : 'Enviando verificación...'
+                : mode === 'password'
+                  ? 'Ingresar'
+                  : 'Verificar correo'}
             </Button>
           </form>
         </div>
