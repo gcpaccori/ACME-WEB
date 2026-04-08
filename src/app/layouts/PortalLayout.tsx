@@ -2,23 +2,14 @@ import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { AppRoutes } from '../../core/constants/routes';
 import { useContext } from 'react';
 import { PortalContext } from '../../modules/auth/session/PortalContext';
-
-const navItems = [
-  { label: 'Dashboard', to: AppRoutes.portal.dashboard },
-  { label: 'Pedidos', to: AppRoutes.portal.orders },
-  { label: 'Carta', to: AppRoutes.portal.menu },
-  { label: 'Categorías', to: AppRoutes.portal.categories },
-  { label: 'Productos', to: AppRoutes.portal.products },
-  { label: 'Estado', to: AppRoutes.portal.branchStatus },
-  { label: 'Horarios', to: AppRoutes.portal.hours },
-  { label: 'Personal', to: AppRoutes.portal.staff },
-];
+import { getEnabledAdminModules } from '../../core/admin/registry/moduleRegistry';
 
 export function PortalLayout() {
   const portal = useContext(PortalContext);
   const navigate = useNavigate();
 
   const branchName = portal.currentBranch?.name ?? 'Local no asignado';
+  const navItems = getEnabledAdminModules().map((module) => ({ label: module.label, to: module.route }));
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#f4f5f7' }}>
@@ -41,7 +32,7 @@ export function PortalLayout() {
       <div style={{ flex: 1 }}>
         <header style={{ padding: '18px 24px', background: '#ffffff', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <strong>Portal del local</strong>
+            <strong>Portal admin</strong>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <span>{portal.profile?.full_name || portal.profile?.email || 'Usuario'}</span>
@@ -52,7 +43,7 @@ export function PortalLayout() {
               }}
               style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#ffffff' }}
             >
-              Cerrar sesión
+              Cerrar sesion
             </button>
           </div>
         </header>

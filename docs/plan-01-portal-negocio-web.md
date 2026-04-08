@@ -12,6 +12,24 @@ Este plan toma como base el esquema real de Supabase y el estado actual del repo
 - asignar personal y repartidores
 - revisar pagos, promociones y liquidaciones
 
+## Enfoque actual
+
+La prioridad actual es cerrar el `modo admin`.
+
+Eso significa:
+
+- terminar primero toda la capa administrativa web
+- resolver el CRUD relacional de tablas y entidades raiz
+- dejar navegacion contextual clara para el operador
+- postergar la capa simple de cliente final para despues
+
+La app cliente quedara para una segunda etapa con navegacion simple de:
+
+- productos
+- carrito
+- perfil
+- pedidos
+
 ## Estado actual del repo
 
 Ya existe una base funcional del portal con rutas para:
@@ -294,3 +312,9 @@ El plan se considera listo cuando:
 - este plan habilita la operacion de `orders`, `delivery_zones` y `commission_rules`
 - este plan alimenta el surtido que consume la app cliente
 - este plan define la configuracion operativa que necesita la app repartidor
+
+## Cobertura total
+
+La cobertura total de las `40` tablas del `Plan 1`, con modulo, pantalla, uso de negocio, tipo de CRUD y estrategia de guardado, queda documentada en:
+
+- `docs/plan-01-full-table-coverage.md`
