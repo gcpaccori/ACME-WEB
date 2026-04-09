@@ -1,29 +1,29 @@
 import { useContext } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
+import { LoadingScreen } from '../../../components/shared/LoadingScreen';
 import { AppRoutes } from '../../../core/constants/routes';
 import { PortalContext } from '../session/PortalContext';
-import { LoadingScreen } from '../../../components/shared/LoadingScreen';
 
 export function PrivateRoute() {
   const portal = useContext(PortalContext);
 
   if (portal.isLoading) {
-    return <LoadingScreen message="Validando sesión..." />;
+    return <LoadingScreen message="Validando sesion..." />;
   }
 
   if (!portal.sessionUserId) {
     return <Navigate to={AppRoutes.public.portalLogin} replace />;
   }
 
-  if (!portal.staffAssignment) {
+  if (!portal.hasPlatformAccess && !portal.hasBusinessAccess && !portal.hasBranchAccess) {
     return (
       <div style={{ padding: '96px 24px', maxWidth: '760px', margin: '0 auto', textAlign: 'center' }}>
-        <h2 style={{ marginBottom: '12px' }}>Tu cuenta no tiene un negocio asignado</h2>
+        <h2 style={{ marginBottom: '12px' }}>Tu cuenta no tiene acceso administrativo</h2>
         <p style={{ color: '#6b7280', marginBottom: '18px' }}>
-          El inicio de sesión fue correcto, pero todavía no tienes permisos de staff para ingresar al portal.
+          El inicio de sesion fue correcto, pero todavia no tienes un rol de plataforma ni una asignacion de negocio para ingresar al portal.
         </p>
         <p style={{ color: '#6b7280', marginBottom: '24px' }}>
-          Puedes registrar tu negocio o solicitar que un administrador te asigne a una sucursal.
+          Puedes registrar tu negocio o solicitar que un administrador te asigne permisos de plataforma, negocio o sucursal.
         </p>
         <a
           href={AppRoutes.public.businesses}

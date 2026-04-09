@@ -5,9 +5,11 @@ import { PortalContext } from '../../../auth/session/PortalContext';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { adminService, MerchantAdminForm } from '../../../../core/services/adminService';
+import { adminCustomersService } from '../../../../core/services/adminCustomersService';
 import { hasDirtyState, serializeDirtyState } from '../../../../core/admin/utils/dirtyState';
 import { FieldGroup, SelectField } from '../../../../components/admin/AdminFields';
 import { TextField } from '../../../../components/ui/TextField';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 
 const statusOptions = [
   { value: 'active', label: 'Activo' },
@@ -21,6 +23,11 @@ export function CommercePage() {
   const [form, setForm] = useState<MerchantAdminForm | null>(null);
   const [summary, setSummary] = useState({
     branches: 0,
+    branchHours: 0,
+    branchClosures: 0,
+    branchCoverage: 0,
+    staff: 0,
+    customers: 0,
     categories: 0,
     products: 0,
     modifierGroups: 0,
@@ -42,6 +49,10 @@ export function CommercePage() {
         adminService.fetchProducts(merchantId),
         adminService.fetchModifierGroups(merchantId),
       ]);
+      const [staffResult, customersResult] = await Promise.all([
+        adminService.fetchStaff(merchantId),
+        adminCustomersService.fetchCustomers(merchantId),
+      ]);
       setLoading(false);
       if (merchantResult.error) {
         setError(merchantResult.error.message);
@@ -53,16 +64,23 @@ export function CommercePage() {
       }
       setSummary({
         branches: branchesResult.data?.length ?? 0,
+        branchHours: (branchesResult.data ?? []).reduce((total, branch) => total + branch.hours_count, 0),
+        branchClosures: (branchesResult.data ?? []).reduce((total, branch) => total + branch.closures_count, 0),
+        branchCoverage: (branchesResult.data ?? []).reduce((total, branch) => total + branch.coverage_count, 0),
+        staff: staffResult.data?.length ?? 0,
+        customers: customersResult.data?.length ?? 0,
         categories: categoriesResult.data?.length ?? 0,
         products: productsResult.data?.length ?? 0,
         modifierGroups: modifiersResult.data?.length ?? 0,
       });
-      if (branchesResult.error || categoriesResult.error || productsResult.error || modifiersResult.error) {
+      if (branchesResult.error || categoriesResult.error || productsResult.error || modifiersResult.error || staffResult.error || customersResult.error) {
         setError(
           branchesResult.error?.message ||
             categoriesResult.error?.message ||
             productsResult.error?.message ||
             modifiersResult.error?.message ||
+            staffResult.error?.message ||
+            customersResult.error?.message ||
             null
         );
       }
@@ -97,6 +115,10 @@ export function CommercePage() {
     return <div>No hay comercio disponible para administrar.</div>;
   }
 
+  if (portal.currentScopeType !== 'business') {
+    return <div>Esta vista pertenece a la capa negocio.</div>;
+  }
+
   if (loading || !form) {
     return <LoadingScreen message="Cargando comercio..." />;
   }
@@ -110,7 +132,8 @@ export function CommercePage() {
         { label: 'Comercio' },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
         { label: 'Comercio', value: form.trade_name || 'sin nombre', tone: 'neutral' },
         { label: 'Entidad', value: 'Comercio', tone: 'info' },
         { label: 'Modo', value: 'Edicion', tone: 'warning' },
@@ -143,7 +166,7 @@ export function CommercePage() {
           </FieldGroup>
         </div>
       </SectionCard>
-      <SectionCard title="Resumen operativo del bloque fase 1" description="Accesos rapidos para terminar la configuracion del negocio sobre este comercio.">
+      <SectionCard title="Resumen operativo del negocio" description="Esta vista ya resume las tablas base del owner: sucursales, clientes y catalogo relacional.">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
           {[
             {
@@ -169,6 +192,36 @@ export function CommercePage() {
               count: summary.modifierGroups,
               to: AppRoutes.portal.admin.modifiers,
               description: 'Grupos y opciones para personalizacion.',
+            },
+            {
+              label: 'Personal',
+              count: summary.staff,
+              to: AppRoutes.portal.admin.staff,
+              description: 'Equipo interno y asignaciones por local.',
+            },
+            {
+              label: 'Clientes',
+              count: summary.customers,
+              to: AppRoutes.portal.admin.customers,
+              description: 'Direcciones, carritos y metodos guardados.',
+            },
+            {
+              label: 'Horarios',
+              count: summary.branchHours,
+              to: AppRoutes.portal.admin.branches,
+              description: 'Bloques operativos configurados en las sucursales.',
+            },
+            {
+              label: 'Cobertura',
+              count: summary.branchCoverage,
+              to: AppRoutes.portal.admin.branches,
+              description: 'Zonas de reparto activas por sucursal.',
+            },
+            {
+              label: 'Cierres',
+              count: summary.branchClosures,
+              to: AppRoutes.portal.admin.branches,
+              description: 'Cierres especiales programados para los locales.',
             },
           ].map((item) => (
             <Link

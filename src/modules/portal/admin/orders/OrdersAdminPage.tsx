@@ -4,6 +4,7 @@ import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { getAdminOrderStatusLabel, getAdminOrderStatusTone, normalizeAdminOrderStatus } from '../../../../core/admin/utils/orderWorkflow';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminOrdersService, OrderAdminRecord } from '../../../../core/services/adminOrdersService';
 import { PortalContext } from '../../../auth/session/PortalContext';
@@ -92,8 +93,13 @@ export function OrdersAdminPage() {
         { label: 'Pedidos' },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        {
+          label: 'Actor',
+          value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }),
+          tone: 'info',
+        },
+        { label: 'Comercio', value: portal.currentMerchant?.name || 'sin comercio', tone: 'neutral' },
         { label: 'Sucursal', value: portal.currentBranch?.name || 'sin sucursal', tone: 'neutral' },
         { label: 'Entidad', value: 'Pedido', tone: 'info' },
         { label: 'Modo', value: 'Operacion', tone: 'warning' },

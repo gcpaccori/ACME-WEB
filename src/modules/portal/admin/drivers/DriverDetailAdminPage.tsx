@@ -11,6 +11,7 @@ import { AdminTabPanel, AdminTabs } from '../../../../components/admin/AdminTabs
 import { AdminTimeline } from '../../../../components/admin/AdminTimeline';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { TextField } from '../../../../components/ui/TextField';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import {
   adminDriversService,
@@ -292,6 +293,10 @@ export function DriverDetailAdminPage() {
     return <div>No se encontro el repartidor.</div>;
   }
 
+  if (portal.currentScopeType !== 'platform') {
+    return <div>Esta vista pertenece a la capa plataforma.</div>;
+  }
+
   const activeVehicle = detail.vehicles.find((vehicle) => vehicle.is_active) ?? detail.vehicles[0] ?? null;
 
   return (
@@ -304,10 +309,10 @@ export function DriverDetailAdminPage() {
         { label: detail.full_name || detail.email || detail.id },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
         { label: 'Entidad', value: 'Repartidor', tone: 'info' },
-        { label: 'Modo', value: 'Operacion y soporte', tone: 'warning' },
+        { label: 'Modo', value: 'Supervision y soporte', tone: 'warning' },
         { label: 'Estado', value: detail.status || 'sin estado', tone: getDriverTone(detail.status) },
       ]}
     >

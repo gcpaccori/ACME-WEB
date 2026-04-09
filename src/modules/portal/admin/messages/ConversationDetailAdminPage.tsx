@@ -9,6 +9,7 @@ import { AdminPageFrame, FormStatusBar, SectionCard } from '../../../../componen
 import { AdminTabPanel, AdminTabs } from '../../../../components/admin/AdminTabs';
 import { AdminTimeline } from '../../../../components/admin/AdminTimeline';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import {
   adminMessagesService,
@@ -41,6 +42,7 @@ export function ConversationDetailAdminPage() {
   const { conversationId } = useParams();
   const portal = useContext(PortalContext);
   const merchantId = portal.merchant?.id;
+  const branchId = portal.currentScopeType === 'branch' ? portal.currentBranch?.id ?? null : null;
   const sessionUserId = portal.sessionUserId;
   const [activeTab, setActiveTab] = useState<ConversationTab>('summary');
   const [detail, setDetail] = useState<ConversationDetail | null>(null);
@@ -88,7 +90,7 @@ export function ConversationDetailAdminPage() {
     if (!merchantId || !conversationId) return;
     setLoading(true);
     setError(null);
-    const result = await adminMessagesService.fetchConversationDetail(merchantId, conversationId);
+    const result = await adminMessagesService.fetchConversationDetail(merchantId, conversationId, branchId);
     setLoading(false);
     if (result.error) {
       setError(result.error.message);
@@ -99,7 +101,7 @@ export function ConversationDetailAdminPage() {
 
   useEffect(() => {
     loadDetail();
-  }, [merchantId, conversationId]);
+  }, [branchId, merchantId, conversationId]);
 
   const availableParticipants = useMemo(() => {
     const assigned = new Set((detail?.participants ?? []).filter((item) => !item.left_at).map((item) => item.user_id));
@@ -186,8 +188,10 @@ export function ConversationDetailAdminPage() {
         { label: detail.id },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
         { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Sucursal', value: portal.currentScopeType === 'branch' ? portal.currentBranch?.name || detail.branch_label || 'sin sucursal' : detail.branch_label || 'Multiples', tone: 'neutral' },
         { label: 'Entidad', value: 'Conversacion', tone: 'info' },
         { label: 'Estado', value: detail.status || 'sin estado', tone: getStatusTone(detail.status) },
       ]}

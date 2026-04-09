@@ -152,6 +152,33 @@ function uniqueStrings(values: string[]) {
   return Array.from(new Set(values.filter(Boolean)));
 }
 
+async function fetchMerchantDriverIds(merchantId: string) {
+  const merchantOrdersResult = await supabase.from('orders').select('id, current_driver_id').eq('merchant_id', merchantId);
+  if (merchantOrdersResult.error) {
+    return { data: null, error: merchantOrdersResult.error };
+  }
+
+  const merchantOrderRows = (merchantOrdersResult.data ?? []) as any[];
+  const orderIds = uniqueStrings(merchantOrderRows.map((row) => stringOrEmpty(row.id)).filter(Boolean));
+  const currentDriverIds = uniqueStrings(merchantOrderRows.map((row) => stringOrEmpty(row.current_driver_id)).filter(Boolean));
+  const assignmentsResult =
+    orderIds.length > 0
+      ? await supabase.from('order_assignments').select('driver_id').in('order_id', orderIds)
+      : ({ data: [], error: null } as any);
+
+  if (assignmentsResult.error) {
+    return { data: null, error: assignmentsResult.error };
+  }
+
+  return {
+    data: uniqueStrings([
+      ...currentDriverIds,
+      ...(((assignmentsResult.data ?? []) as any[]).map((row) => stringOrEmpty(row.driver_id)).filter(Boolean)),
+    ]),
+    error: null,
+  };
+}
+
 function resolveRuleScopeLabel(
   scopeType: string,
   scopeId: string,
@@ -191,10 +218,18 @@ function isRelevantRule(
 }
 
 async function fetchSettlementLookups(merchantId: string) {
+  const relevantDriverIdsResult = await fetchMerchantDriverIds(merchantId);
+  if (relevantDriverIdsResult.error) return { data: null, error: relevantDriverIdsResult.error };
+
+  const relevantDriverIds = relevantDriverIdsResult.data ?? [];
   const [branchesResult, driversResult, profilesResult] = await Promise.all([
     supabase.from('merchant_branches').select('id, name').eq('merchant_id', merchantId).order('name', { ascending: true }),
-    supabase.from('drivers').select('user_id').order('joined_at', { ascending: true }),
-    supabase.from('profiles').select('user_id, full_name, email'),
+    relevantDriverIds.length > 0
+      ? supabase.from('drivers').select('user_id').in('user_id', relevantDriverIds).order('joined_at', { ascending: true })
+      : Promise.resolve({ data: [], error: null } as any),
+    relevantDriverIds.length > 0
+      ? supabase.from('profiles').select('user_id, full_name, email').in('user_id', relevantDriverIds)
+      : Promise.resolve({ data: [], error: null } as any),
   ]);
 
   if (branchesResult.error) return { data: null, error: branchesResult.error };
@@ -283,6 +318,24 @@ export const adminSettlementsService = {
     if (merchantItemsResult.error) return { data: null, error: merchantItemsResult.error };
     if (driverItemsResult.error) return { data: null, error: driverItemsResult.error };
 
+    const driverItemRows = (driverItemsResult.data ?? []) as any[];
+    const driverOrderIds = uniqueStrings(driverItemRows.map((row) => stringOrEmpty(row.order_id)));
+    const driverOrdersResult =
+      driverOrderIds.length > 0
+        ? await supabase.from('orders').select('id, merchant_id').in('id', driverOrderIds)
+        : ({ data: [], error: null } as any);
+
+    if (driverOrdersResult.error) return { data: null, error: driverOrdersResult.error };
+
+    const driverOrderMap = new Map<string, string>(((driverOrdersResult.data ?? []) as any[]).map((row) => [stringOrEmpty(row.id), stringOrEmpty(row.merchant_id)]));
+    const relevantDriverSettlementIds = new Set(
+      driverItemRows
+        .filter((row) => driverOrderMap.get(stringOrEmpty(row.order_id)) === merchantId)
+        .map((row) => stringOrEmpty(row.settlement_id))
+    );
+    const filteredDriverRows = driverRows.filter((row) => relevantDriverSettlementIds.has(stringOrEmpty(row.id)));
+    const filteredDriverItemRows = driverItemRows.filter((row) => relevantDriverSettlementIds.has(stringOrEmpty(row.settlement_id)));
+
     const commissionRules: CommissionRuleRecord[] = ((rulesResult.data ?? []) as any[])
       .filter((row) => isRelevantRule(stringOrEmpty(row.scope_type), stringOrEmpty(row.scope_id), merchantId, branchIds, driverIds))
       .map((row) => ({
@@ -312,7 +365,7 @@ export const adminSettlementsService = {
       items_count: ((merchantItemsResult.data ?? []) as any[]).filter((item) => String(item.settlement_id) === String(row.id)).length,
     }));
 
-    const driverSettlements: DriverSettlementRecord[] = driverRows.map((row) => ({
+    const driverSettlements: DriverSettlementRecord[] = filteredDriverRows.map((row) => ({
       id: String(row.id),
       driver_id: stringOrEmpty(row.driver_id),
       driver_label: driverMap.get(String(row.driver_id)) || String(row.driver_id || 'Sin repartidor'),
@@ -327,7 +380,7 @@ export const adminSettlementsService = {
       status: stringOrEmpty(row.status),
       generated_at: stringOrEmpty(row.generated_at),
       paid_at: stringOrEmpty(row.paid_at),
-      items_count: ((driverItemsResult.data ?? []) as any[]).filter((item) => String(item.settlement_id) === String(row.id)).length,
+      items_count: filteredDriverItemRows.filter((item) => String(item.settlement_id) === String(row.id)).length,
     }));
 
     return {
@@ -390,7 +443,7 @@ export const adminSettlementsService = {
     return { data: detail, error: null };
   },
 
-  fetchDriverSettlementDetail: async (settlementId: string) => {
+  fetchDriverSettlementDetail: async (merchantId: string, settlementId: string) => {
     const [settlementResult, itemsResult] = await Promise.all([
       supabase.from('driver_settlements').select('*').eq('id', settlementId).maybeSingle(),
       supabase.from('driver_settlement_items').select('*').eq('settlement_id', settlementId).order('created_at', { ascending: true }),
@@ -406,7 +459,7 @@ export const adminSettlementsService = {
 
     const [ordersResult, profileResult] = await Promise.all([
       orderIds.length > 0
-        ? supabase.from('orders').select('id, order_code').in('id', orderIds)
+        ? supabase.from('orders').select('id, order_code, merchant_id').in('id', orderIds)
         : Promise.resolve({ data: [], error: null } as any),
       settlement.driver_id
         ? supabase.from('profiles').select('user_id, full_name, email').eq('user_id', settlement.driver_id).maybeSingle()
@@ -416,7 +469,15 @@ export const adminSettlementsService = {
     if (ordersResult.error) return { data: null, error: ordersResult.error };
     if (profileResult.error) return { data: null, error: profileResult.error };
 
-    const orderMap = new Map<string, string>(((ordersResult.data ?? []) as any[]).map((row) => [String(row.id), stringOrEmpty(row.order_code || row.id)]));
+    const orderRows = (ordersResult.data ?? []) as any[];
+    const isSettlementVisible =
+      orderRows.length > 0 && orderRows.some((row) => stringOrEmpty(row.merchant_id) === merchantId);
+
+    if (!isSettlementVisible) {
+      return { data: null, error: null };
+    }
+
+    const orderMap = new Map<string, string>(orderRows.map((row) => [String(row.id), stringOrEmpty(row.order_code || row.id)]));
     const profile: any = profileResult.data;
 
     const detail: DriverSettlementDetail = {
