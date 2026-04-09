@@ -1,10 +1,10 @@
-import { ReactNode, useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
 import { AppRoutes } from '../../../core/constants/routes';
 import { PortalContext } from '../session/PortalContext';
 import { LoadingScreen } from '../../../components/shared/LoadingScreen';
 
-export function PrivateRoute({ children }: { children: ReactNode }) {
+export function PrivateRoute() {
   const portal = useContext(PortalContext);
 
   if (portal.isLoading) {
@@ -42,5 +42,5 @@ export function PrivateRoute({ children }: { children: ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 }

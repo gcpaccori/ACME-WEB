@@ -49,15 +49,10 @@ export function AppRouter() {
         <Route path="descargar" element={<DownloadsPage />} />
         <Route path="contacto" element={<ContactPage />} />
         <Route path="portal/login" element={<LoginPage />} />
+      </Route>
 
-        <Route
-          path="portal"
-          element={
-            <PrivateRoute>
-              <PortalLayout />
-            </PrivateRoute>
-          }
-        >
+      <Route path="portal" element={<PortalLayout />}>
+        <Route element={<PrivateRoute />}>
           <Route index element={<Navigate to="admin" replace />} />
 
           <Route path="admin" element={<AdminDashboardPage />} />
@@ -96,9 +91,9 @@ export function AppRouter() {
           <Route path="hours" element={<HoursPage />} />
           <Route path="staff" element={<StaffPage />} />
         </Route>
-
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

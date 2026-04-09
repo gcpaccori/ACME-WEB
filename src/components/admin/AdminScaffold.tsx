@@ -17,18 +17,18 @@ export interface AdminContextItem {
 
 function getToneStyles(tone: AdminTone = 'neutral') {
   if (tone === 'info') {
-    return { background: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' };
+    return { background: 'rgba(77, 20, 140, 0.08)', color: 'var(--acme-purple)', border: 'rgba(77, 20, 140, 0.20)' };
   }
   if (tone === 'success') {
-    return { background: '#ecfdf5', color: '#047857', border: '#a7f3d0' };
+    return { background: 'rgba(34, 197, 94, 0.10)', color: '#166534', border: 'rgba(34, 197, 94, 0.22)' };
   }
   if (tone === 'warning') {
-    return { background: '#fffbeb', color: '#b45309', border: '#fde68a' };
+    return { background: 'rgba(255, 98, 0, 0.10)', color: 'var(--acme-orange)', border: 'rgba(255, 98, 0, 0.26)' };
   }
   if (tone === 'danger') {
-    return { background: '#fef2f2', color: '#b91c1c', border: '#fecaca' };
+    return { background: 'rgba(239, 68, 68, 0.10)', color: '#991b1b', border: 'rgba(239, 68, 68, 0.22)' };
   }
-  return { background: '#f3f4f6', color: '#374151', border: '#e5e7eb' };
+  return { background: 'rgba(17, 24, 39, 0.04)', color: 'var(--acme-text)', border: 'var(--acme-border)' };
 }
 
 export function StatusPill({ label, tone = 'neutral' }: { label: string; tone?: AdminTone }) {
@@ -54,10 +54,19 @@ export function StatusPill({ label, tone = 'neutral' }: { label: string; tone?: 
 
 export function BreadcrumbsBar({ items }: { items: AdminBreadcrumb[] }) {
   return (
-    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', color: '#6b7280', fontSize: '14px' }}>
+    <div
+      style={{
+        display: 'flex',
+        gap: '8px',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        color: 'var(--acme-text-muted)',
+        fontSize: '14px',
+      }}
+    >
       {items.map((item, index) => (
         <span key={`${item.label}-${index}`} style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
-          {item.to ? <Link to={item.to} style={{ color: '#2563eb' }}>{item.label}</Link> : <span>{item.label}</span>}
+          {item.to ? <Link to={item.to} style={{ color: 'var(--acme-purple)', fontWeight: 800 }}>{item.label}</Link> : <span>{item.label}</span>}
           {index < items.length - 1 ? <span>/</span> : null}
         </span>
       ))}
@@ -74,8 +83,10 @@ export function ContextBar({ items }: { items: AdminContextItem[] }) {
         gap: '10px',
         padding: '14px',
         borderRadius: '14px',
-        border: '1px solid #e5e7eb',
-        background: '#ffffff',
+        border: '1px solid var(--acme-border)',
+        background: 'rgba(255, 255, 255, 0.86)',
+        boxShadow: 'var(--acme-shadow-sm)',
+        backdropFilter: 'blur(10px)',
       }}
     >
       {items.map((item) => (
@@ -87,11 +98,11 @@ export function ContextBar({ items }: { items: AdminContextItem[] }) {
             alignItems: 'center',
             padding: '8px 10px',
             borderRadius: '12px',
-            background: '#f9fafb',
-            border: '1px solid #f3f4f6',
+            background: 'rgba(17, 24, 39, 0.03)',
+            border: '1px solid rgba(77, 20, 140, 0.10)',
           }}
         >
-          <span style={{ color: '#6b7280', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>{item.label}</span>
+          <span style={{ color: 'var(--acme-text-muted)', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase' }}>{item.label}</span>
           <StatusPill label={item.value} tone={item.tone} />
         </div>
       ))}
@@ -109,10 +120,21 @@ export function SectionCard({
   children: ReactNode;
 }) {
   return (
-    <section style={{ padding: '20px', borderRadius: '18px', background: '#ffffff', border: '1px solid #e5e7eb', display: 'grid', gap: '18px' }}>
+    <section
+      style={{
+        padding: '20px',
+        borderRadius: '18px',
+        background: 'rgba(255, 255, 255, 0.90)',
+        border: '1px solid var(--acme-border)',
+        boxShadow: 'var(--acme-shadow-sm)',
+        backdropFilter: 'blur(10px)',
+        display: 'grid',
+        gap: '18px',
+      }}
+    >
       <div>
         <h2 style={{ margin: 0, fontSize: '18px' }}>{title}</h2>
-        {description ? <p style={{ margin: '6px 0 0', color: '#6b7280' }}>{description}</p> : null}
+        {description ? <p style={{ margin: '6px 0 0', color: 'var(--acme-text-muted)' }}>{description}</p> : null}
       </div>
       <div style={{ display: 'grid', gap: '16px' }}>{children}</div>
     </section>
@@ -144,9 +166,10 @@ export function SaveActions({
           style={{
             padding: '12px 16px',
             borderRadius: '10px',
-            border: '1px solid #d1d5db',
-            background: '#ffffff',
-            color: '#111827',
+            border: '1px solid var(--acme-border)',
+            background: 'var(--acme-white)',
+            color: 'var(--acme-text)',
+            fontWeight: 800,
           }}
         >
           Cancelar
@@ -159,9 +182,10 @@ export function SaveActions({
           style={{
             padding: '12px 16px',
             borderRadius: '10px',
-            border: '1px solid #d1d5db',
-            background: '#ffffff',
-            color: '#111827',
+            border: '1px solid var(--acme-border)',
+            background: 'var(--acme-white)',
+            color: 'var(--acme-text)',
+            fontWeight: 800,
             opacity: disabled || isSaving ? 0.65 : 1,
           }}
         >
@@ -195,8 +219,10 @@ export function FormStatusBar({
         alignItems: 'center',
         padding: '14px 16px',
         borderRadius: '14px',
-        border: '1px solid #e5e7eb',
-        background: '#ffffff',
+        border: '1px solid var(--acme-border)',
+        background: 'rgba(255, 255, 255, 0.86)',
+        boxShadow: 'var(--acme-shadow-sm)',
+        backdropFilter: 'blur(10px)',
       }}
     >
       <StatusPill label={saving ? 'Guardando' : dirty ? 'Cambios pendientes' : 'Sin cambios'} tone={saving ? 'info' : dirty ? 'warning' : 'success'} />
@@ -227,8 +253,8 @@ export function AdminPageFrame({
       <ContextBar items={contextItems} />
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: '28px' }}>{title}</h1>
-          {description ? <p style={{ margin: '8px 0 0', color: '#6b7280' }}>{description}</p> : null}
+          <h1 style={{ margin: 0, fontSize: '28px', letterSpacing: '-0.02em' }}>{title}</h1>
+          {description ? <p style={{ margin: '8px 0 0', color: 'var(--acme-text-muted)' }}>{description}</p> : null}
         </div>
         {actions}
       </div>

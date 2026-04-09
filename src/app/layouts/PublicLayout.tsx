@@ -1,6 +1,8 @@
 import { Outlet } from 'react-router-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { AppRoutes } from '../../core/constants/routes';
+import headerLogo from '../../images/logo/logo-acme.jpeg';
+import footerLogo from '../../images/logo/logo-acme.png';
 
 export function PublicLayout() {
   const location = useLocation();
@@ -251,21 +253,7 @@ export function PublicLayout() {
           to={AppRoutes.public.home}
           style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}
         >
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-            <rect width="36" height="36" rx="10" fill="#4d148c" />
-            <path d="M18 8 L26 20 L22 20 L22 28 L14 28 L14 20 L10 20 Z" fill="#ff6200" />
-          </svg>
-          <span
-            style={{
-              fontFamily: "'Poppins',sans-serif",
-              fontWeight: 800,
-              fontSize: '1.25rem',
-              color: '#4d148c',
-              letterSpacing: '-0.5px',
-            }}
-          >
-            Acme <span style={{ color: '#ff6200' }}>Pedidos</span>
-          </span>
+          <img src={headerLogo} alt="ACME Logo" style={{ height: '40px' }} />
         </Link>
 
         {/* Nav */}
@@ -318,11 +306,7 @@ export function PublicLayout() {
             {/* Columna 1 */}
             <div className="acme-footer-brand">
               <Link to={AppRoutes.public.home} className="acme-footer-logo">
-                <svg width="52" height="52" viewBox="0 0 36 36" fill="none">
-                  <rect width="36" height="36" rx="10" fill="#ffffff" fillOpacity="0.18" />
-                  <path d="M18 8 L26 20 L22 20 L22 28 L14 28 L14 20 L10 20 Z" fill="#ffffff" />
-                </svg>
-                <span className="acme-footer-logo-title">ACME PEDIDOS</span>
+                <img src={footerLogo} alt="ACME Footer Logo" style={{ height: '50px' }} />
               </Link>
 
               <p className="acme-footer-text">

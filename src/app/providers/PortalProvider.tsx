@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '../../integrations/supabase/client';
 import { PortalContext } from '../../modules/auth/session/PortalContext';
 import { authService } from '../../core/services/authService';
@@ -23,9 +23,10 @@ const initialState: PortalContextState = {
 
 export function PortalProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PortalContextState>(initialState);
+  const authReloadTimeoutRef = useRef<number | null>(null);
 
-  const loadPortalContext = useCallback(async () => {
-    setState((current) => ({ ...current, isLoading: true, error: null }));
+  const loadPortalContext = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
+    setState((current) => ({ ...current, isLoading: silent ? current.isLoading : true, error: null }));
 
     const {
       data: sessionData,
@@ -90,7 +91,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
         if (sbErr) throw sbErr;
         localStorage.removeItem('pendingBusinessRegistration');
         // Reload context to include new data
-        await loadPortalContext();
+        await loadPortalContext({ silent: true });
       } catch (createErr: any) {
         console.error('Error creating business:', createErr);
         setState((current) => ({ ...current, error: 'Cuenta creada, pero error al configurar el negocio. Contacta soporte.' }));
@@ -104,7 +105,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       return result;
     }
 
-    await loadPortalContext();
+    await loadPortalContext({ silent: false });
     return result;
   }, [loadPortalContext]);
 
@@ -113,20 +114,43 @@ export function PortalProvider({ children }: { children: ReactNode }) {
     setState({ ...initialState, isLoading: false });
   }, []);
 
+  const reloadPortalContext = useCallback(async () => {
+    await loadPortalContext({ silent: false });
+  }, [loadPortalContext]);
+
   useEffect(() => {
-    loadPortalContext();
-    const { data: listener } = supabase.auth.onAuthStateChange(() => {
-      loadPortalContext();
+    loadPortalContext({ silent: false });
+    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        if (authReloadTimeoutRef.current) {
+          window.clearTimeout(authReloadTimeoutRef.current);
+          authReloadTimeoutRef.current = null;
+        }
+        setState({ ...initialState, isLoading: false });
+        return;
+      }
+
+      if (authReloadTimeoutRef.current) {
+        window.clearTimeout(authReloadTimeoutRef.current);
+      }
+
+      authReloadTimeoutRef.current = window.setTimeout(() => {
+        loadPortalContext({ silent: true });
+      }, 350);
     });
 
     return () => {
+      if (authReloadTimeoutRef.current) {
+        window.clearTimeout(authReloadTimeoutRef.current);
+        authReloadTimeoutRef.current = null;
+      }
       listener.subscription?.unsubscribe();
     };
   }, [loadPortalContext]);
 
   const value = useMemo(
-    () => ({ ...state, signIn, signOut, reloadPortalContext: loadPortalContext }),
-    [state, signIn, signOut, loadPortalContext]
+    () => ({ ...state, signIn, signOut, reloadPortalContext }),
+    [state, signIn, signOut, reloadPortalContext]
   );
 
   return <PortalContext.Provider value={value}>{children}</PortalContext.Provider>;

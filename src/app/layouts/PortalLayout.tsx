@@ -1,56 +1,103 @@
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { AppRoutes } from '../../core/constants/routes';
-import { useContext } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { PortalContext } from '../../modules/auth/session/PortalContext';
 import { getEnabledAdminModules } from '../../core/admin/registry/moduleRegistry';
 
 export function PortalLayout() {
   const portal = useContext(PortalContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const branchName = portal.currentBranch?.name ?? 'Local no asignado';
-  const navItems = getEnabledAdminModules().map((module) => ({ label: module.label, to: module.route }));
+  const navItems = useMemo(() => {
+    const baseAdminModules = getEnabledAdminModules().map((module) => ({ label: module.label, to: module.route }));
+    return [{ label: 'Dashboard', to: AppRoutes.portal.dashboard }, ...baseAdminModules];
+  }, []);
+
+  const handleLogout = async () => {
+    if (window.confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+      await portal.signOut();
+      navigate(AppRoutes.public.portalLogin);
+    }
+  };
+
+  const isNavActive = (path: string) =>
+    location.pathname === path || location.pathname.startsWith(`${path}/`);
+
+  const handleNavClick = () => {
+    setSidebarOpen(false);
+  };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f4f5f7' }}>
-      <aside style={{ width: '260px', padding: '24px 16px', background: '#ffffff', borderRight: '1px solid #e5e7eb' }}>
-        <div style={{ marginBottom: '24px' }}>
-          <strong>ACME Portal</strong>
-          <div style={{ color: '#6b7280', marginTop: '8px' }}>{branchName}</div>
-          <div style={{ color: '#374151', marginTop: '4px', fontSize: '13px' }}>
-            {portal.merchant?.name ?? 'Comercio no asignado'}
+    <div className={`portal-shell ${sidebarOpen ? 'portal-shell--sidebarOpen' : ''}`}>
+      <div className="portal-overlay" onClick={() => setSidebarOpen(false)} />
+
+      <aside className="portal-sidebar">
+        <div className="portal-sidebar__brand">
+          <div className="portal-sidebar__brandTop">
+            <div className="portal-sidebar__logo">
+              <span style={{ color: 'var(--acme-purple)' }}>ACME</span>
+              <span style={{ color: 'var(--acme-orange)' }}>Portal</span>
+            </div>
+            <span className="portal-badge">Admin</span>
+          </div>
+          <div className="portal-sidebar__meta">
+            <div className="portal-sidebar__metaPrimary">{branchName}</div>
+            <div className="portal-sidebar__metaSecondary">{portal.merchant?.name ?? 'Comercio no asignado'}</div>
           </div>
         </div>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {navItems.map((item) => (
-            <Link key={item.to} to={item.to} style={{ padding: '10px 12px', borderRadius: '8px', color: '#111827', background: '#f9fafb' }}>
-              {item.label}
-            </Link>
-          ))}
+
+        <nav className="portal-nav">
+          {navItems.map((item) => {
+            const active = isNavActive(item.to);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`portal-nav__item ${active ? 'portal-nav__item--active' : ''}`}
+                onClick={handleNavClick}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
+
+        <div className="portal-actions">
+          <button
+            onClick={handleLogout}
+            style={{
+              width: '100%',
+              padding: '12px 14px',
+              borderRadius: '14px',
+              border: '1px solid rgba(255, 98, 0, 0.28)',
+              background: 'rgba(255, 98, 0, 0.08)',
+              color: 'var(--acme-orange)',
+              fontWeight: 900,
+            }}
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </aside>
-      <div style={{ flex: 1 }}>
-        <header style={{ padding: '18px 24px', background: '#ffffff', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <strong>Portal admin</strong>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <span>{portal.profile?.full_name || portal.profile?.email || 'Usuario'}</span>
-            <button
-              onClick={async () => {
-                await portal.signOut();
-                navigate(AppRoutes.public.portalLogin);
-              }}
-              style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#ffffff' }}
-            >
-              Cerrar sesion
+
+      <main className="portal-main">
+        <div className="portal-main__inner">
+          <div className="portal-topbar">
+            <button className="portal-topbar__button" onClick={() => setSidebarOpen((current) => !current)}>
+              Menú
             </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontWeight: 900, color: 'var(--acme-purple)' }}>ACME</span>
+              <span style={{ color: 'var(--acme-text-muted)', fontSize: '13px' }}>{branchName}</span>
+            </div>
           </div>
-        </header>
-        <main style={{ padding: '24px' }}>
+
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
