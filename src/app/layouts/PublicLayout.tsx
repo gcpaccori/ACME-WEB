@@ -236,16 +236,20 @@ export function PublicLayout() {
       <header
         style={{
           position: 'sticky',
-          top: 0,
+          top: '12px',
           zIndex: 100,
           background: '#ffffff',
-          borderBottom: '2px solid #ede8f7',
-          padding: '0 40px',
-          height: '68px',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '20px',
+          border: '1px solid var(--acme-border)',
+          padding: '0 32px',
+          height: '60px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          boxShadow: '0 2px 16px rgba(77,20,140,.07)',
+          boxShadow: 'var(--acme-shadow-md)',
+          margin: '0 24px',
+          maxWidth: 'calc(100vw - 48px)',
         }}
       >
         {/* Logo */}
@@ -295,7 +299,7 @@ export function PublicLayout() {
       </header>
 
       {/* ── MAIN ── */}
-      <main>
+      <main style={{ marginTop: '-72px' }}>
         <Outlet />
       </main>
 

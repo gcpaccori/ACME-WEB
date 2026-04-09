@@ -1,5 +1,10 @@
 import { Link } from 'react-router-dom';
 import { AppRoutes } from '../../../core/constants/routes';
+import mochilaImg from '../../../images/mochila.png';
+import brasaImg from '../../../images/brasa.png';
+import celImg from '../../../images/cel.png';
+import mapaHvcaImg from '../../../images/mapa-hvca.png';
+import superiorSvg from '../../../images/superior.svg';
 
 // ─── Inline styles as constants to keep the component clean ───────────────────
 
@@ -7,11 +12,11 @@ const S = {
   // Hero
   hero: {
     minHeight: '88vh',
-    background: 'linear-gradient(135deg, #360d63 0%, #4d148c 55%, #6a22b8 100%)',
+    background: '#ffffff',
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     alignItems: 'center',
-    padding: '60px 80px',
+    padding: '120px 80px 60px',
     position: 'relative' as const,
     overflow: 'hidden',
     gap: '48px',
@@ -20,9 +25,9 @@ const S = {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '8px',
-    background: 'rgba(255,255,255,.12)',
-    border: '1px solid rgba(255,255,255,.25)',
-    color: '#ffd2b0',
+    background: 'rgba(77, 20, 140, 0.1)',
+    border: '1px solid rgba(77, 20, 140, 0.3)',
+    color: '#4d148c',
     fontSize: '.82rem',
     fontWeight: 700,
     letterSpacing: '.5px',
@@ -42,11 +47,11 @@ const S = {
     fontSize: '3.6rem',
     fontWeight: 800,
     lineHeight: 1.1,
-    color: '#ffffff',
+    color: '#1a0a2e',
     marginBottom: '20px',
   } as React.CSSProperties,
   heroSub: {
-    color: 'rgba(255,255,255,.8)',
+    color: '#5b4b78',
     fontSize: '1.05rem',
     lineHeight: 1.7,
     maxWidth: '460px',
@@ -72,14 +77,14 @@ const S = {
     boxShadow: '0 8px 24px rgba(255,98,0,.4)',
   } as React.CSSProperties,
   btnSecondary: {
-    background: 'rgba(255,255,255,.1)',
-    color: '#ffffff',
+    background: 'transparent',
+    color: '#4d148c',
     fontFamily: "'Poppins', sans-serif",
     fontWeight: 600,
     fontSize: '1rem',
     padding: '14px 30px',
     borderRadius: '14px',
-    border: '2px solid rgba(255,255,255,.3)',
+    border: '2px solid #4d148c',
     cursor: 'pointer',
     textDecoration: 'none',
     display: 'inline-block',
@@ -117,6 +122,7 @@ export function HomePage() {
       <style>{`
         @keyframes acme-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.4)} }
         @keyframes acme-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        @keyframes acme-scroll { 0%{transform: translateX(0)} 100%{transform: translateX(-50%)} }
         .acme-pulse { animation: acme-pulse 2s infinite; }
         .acme-float { animation: acme-float 3s ease-in-out infinite; }
         .acme-float-delay { animation: acme-float 3s ease-in-out .5s infinite; }
@@ -125,20 +131,69 @@ export function HomePage() {
         .acme-feat-card { transition: border-color .2s, transform .2s, box-shadow .2s; }
         .acme-feat-card:hover { border-color: #4d148c !important; transform: translateY(-4px); box-shadow: 0 16px 40px rgba(77,20,140,.12) !important; }
         .acme-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255,98,0,.5) !important; }
-        .acme-btn-secondary:hover { background: rgba(255,255,255,.18) !important; }
+        .acme-btn-secondary:hover { background: rgba(77,20,140,.1) !important; }
         .acme-nav-link:hover { background: #f0e8ff; color: #4d148c !important; }
+        .acme-brands-scroll { 
+          display: flex; 
+          animation: acme-scroll 60s linear infinite;
+          width: fit-content;
+        }
+        .acme-brands-container {
+          overflow: hidden;
+          white-space: nowrap;
+        }
       `}</style>
 
       {/* ── HERO ── */}
       <section style={S.hero}>
         {/* decorative circles */}
-        <div style={{
-          position: 'absolute', width: '600px', height: '600px', borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,98,0,.25) 0%, transparent 70%)',
-          right: '-100px', top: '-100px', pointerEvents: 'none',
-        }} />
+        <img
+          src={superiorSvg}
+          alt=""
+          style={{
+            position: 'absolute',
+            left: '-150px',
+            top: '-150px',
+            width: '1000px',
+            height: '820px',
+            pointerEvents: 'none',
+            transform: 'scaleX(-1)',
+            opacity: 0.9,
+          }}
+        />
 
-        {/* Left: text */}
+        {/* Left: SVG with images */}
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <svg width="500" height="500" viewBox="0 0 500 500" style={{ overflow: 'visible' }}>
+            {/* Images */}
+            <image
+              href={mochilaImg}
+              x="50"
+              y="120"
+              width="300"
+              height="300"
+              style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' }}
+            />
+            <image
+              href={brasaImg}
+              x="300"
+              y="260"
+              width="160"
+              height="160"
+              style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' }}
+            />
+            <image
+              href={celImg}
+              x="-100"
+              y="190"
+              width="240"
+              height="240"
+              style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' }}
+            />
+          </svg>
+        </div>
+
+        {/* Right: text */}
         <div style={{ position: 'relative', zIndex: 2 }}>
           <div style={S.heroBadge}>
             <span className="acme-pulse" style={S.heroBadgeDot} />
@@ -182,105 +237,37 @@ export function HomePage() {
             </a>
           </div>
         </div>
-
-        {/* Right: phone mockup */}
-        <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ position: 'relative' }}>
-            {/* Float badges */}
-            <div className="acme-float-delay" style={{
-              position: 'absolute', left: '-30px', top: '30%',
-              background: '#ff6200', color: '#fff', borderRadius: '14px',
-              padding: '8px 14px', fontSize: '.78rem', fontWeight: 800,
-              boxShadow: '0 8px 24px rgba(255,98,0,.4)', zIndex: 10,
-            }}>🛵 30 min</div>
-            <div className="acme-float" style={{
-              position: 'absolute', right: '-30px', bottom: '30%',
-              background: '#ff6200', color: '#fff', borderRadius: '14px',
-              padding: '8px 14px', fontSize: '.78rem', fontWeight: 800,
-              boxShadow: '0 8px 24px rgba(255,98,0,.4)', zIndex: 10,
-            }}>⭐ 4.9 rating</div>
-
-            {/* Phone */}
-            <div style={{
-              width: '280px', height: '520px',
-              background: 'linear-gradient(160deg, #1a0a2e 0%, #2d1060 100%)',
-              borderRadius: '40px',
-              border: '3px solid rgba(255,255,255,.15)',
-              boxShadow: '0 30px 80px rgba(0,0,0,.5)',
-              display: 'flex', flexDirection: 'column', overflow: 'hidden',
-            }}>
-              {/* phone header */}
-              <div style={{ padding: '20px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: '.9rem', color: '#fff' }}>
-                  Acme <span style={{ color: '#ff6200' }}>Pedidos</span>
-                </span>
-                <span style={{ background: 'rgba(255,98,0,.2)', color: '#ff8533', fontSize: '.72rem', fontWeight: 700, padding: '4px 10px', borderRadius: '20px' }}>
-                  📍 Huancavelica
-                </span>
-              </div>
-              {/* search */}
-              <div style={{ margin: '0 16px 14px', background: 'rgba(255,255,255,.08)', borderRadius: '12px', padding: '10px 14px', color: 'rgba(255,255,255,.4)', fontSize: '.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                🔍 Buscar restaurantes...
-              </div>
-              {/* chips */}
-              <div style={{ display: 'flex', gap: '8px', padding: '0 16px 14px', overflow: 'hidden' }}>
-                {[['🍔 Todo', true], ['🍕 Comida', false], ['🛒 Market', false]].map(([label, active]) => (
-                  <span key={label as string} style={{
-                    flexShrink: 0, borderRadius: '20px', padding: '6px 14px',
-                    fontSize: '.72rem', fontWeight: 600,
-                    background: active ? '#ff6200' : 'rgba(255,255,255,.07)',
-                    color: active ? '#fff' : 'rgba(255,255,255,.7)',
-                  }}>{label as string}</span>
-                ))}
-              </div>
-              {/* cards */}
-              <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {[
-                  { icon: '🍔', bg: 'rgba(255,98,0,.15)', name: 'El Rincón Huancaíno', meta: 'Pollos · Platos típicos', time: '20 min' },
-                  { icon: '🍕', bg: 'rgba(77,20,140,.15)', name: 'Pizzería Andina', meta: 'Pizzas · Pastas', time: '25 min' },
-                  { icon: '🥗', bg: 'rgba(0,184,148,.15)', name: 'Frescos Market', meta: 'Supermercado local', time: '35 min' },
-                ].map(r => (
-                  <div key={r.name} style={{
-                    background: 'rgba(255,255,255,.07)', borderRadius: '14px', padding: '12px 14px',
-                    display: 'flex', gap: '12px', alignItems: 'center',
-                    border: '1px solid rgba(255,255,255,.06)',
-                  }}>
-                    <div style={{ width: 42, height: 42, borderRadius: 12, background: r.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', flexShrink: 0 }}>{r.icon}</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ color: '#fff', fontSize: '.82rem', fontWeight: 700 }}>{r.name}</div>
-                      <div style={{ color: 'rgba(255,255,255,.4)', fontSize: '.72rem', marginTop: 2 }}>{r.meta}</div>
-                    </div>
-                    <span style={{ color: '#ff6200', fontSize: '.75rem', fontWeight: 700 }}>{r.time}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
 
-      {/* ── BRANDS ── */}
-      <div style={{ background: '#f5f5f8', padding: '36px 80px', textAlign: 'center' }}>
-        <p style={{ color: '#5b4b78', fontSize: '.85rem', fontWeight: 600, letterSpacing: '.8px', textTransform: 'uppercase', marginBottom: '22px' }}>
+      {/* ---- BRANDS ---- */}
+      <div style={{ background: '#f5f5f8', padding: '36px 0', textAlign: 'center' }}>
+        <p style={{ color: '#5b4b78', fontSize: '1.2rem', fontWeight: 700, letterSpacing: '.8px', textTransform: 'uppercase', marginBottom: '22px' }}>
           Negocios que confían en nosotros
         </p>
-        <div style={{ display: 'flex', gap: '32px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          {['El Rincón', 'Pizzería Andina', 'Frescos Market', 'Pollo Express', 'Tienda Central'].map(b => (
-            <div key={b} style={{
-              background: '#fff', borderRadius: '12px', padding: '12px 24px',
-              fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: '.95rem',
-              color: '#b0a0c0', border: '1px solid #ede8f7',
-            }}>{b}</div>
-          ))}
+        <div className="acme-brands-container">
+          <div className="acme-brands-scroll">
+            {[...Array(2)].flatMap(() => [
+              'ARTESANO RESTAURANT', 'BROSTERIA MADEROS', 'CALDOS PICON', 'CHIFA TRENCITO MACHO', 
+              'LOS FOGONES', 'POLLERIA CCARHUARRAZU', 'PONCHES DE MACA SRA VICKY', 'RESTOBAR CURAYACU', 
+              'SANGUCHERIA EL CHAMO BURGUER', 'BISTECKS Y PARILLAS ADA', 'CAFÉ ZORRILLA', 'CEVICHERIA LOS DELFINES', 
+              'JUGUERIA LA BAHIA DE ADA', 'PIZZA ROMA', 'POLLERIA HUANCAYOSS 1 - SANTA ANA', 'RESTOBAR BOHEMIA', 'RESTOBAR OASIS'
+            ]).map((b, idx) => (
+              <div key={`${b}-${idx}`} style={{
+                background: '#fff', borderRadius: '12px', padding: '12px 24px',
+                fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: '.85rem',
+                color: '#b0a0c0', border: '1px solid #ede8f7',
+                marginRight: '32px',
+                whiteSpace: 'nowrap',
+                display: 'inline-block'
+              }}>{b}</div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* ── CATEGORIES ── */}
       <section style={{ padding: '80px', textAlign: 'center' }}>
-        <div style={{ color: '#ff6200', fontSize: '.82rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '10px' }}>
-          ¡Encuentra más!
-        </div>
-        <h2 style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: '2.4rem', color: '#1a0a2e', marginBottom: '48px' }}>
+        <h2 style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: '2.8rem', color: '#1a0a2e', marginBottom: '48px' }}>
           Todo lo que <span style={{ color: '#4d148c' }}>necesitas</span>
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', maxWidth: '900px', margin: '0 auto' }}>
@@ -357,50 +344,154 @@ export function HomePage() {
           </p>
         </div>
         <div style={{
-          background: 'linear-gradient(145deg, #360d63, #4d148c)',
-          borderRadius: '28px', padding: '48px',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px',
-          boxShadow: '0 24px 60px rgba(77,20,140,.35)',
-          position: 'relative', overflow: 'hidden',
-          textAlign: 'center',
+          background: '#ffffff',
+          borderRadius: '28px',
+          padding: '20px',
+          boxShadow: '0 24px 60px rgba(77,20,140,.15)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}>
-          <span style={{ fontSize: '4rem' }}>🗺️</span>
-          <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 900, fontSize: '2rem', color: '#fff' }}>Huancavelica</div>
-          <div style={{ color: 'rgba(255,255,255,.6)', fontSize: '.9rem', marginTop: '-12px' }}>Región Huancavelica, Perú</div>
-          <div style={{ display: 'flex', gap: '24px' }}>
-            {[['30\'', 'Entrega promedio'], ['100%', 'Local y peruano']].map(([num, label]) => (
-              <div key={label} style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 800, fontSize: '1.5rem', color: '#ff6200' }}>{num}</div>
-                <div style={{ color: 'rgba(255,255,255,.6)', fontSize: '.75rem' }}>{label}</div>
-              </div>
-            ))}
-          </div>
-          <span style={{ background: '#ff6200', color: '#fff', fontSize: '.78rem', fontWeight: 800, padding: '6px 16px', borderRadius: '20px', letterSpacing: '.5px' }}>
-            + Más ciudades próximamente
-          </span>
+          <img 
+            src={mapaHvcaImg} 
+            alt="Mapa de Huancavelica" 
+            style={{
+              maxWidth: '100%',
+              height: 'auto',
+              borderRadius: '20px'
+            }}
+          />
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section style={{
-        background: 'linear-gradient(135deg, #360d63 0%, #4d148c 60%, #ff6200 150%)',
-        padding: '90px 80px', textAlign: 'center', position: 'relative', overflow: 'hidden',
+{/* ── CTA ── */}
+<section style={{
+  background: '#f5f5f7',
+  padding: '60px 80px',
+  display: 'flex',
+  justifyContent: 'center',
+}}>
+  <div style={{
+    background: '#fff',
+    borderRadius: '24px',
+    padding: '48px 60px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '60px',
+    maxWidth: '960px',
+    width: '100%',
+    boxShadow: '0 2px 24px rgba(0,0,0,0.06)',
+    position: 'relative',
+    overflow: 'hidden',
+  }}>
+    {/* Left: phone mockup placeholder */}
+    <div style={{ position: 'relative', flexShrink: 0, width: '220px', height: '320px' }}>
+      {/* Orange blob behind phone */}
+      <div style={{
+        position: 'absolute',
+        left: '-20px',
+        top: '20px',
+        width: '200px',
+        height: '260px',
+        background: '#ff6200',
+        borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+        zIndex: 0,
+      }} />
+      {/* Phone frame */}
+      <div style={{
+        position: 'absolute',
+        left: '20px',
+        top: 0,
+        width: '160px',
+        height: '310px',
+        background: '#fff',
+        borderRadius: '28px',
+        border: '6px solid #e0e0e0',
+        zIndex: 1,
+        overflow: 'hidden',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
       }}>
-        <h2 style={{ fontFamily: "'Poppins',sans-serif", fontWeight: 900, fontSize: '2.8rem', color: '#fff', marginBottom: '14px' }}>
-          Descubre Acme Pedidos
-        </h2>
-        <p style={{ color: 'rgba(255,255,255,.75)', fontSize: '1.05rem', marginBottom: '36px' }}>
-          Llevamos lo que quieras, hasta donde quieras.
-        </p>
-        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to={AppRoutes.public.downloads} className="acme-btn-primary" style={S.btnPrimary}>
-            Descargar la app
-          </Link>
-          <Link to={AppRoutes.public.portalLogin} className="acme-btn-secondary" style={S.btnSecondary}>
-            Ingresar al portal
-          </Link>
+        {/* Phone top bar */}
+        <div style={{ background: '#ff6200', height: '36px', display: 'flex', alignItems: 'center', padding: '0 10px', gap: '6px' }}>
+          <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(255,255,255,0.3)' }} />
+          <div style={{ flex: 1, height: '8px', background: 'rgba(255,255,255,0.25)', borderRadius: '4px' }} />
+          <div style={{ width: '28px', height: '14px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px' }} />
         </div>
-      </section>
+        {/* Category icons row */}
+        <div style={{ display: 'flex', justifyContent: 'space-around', padding: '8px 6px', borderBottom: '0.5px solid #f0f0f0' }}>
+          {['🍔','🍕','🌮','☕'].map((ic, i) => (
+            <div key={i} style={{ width: '24px', height: '24px', background: '#fff3ec', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}>{ic}</div>
+          ))}
+        </div>
+        {/* Restaurant list rows */}
+        {['Bembos','China Wok','Popeyes','Coqui Café'].map((name, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 8px', borderBottom: '0.5px solid #f5f5f5' }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: i % 2 === 0 ? '#fff3ec' : '#ffeaea', flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ height: '7px', background: '#e8e8e8', borderRadius: '3px', marginBottom: '4px', width: '70%' }} />
+              <div style={{ height: '5px', background: '#f0f0f0', borderRadius: '3px', width: '90%' }} />
+            </div>
+            <div style={{ fontSize: '8px', color: '#ff6200', fontWeight: 700 }}>S/4</div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Right: content */}
+    <div style={{ flex: 1 }}>
+      {/* App icon */}
+      <div style={{
+        width: '56px', height: '56px', background: 'linear-gradient(135deg, #ff8c00, #ff6200)',
+        borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        marginBottom: '20px', fontSize: '26px',
+      }}>
+        🔥
+      </div>
+
+      <h2 style={{
+        fontFamily: "'Poppins', sans-serif",
+        fontWeight: 800,
+        fontSize: '2rem',
+        color: '#ff6200',
+        lineHeight: 1.2,
+        margin: '0 0 28px',
+      }}>
+        Descarga la app y únete a las más<br />de 800,000 personas que usan<br />Acme Pedidos hoy
+      </h2>
+
+      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <Link
+          to={AppRoutes.public.downloads}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            background: '#111', color: '#fff', padding: '12px 20px',
+            borderRadius: '12px', textDecoration: 'none', minWidth: '160px',
+          }}
+        >
+          <span style={{ fontSize: '22px' }}>▶</span>
+          <div>
+            <div style={{ fontSize: '10px', opacity: 0.7, fontFamily: 'sans-serif' }}>Disponible en</div>
+            <div style={{ fontSize: '15px', fontWeight: 700, fontFamily: 'sans-serif' }}>Google Play</div>
+          </div>
+        </Link>
+        <Link
+          to={AppRoutes.public.downloads}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            background: '#111', color: '#fff', padding: '12px 20px',
+            borderRadius: '12px', textDecoration: 'none', minWidth: '160px',
+          }}
+        >
+          <span style={{ fontSize: '22px' }}></span>
+          <div>
+            <div style={{ fontSize: '10px', opacity: 0.7, fontFamily: 'sans-serif' }}>Disponible en</div>
+            <div style={{ fontSize: '15px', fontWeight: 700, fontFamily: 'sans-serif' }}>App Store</div>
+          </div>
+        </Link>
+      </div>
+    </div>
+  </div>
+</section>
     </div>
   );
 }

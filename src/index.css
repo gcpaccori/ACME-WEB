@@ -197,6 +197,9 @@ img {
   background: rgba(255, 255, 255, 0.86);
   backdrop-filter: blur(10px);
   box-shadow: var(--acme-shadow-sm);
+  position: sticky;
+  top: 12px;
+  z-index: 10;
 }
 
 .portal-topbar__button {
