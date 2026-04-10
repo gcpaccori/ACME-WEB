@@ -167,7 +167,8 @@ export function ProductEditorPage() {
           onSave={() => handleSave(false)}
           onSecondarySave={() => handleSave(true)}
           onCancel={() => navigate(AppRoutes.portal.admin.products)}
-          secondaryLabel="Guardar y volver"
+          saveLabel="Guardar cambios"
+          secondaryLabel="Guardar y volver al listado"
           disabled={!dirty}
           isSaving={saving}
         />
