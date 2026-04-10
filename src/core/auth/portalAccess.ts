@@ -76,14 +76,14 @@ export function resolvePreferredScopeType(params: {
   if (preferredScopeType && availableScopeTypes.includes(preferredScopeType)) {
     return preferredScopeType;
   }
-  if (availableScopeTypes.includes('branch')) {
-    return 'branch' satisfies PortalScopeType;
+  if (availableScopeTypes.includes('platform')) {
+    return 'platform' satisfies PortalScopeType;
   }
   if (availableScopeTypes.includes('business')) {
     return 'business' satisfies PortalScopeType;
   }
-  if (availableScopeTypes.includes('platform')) {
-    return 'platform' satisfies PortalScopeType;
+  if (availableScopeTypes.includes('branch')) {
+    return 'branch' satisfies PortalScopeType;
   }
   return null;
 }

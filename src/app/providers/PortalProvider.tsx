@@ -2,6 +2,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { supabase } from '../../integrations/supabase/client';
 import { PortalContext } from '../../modules/auth/session/PortalContext';
 import {
+  hasPlatformRole,
   resolvePortalAccess,
   resolvePortalPermissions,
   resolvePreferredScopeType,
@@ -90,19 +91,21 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       currentBranch,
     } = portalResult;
     const storedMerchantId = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_MERCHANT_KEY) : null;
+    const platformOperator = hasPlatformRole(roleAssignments, profile ?? null);
+    const storedBusinessAssignment = businessAssignments.find((assignment) => assignment.merchant.id === storedMerchantId) ?? null;
+    const accessSeedAssignment = storedBusinessAssignment ?? businessAssignments[0] ?? null;
     const currentBusinessAssignment =
-      businessAssignments.find((assignment) => assignment.merchant.id === storedMerchantId) ??
-      businessAssignments[0] ??
-      null;
-    const resolvedMerchant = currentBusinessAssignment?.merchant ?? currentMerchant ?? merchant ?? null;
-    const resolvedStaffAssignment = currentBusinessAssignment?.staffAssignment ?? staffAssignment ?? null;
-    const resolvedBranches = currentBusinessAssignment?.branches ?? branches ?? [];
+      storedBusinessAssignment ??
+      (platformOperator ? null : businessAssignments[0] ?? null);
+    const resolvedMerchant = currentBusinessAssignment?.merchant ?? null;
+    const resolvedStaffAssignment = currentBusinessAssignment?.staffAssignment ?? null;
+    const resolvedBranches = currentBusinessAssignment?.branches ?? [];
 
     const access = resolvePortalAccess({
       roleAssignments,
       profile: profile ?? null,
-      staffAssignment: resolvedStaffAssignment,
-      branches: resolvedBranches,
+      staffAssignment: accessSeedAssignment?.staffAssignment ?? staffAssignment ?? null,
+      branches: accessSeedAssignment?.branches ?? branches ?? [],
     });
     const storedScopeType =
       typeof window !== 'undefined' ? (window.localStorage.getItem(STORAGE_SCOPE_KEY) as PortalScopeType | null) : null;
@@ -111,12 +114,13 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       preferredScopeType: storedScopeType,
     });
     const storedBranchId = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_BRANCH_KEY) : null;
-    const resolvedCurrentBranch =
-      resolvedBranches.find((branch) => branch.id === storedBranchId) ??
-      currentBusinessAssignment?.branches.find((branch) => branch.id === currentBusinessAssignment.primaryBranchId) ??
-      currentBranch ??
-      resolvedBranches[0] ??
-      null;
+    const resolvedCurrentBranch = currentBusinessAssignment
+      ? resolvedBranches.find((branch) => branch.id === storedBranchId) ??
+        currentBusinessAssignment.branches.find((branch) => branch.id === currentBusinessAssignment.primaryBranchId) ??
+        currentBranch ??
+        resolvedBranches[0] ??
+        null
+      : null;
     const permissions = resolvePortalPermissions({
       currentScopeType: preferredScopeType,
       hasPlatformAccess: access.hasPlatformAccess,
@@ -124,7 +128,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       hasBranchAccess: access.hasBranchAccess,
       roleAssignments,
       profile: profile ?? null,
-      staffAssignment: resolvedStaffAssignment,
+      staffAssignment: currentBusinessAssignment?.staffAssignment ?? accessSeedAssignment?.staffAssignment ?? staffAssignment ?? null,
     });
 
     setState({
@@ -199,21 +203,25 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       if (!current.availableScopeTypes.includes(scopeType)) {
         return current;
       }
+      const nextScopeType =
+        scopeType === 'branch' && !current.currentMerchant
+          ? 'business'
+          : scopeType;
       const permissions = resolvePortalPermissions({
-        currentScopeType: scopeType,
+        currentScopeType: nextScopeType,
         hasPlatformAccess: current.hasPlatformAccess,
         hasBusinessAccess: current.hasBusinessAccess,
         hasBranchAccess: current.hasBranchAccess,
         roleAssignments: current.roleAssignments,
         profile: current.profile,
-        staffAssignment: current.staffAssignment,
+        staffAssignment: current.staffAssignment ?? current.businessAssignments[0]?.staffAssignment ?? null,
       });
       if (typeof window !== 'undefined') {
-        window.localStorage.setItem(STORAGE_SCOPE_KEY, scopeType);
+        window.localStorage.setItem(STORAGE_SCOPE_KEY, nextScopeType);
       }
       return {
         ...current,
-        currentScopeType: scopeType,
+        currentScopeType: nextScopeType,
         permissions,
       };
     });
@@ -221,6 +229,43 @@ export function PortalProvider({ children }: { children: ReactNode }) {
 
   const setCurrentMerchantId = useCallback((merchantId: string) => {
     setState((current) => {
+      if (!merchantId) {
+        const nextScopeType =
+          current.hasPlatformAccess
+            ? 'platform'
+            : current.hasBusinessAccess
+              ? 'business'
+              : current.currentScopeType;
+        const permissions = resolvePortalPermissions({
+          currentScopeType: nextScopeType,
+          hasPlatformAccess: current.hasPlatformAccess,
+          hasBusinessAccess: current.hasBusinessAccess,
+          hasBranchAccess: current.hasBranchAccess,
+          roleAssignments: current.roleAssignments,
+          profile: current.profile,
+          staffAssignment: current.businessAssignments[0]?.staffAssignment ?? null,
+        });
+
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem(STORAGE_MERCHANT_KEY);
+          window.localStorage.removeItem(STORAGE_BRANCH_KEY);
+          if (nextScopeType) {
+            window.localStorage.setItem(STORAGE_SCOPE_KEY, nextScopeType);
+          }
+        }
+
+        return {
+          ...current,
+          staffAssignment: null,
+          merchant: null,
+          currentMerchant: null,
+          branches: [],
+          currentBranch: null,
+          currentScopeType: nextScopeType,
+          permissions,
+        };
+      }
+
       const nextAssignment = current.businessAssignments.find((assignment) => assignment.merchant.id === merchantId);
       if (!nextAssignment) {
         return current;

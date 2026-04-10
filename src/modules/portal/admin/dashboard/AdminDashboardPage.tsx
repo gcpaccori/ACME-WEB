@@ -51,6 +51,7 @@ export function AdminDashboardPage() {
     staffAssignment: portal.staffAssignment,
   });
   const isPlatformScope = portal.currentScopeType === 'platform';
+  const needsMerchantSelection = (portal.currentScopeType === 'business' || portal.currentScopeType === 'branch') && !portal.currentMerchant && portal.businessAssignments.length > 0;
   const businessLabel = isPlatformScope ? 'Todos los negocios' : portal.currentMerchant?.name || 'No aplica';
   const branchLabel = isPlatformScope
     ? 'No aplica'
@@ -75,6 +76,9 @@ export function AdminDashboardPage() {
       ]}
     >
       <SectionCard title="Lectura del alcance actual" description="Estas metricas ya salen de la base de datos segun la capa y el alcance en el que esta trabajando el usuario.">
+        {needsMerchantSelection ? (
+          <div style={{ color: '#6b7280' }}>Selecciona un negocio desde el header para cargar las metricas de esta capa.</div>
+        ) : null}
         {loading ? (
           <LoadingScreen />
         ) : error ? (
