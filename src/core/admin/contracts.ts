@@ -1,16 +1,23 @@
+import { PortalScopeType } from '../types';
+
 export type AdminModuleId =
   | 'overview'
+  | 'turn'
+  | 'businesses'
   | 'commerce'
   | 'branches'
   | 'people'
   | 'customers'
   | 'catalog'
   | 'orders'
+  | 'local_status'
+  | 'operational_menu'
   | 'drivers'
   | 'payments'
   | 'promotions'
   | 'settlements'
   | 'messages'
+  | 'security'
   | 'system';
 
 export type AdminExposureMode =
@@ -32,6 +39,9 @@ export interface AdminModuleSpec {
   route: string;
   entityRootIds: string[];
   enabled: boolean;
+  scopeVisibility: PortalScopeType[];
+  requiresMerchant?: boolean;
+  requiresBranch?: boolean;
 }
 
 export interface ChildRelationSpec {

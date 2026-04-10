@@ -69,14 +69,14 @@ function uniqueStrings(values: string[]) {
 
 async function logSystemSideEffects(params: {
   actorUserId: string;
-  merchantId: string;
+  merchantId?: string | null;
   entityId: string;
   action: string;
   oldValues?: unknown;
   newValues?: unknown;
 }) {
   const now = new Date().toISOString();
-  await Promise.allSettled([
+  const operations = [
     supabase.from('audit_logs').insert({
       actor_user_id: params.actorUserId,
       entity_type: 'system_setting',
@@ -86,16 +86,6 @@ async function logSystemSideEffects(params: {
       new_values_json: params.newValues ?? null,
       ip_address: null,
       user_agent: null,
-      created_at: now,
-    }),
-    supabase.from('merchant_audit_logs').insert({
-      merchant_id: params.merchantId,
-      branch_id: null,
-      user_id: params.actorUserId,
-      entity_type: 'system_setting',
-      entity_id: params.entityId,
-      action: params.action,
-      metadata_json: params.newValues ?? null,
       created_at: now,
     }),
     supabase.from('analytics_events').insert({
@@ -108,7 +98,24 @@ async function logSystemSideEffects(params: {
       },
       created_at: now,
     }),
-  ]);
+  ];
+
+  if (params.merchantId) {
+    operations.push(
+      supabase.from('merchant_audit_logs').insert({
+        merchant_id: params.merchantId,
+        branch_id: null,
+        user_id: params.actorUserId,
+        entity_type: 'system_setting',
+        entity_id: params.entityId,
+        action: params.action,
+        metadata_json: params.newValues ?? null,
+        created_at: now,
+      })
+    );
+  }
+
+  await Promise.allSettled(operations);
 }
 
 export const adminSystemService = {
@@ -125,56 +132,38 @@ export const adminSystemService = {
     value_json_text: JSON.stringify(record.value_json ?? {}, null, 2),
   }),
 
-  fetchSystemOverview: async (merchantId: string) => {
-    const [settingsResult, branchesResult, staffResult, merchantAuditResult] = await Promise.all([
+  fetchSystemOverview: async () => {
+    const [settingsResult, branchesResult, merchantAuditResult, auditResult, analyticsResult] = await Promise.all([
       supabase.from('system_settings').select('*').order('key', { ascending: true }),
-      supabase.from('merchant_branches').select('id, name').eq('merchant_id', merchantId),
-      supabase.from('merchant_staff').select('user_id').eq('merchant_id', merchantId),
-      supabase.from('merchant_audit_logs').select('*').eq('merchant_id', merchantId).order('created_at', { ascending: false }).limit(100),
+      supabase.from('merchant_branches').select('id, name'),
+      supabase.from('merchant_audit_logs').select('*').order('created_at', { ascending: false }).limit(100),
+      supabase.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(100),
+      supabase.from('analytics_events').select('*').order('created_at', { ascending: false }).limit(100),
     ]);
 
     if (settingsResult.error) return { data: null, error: settingsResult.error };
     if (branchesResult.error) return { data: null, error: branchesResult.error };
-    if (staffResult.error) return { data: null, error: staffResult.error };
     if (merchantAuditResult.error) return { data: null, error: merchantAuditResult.error };
+    if (auditResult.error) return { data: null, error: auditResult.error };
+    if (analyticsResult.error) return { data: null, error: analyticsResult.error };
 
     const branchRows = (branchesResult.data ?? []) as any[];
     const branchMap = new Map<string, string>(branchRows.map((row) => [stringOrEmpty(row.id), stringOrEmpty(row.name) || stringOrEmpty(row.id)]));
-    const staffUserIds = uniqueStrings(((staffResult.data ?? []) as any[]).map((row) => stringOrEmpty(row.user_id)));
+    const merchantAuditRows = (merchantAuditResult.data ?? []) as any[];
+    const auditRows = (auditResult.data ?? []) as any[];
+    const analyticsRows = (analyticsResult.data ?? []) as any[];
+    const orderIds = uniqueStrings(analyticsRows.map((row) => stringOrEmpty(row.order_id)));
 
-    const orderResult = await supabase.from('orders').select('id, order_code').eq('merchant_id', merchantId).order('placed_at', { ascending: false }).limit(200);
+    const orderResult =
+      orderIds.length > 0
+        ? await supabase.from('orders').select('id, order_code').in('id', orderIds)
+        : ({ data: [], error: null } as any);
+
     if (orderResult.error) return { data: null, error: orderResult.error };
 
-    const orderRows = (orderResult.data ?? []) as any[];
-    const orderIds = uniqueStrings(orderRows.map((row) => stringOrEmpty(row.id)));
-    const orderMap = new Map<string, string>(orderRows.map((row) => [stringOrEmpty(row.id), stringOrEmpty(row.order_code || row.id)]));
-
-    const [auditByActorResult, analyticsByActorResult, analyticsByOrderResult] = await Promise.all([
-      staffUserIds.length > 0
-        ? supabase.from('audit_logs').select('*').in('actor_user_id', staffUserIds).order('created_at', { ascending: false }).limit(100)
-        : Promise.resolve({ data: [], error: null } as any),
-      staffUserIds.length > 0
-        ? supabase.from('analytics_events').select('*').in('user_id', staffUserIds).order('created_at', { ascending: false }).limit(100)
-        : Promise.resolve({ data: [], error: null } as any),
-      orderIds.length > 0
-        ? supabase.from('analytics_events').select('*').in('order_id', orderIds).order('created_at', { ascending: false }).limit(100)
-        : Promise.resolve({ data: [], error: null } as any),
-    ]);
-
-    if (auditByActorResult.error) return { data: null, error: auditByActorResult.error };
-    if (analyticsByActorResult.error) return { data: null, error: analyticsByActorResult.error };
-    if (analyticsByOrderResult.error) return { data: null, error: analyticsByOrderResult.error };
-
-    const merchantAuditRows = (merchantAuditResult.data ?? []) as any[];
-    const auditRows = (auditByActorResult.data ?? []) as any[];
-    const analyticsRows = Array.from(
-      new Map(
-        [...((analyticsByActorResult.data ?? []) as any[]), ...((analyticsByOrderResult.data ?? []) as any[])].map((row) => [stringOrEmpty(row.id), row])
-      ).values()
-    );
+    const orderMap = new Map<string, string>(((orderResult.data ?? []) as any[]).map((row) => [stringOrEmpty(row.id), stringOrEmpty(row.order_code || row.id)]));
 
     const profileIds = uniqueStrings([
-      ...staffUserIds,
       ...merchantAuditRows.map((row) => stringOrEmpty(row.user_id)),
       ...auditRows.map((row) => stringOrEmpty(row.actor_user_id)),
       ...analyticsRows.map((row) => stringOrEmpty(row.user_id)),
@@ -254,7 +243,7 @@ export const adminSystemService = {
     };
   },
 
-  saveSetting: async (merchantId: string, actorUserId: string, form: SystemSettingForm) => {
+  saveSetting: async (actorUserId: string, form: SystemSettingForm) => {
     let parsedValue: unknown;
     try {
       parsedValue = JSON.parse(form.value_json_text);
@@ -283,7 +272,6 @@ export const adminSystemService = {
 
       await logSystemSideEffects({
         actorUserId,
-        merchantId,
         entityId: stringOrEmpty((updateResult.data as any)?.id),
         action: 'system_setting_updated',
         oldValues: existingResult.data,
@@ -309,7 +297,6 @@ export const adminSystemService = {
 
     await logSystemSideEffects({
       actorUserId,
-      merchantId,
       entityId: stringOrEmpty((insertResult.data as any)?.id),
       action: 'system_setting_created',
       newValues: insertResult.data,

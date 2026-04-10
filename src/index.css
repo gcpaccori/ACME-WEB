@@ -143,6 +143,15 @@ img {
   overflow: auto;
 }
 
+.portal-sidebar__sectionTitle {
+  padding: 4px 6px 2px;
+  color: var(--acme-text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .portal-nav__item {
   padding: 11px 12px;
   border-radius: 14px;
@@ -164,6 +173,21 @@ img {
   color: var(--acme-purple);
 }
 
+.portal-nav__itemContent {
+  display: grid;
+  gap: 4px;
+}
+
+.portal-nav__itemLabel {
+  font-weight: 800;
+}
+
+.portal-nav__itemMeta {
+  color: var(--acme-text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
 .portal-actions {
   margin-top: auto;
   padding: 14px;
@@ -171,6 +195,87 @@ img {
   border: 1px solid var(--acme-border);
   background: var(--acme-surface);
   box-shadow: var(--acme-shadow-sm);
+}
+
+.portal-workspace {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid rgba(77, 20, 140, 0.14);
+  background:
+    linear-gradient(135deg, rgba(77, 20, 140, 0.10), rgba(255, 98, 0, 0.08)),
+    rgba(255, 255, 255, 0.92);
+  box-shadow: var(--acme-shadow-md);
+  backdrop-filter: blur(12px);
+}
+
+.portal-workspace__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.portal-workspace__eyebrow {
+  color: var(--acme-text-muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.portal-workspace__title {
+  margin: 0;
+  color: var(--acme-text);
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.portal-workspace__description {
+  margin: 0;
+  max-width: 760px;
+  color: var(--acme-text-muted);
+  line-height: 1.5;
+}
+
+.portal-workspace__chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.portal-workspace__contextGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.portal-chip {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(77, 20, 140, 0.12);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: var(--acme-shadow-sm);
+}
+
+.portal-chip__label {
+  color: var(--acme-text-muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.portal-chip__value {
+  color: var(--acme-text);
+  font-size: 15px;
+  line-height: 1.35;
 }
 
 .portal-main {
@@ -248,6 +353,10 @@ img {
 
   .portal-main {
     padding: 16px;
+  }
+
+  .portal-workspace {
+    padding: 18px;
   }
 }
 

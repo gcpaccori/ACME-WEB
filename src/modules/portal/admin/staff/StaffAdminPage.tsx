@@ -1,6 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
-import { AdminDrawer } from '../../../../components/admin/AdminDrawer';
 import { CheckboxField, FieldGroup, SelectField } from '../../../../components/admin/AdminFields';
 import { AdminModalForm } from '../../../../components/admin/AdminModalForm';
 import { AdminPageFrame, FormStatusBar, SaveActions, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
@@ -27,14 +26,6 @@ const staffRoleOptions = [
   { value: 'support', label: 'Soporte' },
   { value: 'staff', label: 'Staff' },
 ];
-
-const platformRoleDescriptions: Record<string, string> = {
-  customer: 'Mantiene acceso al flujo de cliente, perfil y pedidos propios.',
-  driver: 'Habilita el flujo operativo de reparto y liquidaciones del repartidor.',
-  merchant_staff: 'Permite entrar al portal del negocio y operar catalogo, sucursales y pedidos.',
-  admin: 'Da acceso a administracion ampliada del sistema y soporte operativo.',
-  super_admin: 'Reserva control total de plataforma, auditoria y configuracion global.',
-};
 
 function getRoleIdByCode(roles: RoleAdminRecord[], code: string) {
   return roles.find((role) => role.code === code)?.id ?? '';
@@ -73,7 +64,7 @@ function createNewStaffForm(roles: RoleAdminRecord[]): StaffAdminForm {
     full_name: '',
     email: '',
     phone: '',
-    default_role: 'merchant_staff',
+    default_role: 'customer',
     role: 'cashier',
     is_active: true,
     branch_ids: [],
@@ -118,16 +109,6 @@ function patchBranchSelection(current: StaffAdminForm, branchId: string, checked
   };
 }
 
-function patchRoleSelection(current: StaffAdminForm, roleId: string, checked: boolean): StaffAdminForm {
-  const userRoleIds = checked
-    ? Array.from(new Set([...current.user_role_ids, roleId]))
-    : current.user_role_ids.filter((item) => item !== roleId);
-  return {
-    ...current,
-    user_role_ids: userRoleIds,
-  };
-}
-
 export function StaffAdminPage() {
   const portal = useContext(PortalContext);
   const merchantId = portal.merchant?.id;
@@ -139,7 +120,6 @@ export function StaffAdminPage() {
   const [form, setForm] = useState<StaffAdminForm | null>(null);
   const [initialState, setInitialState] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [createForm, setCreateForm] = useState<StaffAdminForm>(createNewStaffForm([]));
   const [createInitialState, setCreateInitialState] = useState('');
   const [loading, setLoading] = useState(false);
@@ -203,15 +183,6 @@ export function StaffAdminPage() {
 
   const dirty = useMemo(() => (form ? hasDirtyState(form, initialState) : false), [form, initialState]);
   const createDirty = useMemo(() => hasDirtyState(createForm, createInitialState), [createForm, createInitialState]);
-
-  const defaultRoleOptions = useMemo(
-    () =>
-      roles.map((role) => ({
-        value: role.code,
-        label: `${role.name} (${role.code})`,
-      })),
-    [roles]
-  );
 
   const availablePrimaryBranchOptions = useMemo(() => {
     if (!form) {
@@ -298,7 +269,7 @@ export function StaffAdminPage() {
       full_name: profile.full_name,
       email: profile.email,
       phone: profile.phone,
-      default_role: 'merchant_staff',
+      default_role: profile.default_role || 'customer',
       is_active: profile.is_active,
       user_role_ids: merchantStaffRoleId ? [merchantStaffRoleId] : [],
     };
@@ -347,8 +318,8 @@ export function StaffAdminPage() {
 
   return (
     <AdminPageFrame
-      title="Personal y accesos"
-      description="Operacion relacional sobre profiles, merchant_staff, merchant_staff_branches, roles y user_roles desde una sola ficha."
+      title="Personal"
+      description="Gestion del equipo interno del comercio con foco en perfil, estado y asignaciones por sucursal."
       breadcrumbs={[
         { label: 'Admin', to: AppRoutes.portal.admin.root },
         { label: 'Personal' },
@@ -364,13 +335,6 @@ export function StaffAdminPage() {
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button
             type="button"
-            onClick={() => setDrawerOpen(true)}
-            style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#ffffff' }}
-          >
-            Ver roles base
-          </button>
-          <button
-            type="button"
             onClick={openCreateModal}
             style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff', fontWeight: 600 }}
           >
@@ -381,7 +345,7 @@ export function StaffAdminPage() {
     >
       <SectionCard
         title="Equipo interno"
-        description="La tabla muestra la persona, su rol operativo, sus sucursales y el estado real de permisos."
+        description="La seguridad avanzada vive en Plataforma / Seguridad. Aqui solo se opera el equipo del negocio y sus asignaciones."
       >
         {loading ? (
           <LoadingScreen />
@@ -415,27 +379,15 @@ export function StaffAdminPage() {
                 ),
               },
               {
-                id: 'access',
-                header: 'Accesos',
-                render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <span>Base: {record.default_role || 'sin rol base'}</span>
-                    <span style={{ color: '#6b7280' }}>
-                      {record.user_role_labels.length > 0 ? record.user_role_labels.join(', ') : 'Sin user_roles sincronizados'}
-                    </span>
-                  </div>
-                ),
-              },
-              {
                 id: 'state',
                 header: 'Estado',
                 render: (record) => (
                   <div style={{ display: 'grid', gap: '8px' }}>
                     <StatusPill label={record.is_active ? 'Activo' : 'Inactivo'} tone={record.is_active ? 'success' : 'warning'} />
-                    {record.user_role_ids.length === 0 ||
-                    (!record.user_role_codes.includes('merchant_staff') && record.default_role !== 'merchant_staff') ? (
-                      <StatusPill label="Revisar acceso" tone="warning" />
-                    ) : null}
+                    <StatusPill
+                      label={record.branch_labels.length > 0 ? 'Asignado a sucursal' : 'Sin sucursal'}
+                      tone={record.branch_labels.length > 0 ? 'info' : 'warning'}
+                    />
                   </div>
                 ),
               },
@@ -461,7 +413,6 @@ export function StaffAdminPage() {
             tabs={[
               { id: 'profile', label: 'Perfil' },
               { id: 'assignments', label: 'Asignaciones', badge: String(form.branch_ids.length) },
-              { id: 'access', label: 'Accesos', badge: String(form.user_role_ids.length) },
             ]}
             activeTabId={activeTab}
             onChange={setActiveTab}
@@ -471,7 +422,7 @@ export function StaffAdminPage() {
             <AdminTabPanel>
               <SectionCard
                 title="Perfil base"
-                description="Aqui se sincroniza la ficha del usuario en profiles y se muestra el ultimo acceso al portal."
+                description="Aqui se sincroniza la ficha del usuario en profiles y se muestra el ultimo acceso. Seguridad avanzada se administra fuera de esta vista."
               >
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
                   <FieldGroup label="Nombre completo">
@@ -482,13 +433,6 @@ export function StaffAdminPage() {
                   </FieldGroup>
                   <FieldGroup label="Telefono">
                     <TextField value={form.phone} onChange={(event) => setForm((current) => (current ? { ...current, phone: event.target.value } : current))} />
-                  </FieldGroup>
-                  <FieldGroup label="Rol base del perfil" hint="Sirve como persona principal del usuario dentro de la plataforma.">
-                    <SelectField
-                      value={form.default_role}
-                      onChange={(event) => setForm((current) => (current ? { ...current, default_role: event.target.value } : current))}
-                      options={defaultRoleOptions}
-                    />
                   </FieldGroup>
                 </div>
                 <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -543,45 +487,9 @@ export function StaffAdminPage() {
               </SectionCard>
             </AdminTabPanel>
           ) : null}
-
-          {activeTab === 'access' ? (
-            <AdminTabPanel>
-              <SectionCard
-                title="Permisos del usuario"
-                description="Los checks crean o actualizan user_roles, mientras que la tabla roles se expone como catalogo de referencia."
-              >
-                <div style={{ display: 'grid', gap: '12px' }}>
-                  {roles.map((role) => (
-                    <label
-                      key={role.id}
-                      style={{
-                        display: 'grid',
-                        gap: '6px',
-                        padding: '14px',
-                        borderRadius: '14px',
-                        border: '1px solid #e5e7eb',
-                        background: '#f9fafb',
-                      }}
-                    >
-                      <CheckboxField
-                        label={`${role.name} (${role.code})`}
-                        checked={form.user_role_ids.includes(role.id)}
-                        onChange={(event) =>
-                          setForm((current) => (current ? patchRoleSelection(current, role.id, event.target.checked) : current))
-                        }
-                      />
-                      <span style={{ color: '#6b7280', fontSize: '14px' }}>
-                        {platformRoleDescriptions[role.code] || 'Rol disponible para integraciones futuras del negocio.'}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </SectionCard>
-            </AdminTabPanel>
-          ) : null}
         </>
       ) : (
-        <SectionCard title="Editor" description="Selecciona una persona para revisar perfil, asignaciones y accesos.">
+        <SectionCard title="Editor" description="Selecciona una persona para revisar perfil y asignaciones operativas.">
           <div style={{ color: '#6b7280' }}>Aun no hay una ficha seleccionada.</div>
         </SectionCard>
       )}
@@ -591,7 +499,7 @@ export function StaffAdminPage() {
       <AdminModalForm
         open={modalOpen}
         title="Agregar personal"
-        description="Vincula una cuenta existente al comercio y deja listo su acceso interno."
+        description="Vincula una cuenta existente al comercio y deja listas sus asignaciones operativas. La seguridad avanzada se gestiona en Plataforma / Seguridad."
         onClose={closeCreateModal}
         actions={
           <>
@@ -645,13 +553,6 @@ export function StaffAdminPage() {
               options={staffRoleOptions}
             />
           </FieldGroup>
-          <FieldGroup label="Rol base del perfil">
-            <SelectField
-              value={createForm.default_role}
-              onChange={(event) => setCreateForm((current) => ({ ...current, default_role: event.target.value }))}
-              options={defaultRoleOptions}
-            />
-          </FieldGroup>
           <FieldGroup label="Sucursal principal">
             <SelectField
               value={createForm.primary_branch_id}
@@ -683,71 +584,12 @@ export function StaffAdminPage() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gap: '12px' }}>
-          <strong>Permisos iniciales</strong>
-          {roles.map((role) => (
-            <label
-              key={role.id}
-              style={{
-                display: 'grid',
-                gap: '6px',
-                padding: '14px',
-                borderRadius: '14px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-              }}
-            >
-              <CheckboxField
-                label={`${role.name} (${role.code})`}
-                checked={createForm.user_role_ids.includes(role.id)}
-                onChange={(event) =>
-                  setCreateForm((current) => patchRoleSelection(current, role.id, event.target.checked))
-                }
-              />
-              <span style={{ color: '#6b7280', fontSize: '14px' }}>
-                {platformRoleDescriptions[role.code] || 'Rol disponible para integraciones futuras del negocio.'}
-              </span>
-            </label>
-          ))}
-        </div>
-
         {assignableProfiles.length === 0 ? (
           <div style={{ color: '#6b7280' }}>
             No hay perfiles disponibles para vincular. Primero se necesita una cuenta creada en la plataforma.
           </div>
         ) : null}
       </AdminModalForm>
-
-      <AdminDrawer
-        open={drawerOpen}
-        title="Catalogo de roles"
-        description="Referencia de la tabla roles usada por la ficha de personal para default_role y user_roles."
-        onClose={() => setDrawerOpen(false)}
-      >
-        <div style={{ display: 'grid', gap: '12px' }}>
-          {roles.map((role) => (
-            <div
-              key={role.id}
-              style={{
-                display: 'grid',
-                gap: '8px',
-                padding: '14px',
-                borderRadius: '14px',
-                border: '1px solid #e5e7eb',
-                background: '#f9fafb',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <strong>{role.name}</strong>
-                <StatusPill label={role.code} tone="info" />
-              </div>
-              <span style={{ color: '#6b7280' }}>
-                {platformRoleDescriptions[role.code] || 'Rol disponible para integraciones futuras del negocio.'}
-              </span>
-            </div>
-          ))}
-        </div>
-      </AdminDrawer>
 
       {selected && form ? (
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>

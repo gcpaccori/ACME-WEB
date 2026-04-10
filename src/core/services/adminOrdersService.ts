@@ -334,12 +334,51 @@ function getOrderTimestampPatch(nextStatus: string, now: string) {
   return {};
 }
 
-async function fetchDriverDirectory() {
+async function fetchDriverDirectory(merchantId?: string | null) {
+  const scopedToMerchant = merchantId !== undefined;
+  const normalizedMerchantId = stringOrEmpty(merchantId);
+  let allowedDriverIds: string[] = [];
+
+  if (scopedToMerchant) {
+    if (!normalizedMerchantId) {
+      return { data: [], error: null };
+    }
+
+    const merchantOrdersResult = await supabase.from('orders').select('id, current_driver_id').eq('merchant_id', normalizedMerchantId);
+    if (merchantOrdersResult.error) return { data: null, error: merchantOrdersResult.error };
+
+    const merchantOrderRows = (merchantOrdersResult.data ?? []) as any[];
+    const orderIds = uniqueStrings(merchantOrderRows.map((row) => String(row.id)).filter(Boolean));
+    const currentDriverIds = uniqueStrings(merchantOrderRows.map((row) => String(row.current_driver_id)).filter(Boolean));
+    const assignmentsResult =
+      orderIds.length > 0
+        ? await supabase.from('order_assignments').select('driver_id').in('order_id', orderIds)
+        : ({ data: [], error: null } as any);
+
+    if (assignmentsResult.error) return { data: null, error: assignmentsResult.error };
+    allowedDriverIds = uniqueStrings([
+      ...currentDriverIds,
+      ...(((assignmentsResult.data ?? []) as any[]).map((row) => String(row.driver_id)).filter(Boolean)),
+    ]);
+  }
+
+  if (scopedToMerchant && allowedDriverIds.length === 0) {
+    return { data: [], error: null };
+  }
+
   const [driversResult, profilesResult, statesResult, vehiclesResult] = await Promise.all([
-    supabase.from('drivers').select('user_id, status').order('joined_at', { ascending: true }),
-    supabase.from('profiles').select('user_id, full_name, email'),
-    supabase.from('driver_current_state').select('driver_id, status, is_online'),
-    supabase.from('vehicles').select('driver_id, plate, brand, model, is_active'),
+    scopedToMerchant
+      ? supabase.from('drivers').select('user_id, status').in('user_id', allowedDriverIds).order('joined_at', { ascending: true })
+      : supabase.from('drivers').select('user_id, status').order('joined_at', { ascending: true }),
+    scopedToMerchant
+      ? supabase.from('profiles').select('user_id, full_name, email').in('user_id', allowedDriverIds)
+      : supabase.from('profiles').select('user_id, full_name, email'),
+    scopedToMerchant
+      ? supabase.from('driver_current_state').select('driver_id, status, is_online').in('driver_id', allowedDriverIds)
+      : supabase.from('driver_current_state').select('driver_id, status, is_online'),
+    scopedToMerchant
+      ? supabase.from('vehicles').select('driver_id, plate, brand, model, is_active').in('driver_id', allowedDriverIds)
+      : supabase.from('vehicles').select('driver_id, plate, brand, model, is_active'),
   ]);
 
   if (driversResult.error) return { data: null, error: driversResult.error };
@@ -596,7 +635,7 @@ export const adminOrdersService = {
       supabase.from('payment_methods').select('id, code, name, is_online').eq('is_active', true).order('name', { ascending: true }),
       orderRow.coupon_id ? supabase.from('coupons').select('id, code').eq('id', orderRow.coupon_id).maybeSingle() : Promise.resolve({ data: null, error: null } as any),
       orderRow.zone_id ? supabase.from('delivery_zones').select('id, name').eq('id', orderRow.zone_id).maybeSingle() : Promise.resolve({ data: null, error: null } as any),
-      fetchDriverDirectory(),
+      fetchDriverDirectory(stringOrEmpty(orderRow.merchant_id) || null),
     ]);
 
     if (itemsResult.error) return { data: null, error: itemsResult.error };

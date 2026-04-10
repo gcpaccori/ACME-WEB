@@ -6,6 +6,7 @@ import { AdminModalForm } from '../../../../components/admin/AdminModalForm';
 import { AdminPageFrame, FormStatusBar, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { TextField } from '../../../../components/ui/TextField';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import {
   adminSettlementsService,
@@ -48,7 +49,7 @@ function getRuleValueLabel(record: Pick<CommissionRuleRecord | CommissionRuleFor
 
 export function SettlementsAdminPage() {
   const portal = useContext(PortalContext);
-  const merchantId = portal.merchant?.id;
+  const merchantId = portal.currentMerchant?.id ?? portal.merchant?.id;
   const [query, setQuery] = useState('');
   const [overview, setOverview] = useState<SettlementsOverview | null>(null);
   const [loading, setLoading] = useState(false);
@@ -113,7 +114,7 @@ export function SettlementsAdminPage() {
   const currentScopeOptions = useMemo(() => {
     if (!overview || !merchantId) return [{ value: '', label: 'Selecciona un alcance' }];
     if (ruleForm.scope_type === 'merchant') {
-      return [{ value: merchantId, label: portal.merchant?.name || 'Comercio actual' }];
+      return [{ value: merchantId, label: portal.currentMerchant?.name || portal.merchant?.name || 'Comercio actual' }];
     }
     if (ruleForm.scope_type === 'branch') {
       return [{ value: '', label: 'Selecciona una sucursal' }, ...overview.branch_options.map((item) => ({ value: item.id, label: item.label }))];
@@ -122,7 +123,7 @@ export function SettlementsAdminPage() {
       return [{ value: '', label: 'Selecciona un repartidor' }, ...overview.driver_options.map((item) => ({ value: item.id, label: item.label }))];
     }
     return [{ value: '', label: 'Selecciona un alcance' }];
-  }, [merchantId, overview, portal.merchant?.name, ruleForm.scope_type]);
+  }, [merchantId, overview, portal.currentMerchant?.name, portal.merchant?.name, ruleForm.scope_type]);
 
   const openRuleModal = (record?: CommissionRuleRecord) => {
     setRuleForm(record ? adminSettlementsService.createCommissionRuleForm(record) : adminSettlementsService.createEmptyCommissionRuleForm());
@@ -157,8 +158,9 @@ export function SettlementsAdminPage() {
         { label: 'Liquidaciones' },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
+        { label: 'Comercio', value: portal.currentMerchant?.name || portal.merchant?.name || 'sin comercio', tone: 'neutral' },
         { label: 'Entidad', value: 'Liquidacion', tone: 'info' },
         { label: 'Modo', value: 'Finanzas', tone: 'warning' },
       ]}

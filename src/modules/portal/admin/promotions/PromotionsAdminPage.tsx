@@ -6,6 +6,7 @@ import { AdminModalForm } from '../../../../components/admin/AdminModalForm';
 import { AdminPageFrame, FormStatusBar, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { TextField } from '../../../../components/ui/TextField';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminPromotionsService, PromotionAdminRecord, PromotionForm } from '../../../../core/services/adminPromotionsService';
 import { PortalContext } from '../../../auth/session/PortalContext';
@@ -59,7 +60,7 @@ function getDiscountLabel(record: Pick<PromotionAdminRecord | PromotionForm, 'di
 export function PromotionsAdminPage() {
   const navigate = useNavigate();
   const portal = useContext(PortalContext);
-  const merchantId = portal.merchant?.id;
+  const merchantId = portal.currentMerchant?.id ?? portal.merchant?.id;
   const [query, setQuery] = useState('');
   const [records, setRecords] = useState<PromotionAdminRecord[]>([]);
   const [loading, setLoading] = useState(false);
@@ -93,6 +94,18 @@ export function PromotionsAdminPage() {
       [record.name, record.promo_type, record.discount_type, record.scope_summary].join(' ').toLowerCase().includes(normalizedQuery)
     );
   }, [query, records]);
+
+  const summary = useMemo(
+    () => ({
+      promotions: records.length,
+      activePromotions: records.filter((record) => record.is_active).length,
+      expiredPromotions: records.filter((record) => getPromotionStatusLabel(record) === 'Vencida').length,
+      coupons: records.reduce((sum, record) => sum + record.coupon_count, 0),
+      targets: records.reduce((sum, record) => sum + record.target_count, 0),
+      redemptions: records.reduce((sum, record) => sum + record.redemption_count, 0),
+    }),
+    [records]
+  );
 
   const resetCreateForm = () => {
     setCreateForm(adminPromotionsService.createEmptyPromotionForm());
@@ -130,8 +143,9 @@ export function PromotionsAdminPage() {
         { label: 'Promociones' },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
+        { label: 'Comercio', value: portal.currentMerchant?.name || portal.merchant?.name || 'sin comercio', tone: 'neutral' },
         { label: 'Entidad', value: 'Promocion', tone: 'info' },
         { label: 'Modo', value: 'Comercial', tone: 'warning' },
       ]}
@@ -148,6 +162,24 @@ export function PromotionsAdminPage() {
         </button>
       }
     >
+      <SectionCard title="Lectura comercial" description="Panel rapido para entender si el negocio tiene campanas activas, suficiente cobertura y uso real.">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
+          {[
+            { label: 'Promociones', value: String(summary.promotions) },
+            { label: 'Activas', value: String(summary.activePromotions) },
+            { label: 'Vencidas', value: String(summary.expiredPromotions) },
+            { label: 'Cupones', value: String(summary.coupons) },
+            { label: 'Targets', value: String(summary.targets) },
+            { label: 'Redenciones', value: String(summary.redemptions) },
+          ].map((item) => (
+            <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+              <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
+              <strong>{item.value}</strong>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+
       <SectionCard title="Buscar promocion" description="Filtra por nombre, tipo, descuento o alcance comercial.">
         <TextField value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar promocion..." />
       </SectionCard>

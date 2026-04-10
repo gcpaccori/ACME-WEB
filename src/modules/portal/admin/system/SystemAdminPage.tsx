@@ -7,6 +7,7 @@ import { AdminPageFrame, FormStatusBar, SectionCard } from '../../../../componen
 import { AdminTimeline } from '../../../../components/admin/AdminTimeline';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { TextField } from '../../../../components/ui/TextField';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminSystemService, SystemOverview, SystemSettingForm, SystemSettingRecord } from '../../../../core/services/adminSystemService';
 import { PortalContext } from '../../../auth/session/PortalContext';
@@ -25,7 +26,6 @@ function previewJson(value: unknown) {
 
 export function SystemAdminPage() {
   const portal = useContext(PortalContext);
-  const merchantId = portal.merchant?.id;
   const sessionUserId = portal.sessionUserId;
   const [query, setQuery] = useState('');
   const [overview, setOverview] = useState<SystemOverview | null>(null);
@@ -37,10 +37,9 @@ export function SystemAdminPage() {
   const [settingForm, setSettingForm] = useState<SystemSettingForm>(adminSystemService.createEmptySettingForm());
 
   const loadData = async () => {
-    if (!merchantId) return;
     setLoading(true);
     setError(null);
-    const result = await adminSystemService.fetchSystemOverview(merchantId);
+    const result = await adminSystemService.fetchSystemOverview();
     setLoading(false);
     if (result.error) {
       setError(result.error.message);
@@ -50,8 +49,10 @@ export function SystemAdminPage() {
   };
 
   useEffect(() => {
-    loadData();
-  }, [merchantId]);
+    if (portal.currentScopeType === 'platform') {
+      loadData();
+    }
+  }, [portal.currentScopeType]);
 
   const normalizedQuery = query.trim().toLowerCase();
   const filteredSettings = useMemo(() => {
@@ -85,10 +86,10 @@ export function SystemAdminPage() {
   };
 
   const handleSettingSave = async () => {
-    if (!merchantId || !sessionUserId) return;
+    if (!sessionUserId) return;
     setMutating(true);
     setError(null);
-    const result = await adminSystemService.saveSetting(merchantId, sessionUserId, settingForm);
+    const result = await adminSystemService.saveSetting(sessionUserId, settingForm);
     setMutating(false);
     if (result.error) {
       setError(result.error.message);
@@ -99,23 +100,46 @@ export function SystemAdminPage() {
     await loadData();
   };
 
-  if (!merchantId) {
-    return <div>No hay comercio activo para administrar sistema.</div>;
+  if (!portal.permissions.canManageSystem || portal.currentScopeType !== 'platform') {
+    return (
+      <AdminPageFrame
+        title="Sistema"
+        description="Esta vista ahora pertenece solo a plataforma."
+        breadcrumbs={[
+          { label: 'Admin', to: AppRoutes.portal.admin.root },
+          { label: 'Sistema' },
+        ]}
+        contextItems={[
+          { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'warning' },
+          { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
+          { label: 'Estado', value: 'Bloqueado por alcance', tone: 'danger' },
+        ]}
+      >
+        <SectionCard
+          title="Acceso restringido"
+          description="system_settings, audit_logs y analytics_events son gobierno global. El owner del negocio no deberia editar esta capa."
+        >
+          <Link to={AppRoutes.portal.admin.root} style={{ color: '#2563eb', fontWeight: 700 }}>
+            Volver al resumen del alcance actual
+          </Link>
+        </SectionCard>
+      </AdminPageFrame>
+    );
   }
 
   return (
     <AdminPageFrame
       title="Sistema"
-      description="Configuracion operativa, trazabilidad y eventos relevantes del admin."
+      description="Gobierno global de configuracion, auditoria y telemetria de la plataforma."
       breadcrumbs={[
         { label: 'Admin', to: AppRoutes.portal.admin.root },
         { label: 'Sistema' },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
-        { label: 'Entidad', value: 'Sistema', tone: 'info' },
-        { label: 'Modo', value: 'Control', tone: 'warning' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
+        { label: 'Entidad', value: 'System settings', tone: 'warning' },
+        { label: 'Modo', value: 'Control global', tone: 'warning' },
       ]}
       actions={
         <button type="button" onClick={() => openSettingModal()} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff', fontWeight: 700 }}>
@@ -133,12 +157,12 @@ export function SystemAdminPage() {
         <LoadingScreen />
       ) : (
         <>
-          <SectionCard title="Resumen" description="Lectura transversal del control operativo del negocio.">
+          <SectionCard title="Resumen global" description="Lectura transversal de plataforma sobre settings, auditorias y eventos de uso.">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
               {[
                 { label: 'Settings', value: String(overview?.settings.length ?? 0) },
                 { label: 'Auditoria global', value: String(overview?.audit_logs.length ?? 0) },
-                { label: 'Auditoria comercio', value: String(overview?.merchant_audit_logs.length ?? 0) },
+                { label: 'Auditoria negocio', value: String(overview?.merchant_audit_logs.length ?? 0) },
                 { label: 'Eventos analytics', value: String(overview?.analytics_events.length ?? 0) },
               ].map((item) => (
                 <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
@@ -149,7 +173,7 @@ export function SystemAdminPage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="Configuracion" description="system_settings se administra aqui con JSON editable y version util para el negocio.">
+          <SectionCard title="Configuracion global" description="system_settings deja de presentarse como configuracion del negocio y se gobierna solo desde plataforma.">
             <AdminDataTable
               rows={filteredSettings}
               getRowId={(record) => record.id}
@@ -182,7 +206,7 @@ export function SystemAdminPage() {
             />
           </SectionCard>
 
-          <SectionCard title="Auditoria de comercio" description="merchant_audit_logs se consume como timeline del negocio y sus acciones criticas.">
+          <SectionCard title="Auditoria de negocios" description="merchant_audit_logs sigue visible aqui como supervision de lo que pasa dentro de los comercios.">
             <AdminTimeline
               items={filteredMerchantAuditLogs.slice(0, 20).map((item) => ({
                 id: item.id,
@@ -194,7 +218,7 @@ export function SystemAdminPage() {
             />
           </SectionCard>
 
-          <SectionCard title="Auditoria global" description="audit_logs muestra trazas relevantes del staff del comercio dentro del admin.">
+          <SectionCard title="Auditoria global" description="audit_logs registra cambios administrativos sensibles sobre la plataforma.">
             <AdminDataTable
               rows={filteredAuditLogs}
               getRowId={(record) => record.id}
@@ -217,7 +241,7 @@ export function SystemAdminPage() {
             />
           </SectionCard>
 
-          <SectionCard title="Eventos analytics" description="analytics_events concentra eventos crudos que ayudan a leer operacion y diagnostico.">
+          <SectionCard title="Eventos analytics" description="analytics_events se lee aqui como telemetria global y deja de quedar escondido dentro del negocio.">
             <AdminDataTable
               rows={filteredAnalytics}
               getRowId={(record) => record.id}
@@ -256,7 +280,7 @@ export function SystemAdminPage() {
       <AdminModalForm
         open={settingOpen}
         title={settingForm.id ? 'Editar configuracion' : 'Nueva configuracion'}
-        description="Define una clave operativa con un JSON valido."
+        description="Define una clave global con un JSON valido."
         onClose={() => setSettingOpen(false)}
         actions={
           <>
@@ -276,7 +300,7 @@ export function SystemAdminPage() {
           <TextField
             value={settingForm.description}
             onChange={(event) => setSettingForm((current) => ({ ...current, description: event.target.value }))}
-            placeholder="Describe el uso operativo de esta configuracion"
+            placeholder="Describe el uso de esta configuracion"
           />
         </FieldGroup>
         <FieldGroup label="JSON">

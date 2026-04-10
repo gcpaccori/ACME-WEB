@@ -5,6 +5,7 @@ import { AdminEntityHeader } from '../../../../components/admin/AdminEntityHeade
 import { AdminInlineRelationTable } from '../../../../components/admin/AdminInlineRelationTable';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminSettlementsService, MerchantSettlementDetail } from '../../../../core/services/adminSettlementsService';
 import { PortalContext } from '../../../auth/session/PortalContext';
@@ -39,7 +40,7 @@ export function MerchantSettlementDetailPage() {
   const navigate = useNavigate();
   const { settlementId } = useParams();
   const portal = useContext(PortalContext);
-  const merchantId = portal.merchant?.id;
+  const merchantId = portal.currentMerchant?.id ?? portal.merchant?.id;
   const [detail, setDetail] = useState<MerchantSettlementDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,8 +88,9 @@ export function MerchantSettlementDetailPage() {
         { label: detail.id },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
+        { label: 'Comercio', value: portal.currentMerchant?.name || portal.merchant?.name || 'sin comercio', tone: 'neutral' },
         { label: 'Entidad', value: 'Liquidacion comercio', tone: 'info' },
         { label: 'Estado', value: detail.status || 'sin estado', tone: getStatusTone(detail.status) },
       ]}
