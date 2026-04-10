@@ -1,85 +1,406 @@
-export function AboutPage() {
-  const orange = "#ff6200";
-  const purple = "#4d148c";
-  const orangeDark = "#cc4e00";
-  const purpleDark = "#3a0f6b";
+import './AboutPage.css';
+import { Link } from 'react-router-dom';
+import { AppRoutes } from '../../../core/constants/routes';
 
-  const features = {
-    public: ["Presentación de beneficios", "Descarga de apps móviles", "Formulario de captación", "Casos de éxito"],
-    private: ["Gestión de pedidos en vivo", "Control del menú", "Configuración de horarios", "Estado operativo del local"],
-  };
+// ── ICONS ────────────────────────────────────────────────────────────────────
 
+function IconSearch() {
   return (
-    <section style={{ fontFamily: "'DM Sans', sans-serif", padding: "3rem 2rem 4rem", maxWidth: 860, margin: "0 auto" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');`}</style>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+  );
+}
 
-      <p style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase", color: orange, marginBottom: "1rem", display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ display: "inline-block", width: 20, height: 1.5, background: orange }} />
-        Plataforma
-      </p>
+function IconCart() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+    </svg>
+  );
+}
 
-      <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "clamp(2rem,5vw,3.2rem)", fontWeight: 400, lineHeight: 1.15, margin: "0 0 1.5rem" }}>
-        Cómo funciona{" "}
-        <em style={{ fontStyle: "italic", color: purple }}>ACME Web</em>
-      </h1>
+function IconTruck() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="3" width="15" height="13" rx="1"/>
+      <path d="M16 8h4l3 5v3h-7V8z"/>
+      <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+    </svg>
+  );
+}
 
-      <p style={{ fontSize: 17, lineHeight: 1.75, color: "#4b5563", maxWidth: 600, margin: "0 0 3rem", fontWeight: 300 }}>
-        Una plataforma doble: una landing pública para captar comercios y un portal privado para que cada local gestione su operación en tiempo real.
-      </p>
+function IconStar2() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
+  );
+}
 
-      {/* Stats */}
-      <div style={{ display: "flex", gap: "2rem", marginBottom: "3rem", flexWrap: "wrap", alignItems: "center" }}>
-        {[["2", "zonas diferenciadas"], ["100%", "control por local"], ["∞", "pedidos en tiempo real"]].map(([n, l], i) => (
-          <>
-            {i > 0 && <div key={`s${i}`} style={{ width: 0.5, background: "#e5e7eb", alignSelf: "stretch" }} />}
-            <div key={n} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: "2rem", fontWeight: 400, lineHeight: 1, color: orange }}>{n}</span>
-              <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 300 }}>{l}</span>
+function IconGlobe() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M2 12h20M12 2c-2.5 3-4 5.5-4 10s1.5 7 4 10M12 2c2.5 3 4 5.5 4 10s-1.5 7-4 10"/>
+    </svg>
+  );
+}
+
+function IconLock() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+  );
+}
+
+function IconCheck() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  );
+}
+
+function IconRealtime() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    </svg>
+  );
+}
+
+function IconMenu() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  );
+}
+
+function IconMap() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+    </svg>
+  );
+}
+
+function IconBell() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+  );
+}
+
+function IconShield() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  );
+}
+
+function IconBarChart() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+    </svg>
+  );
+}
+
+function IconPhone() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
+    </svg>
+  );
+}
+
+// ── WAVE DIVIDER ─────────────────────────────────────────────────────────────
+
+function SectionWave({ fromColor, toColor, flip = false }: { fromColor: string; toColor: string; flip?: boolean }) {
+  return (
+    <div style={{ background: fromColor, lineHeight: 0, fontSize: 0, overflow: 'hidden' }}>
+      <svg
+        viewBox="0 0 1440 70"
+        preserveAspectRatio="none"
+        style={{ display: 'block', width: '100%', height: 60, transform: flip ? 'scaleX(-1)' : 'none', verticalAlign: 'bottom' }}
+      >
+        <path d="M0,35 C180,70 360,0 540,35 C720,70 900,0 1080,35 C1260,70 1380,15 1440,35 L1440,90 L0,90 Z" fill={toColor} />
+      </svg>
+    </div>
+  );
+}
+
+// ── COMPONENT ─────────────────────────────────────────────────────────────────
+
+export function AboutPage() {
+  return (
+    <div className="about-page">
+
+      {/* ── HERO ── */}
+      <section className="about-hero">
+        <div className="about-hero__eyebrow about-animate">
+          <div className="about-hero__eyebrow-dot" />
+          Plataforma ACME Pedidos
+        </div>
+        <h1 className="about-animate delay-1">
+          Cómo funciona <span>ACME</span>
+        </h1>
+        <p className="about-hero__lead about-animate delay-2">
+          Un ecosistema completo que conecta clientes, negocios y repartidores en tiempo real. Descubre cómo cada pieza encaja para ofrecerte la mejor experiencia de delivery en Huancavelica.
+        </p>
+
+        <div className="about-hero-stats about-animate delay-3">
+          <div className="about-hero-stat">
+            <span className="about-hero-stat__num">3</span>
+            <span className="about-hero-stat__label">Tipos de usuario</span>
+          </div>
+          <div className="about-hero-stat">
+            <span className="about-hero-stat__num">∞</span>
+            <span className="about-hero-stat__label">Pedidos en tiempo real</span>
+          </div>
+          <div className="about-hero-stat">
+            <span className="about-hero-stat__num">24h</span>
+            <span className="about-hero-stat__label">Soporte disponible</span>
+          </div>
+          <div className="about-hero-stat">
+            <span className="about-hero-stat__num">100%</span>
+            <span className="about-hero-stat__label">Control por local</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Hero wave */}
+      <div style={{ background: '#4d148c', lineHeight: 0, fontSize: 0, overflow: 'hidden' }}>
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: 60, verticalAlign: 'bottom' }}>
+          <path d="M0,35 C180,70 360,0 540,35 C720,70 900,0 1080,35 C1260,70 1380,15 1440,35 L1440,90 L0,90 Z" fill="#f8f9fa" />
+        </svg>
+      </div>
+
+      {/* ── CUSTOMER FLOW ── */}
+      <section className="about-section about-section--muted">
+        <div className="about-section-header">
+          <div className="about-section-eyebrow about-section-eyebrow--orange">
+            <span />
+            Para clientes
+          </div>
+          <h2 className="about-section-title">Pide en 4 pasos simples</h2>
+          <p className="about-section-subtitle">
+            Desde explorar el catálogo hasta recibir tu pedido en casa, la experiencia está diseñada para ser rápida e intuitiva.
+          </p>
+        </div>
+
+        <div className="about-flow">
+          <div className="about-flow-step">
+            <div className="about-flow-step__num">
+              <IconSearch />
             </div>
-          </>
-        ))}
-      </div>
-
-      <hr style={{ border: "none", borderTop: "0.5px solid #e5e7eb", marginBottom: "3rem" }} />
-
-      {/* Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)", gap: "1.5rem" }}>
-        {/* Pública */}
-        <div style={{ background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: 12, padding: "1.75rem", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: orange }} />
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "#fff0e6", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem" }}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke={orangeDark} strokeWidth="1.5"><circle cx="10" cy="10" r="8"/><path d="M2 10h16M10 2c-2.5 3-4 5-4 8s1.5 5 4 8M10 2c2.5 3 4 5 4 8s-1.5 5-4 8"/></svg>
+            <h4>Explora</h4>
+            <p>Busca tu restaurante o tienda favorita en el marketplace de ACME.</p>
           </div>
-          <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: orangeDark, margin: "0 0 6px" }}>Acceso abierto</p>
-          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.4rem", fontWeight: 400, margin: "0 0 0.75rem" }}>Zona pública</h2>
-          <p style={{ fontSize: 14, lineHeight: 1.7, color: "#4b5563", margin: "0 0 1.25rem" }}>Página de presentación orientada a captar nuevos comercios y usuarios.</p>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-            {features.public.map(item => (
-              <li key={item} style={{ fontSize: 13, color: "#4b5563", display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 4, height: 4, borderRadius: "50%", background: orange, flexShrink: 0 }} />{item}
-              </li>
-            ))}
-          </ul>
+          <div className="about-flow-step">
+            <div className="about-flow-step__num">
+              <IconCart />
+            </div>
+            <h4>Selecciona</h4>
+            <p>Arma tu pedido, personaliza tus productos y agrégalos al carrito.</p>
+          </div>
+          <div className="about-flow-step">
+            <div className="about-flow-step__num">
+              <IconTruck />
+            </div>
+            <h4>Sigue tu pedido</h4>
+            <p>Visualiza en tiempo real el estado de tu pedido y la ubicación del driver.</p>
+          </div>
+          <div className="about-flow-step">
+            <div className="about-flow-step__num">
+              <IconStar2 />
+            </div>
+            <h4>¡Disfruta!</h4>
+            <p>Recibe tu pedido y califica la experiencia para mejorar el servicio.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION WAVE ── */}
+      <SectionWave fromColor="#f8f9fa" toColor="#ffffff" flip />
+
+      {/* ── PLATFORM ZONES ── */}
+      <section className="about-section about-section--white">
+        <div className="about-section-header">
+          <div className="about-section-eyebrow about-section-eyebrow--purple">
+            <span />
+            Arquitectura de la plataforma
+          </div>
+          <h2 className="about-section-title">Dos zonas, un ecosistema</h2>
+          <p className="about-section-subtitle">
+            ACME combina una plataforma pública de captación con un potente panel privado para que cada negocio gestione su operación de manera autónoma.
+          </p>
         </div>
 
-        {/* Privada */}
-        <div style={{ background: "#fff", border: "0.5px solid #e5e7eb", borderRadius: 12, padding: "1.75rem", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: purple }} />
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "#ede0f7", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem" }}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke={purpleDark} strokeWidth="1.5"><rect x="3" y="9" width="14" height="9" rx="2"/><path d="M6 9V6a4 4 0 1 1 8 0v3"/></svg>
+        <div className="about-zones">
+          {/* Zona pública */}
+          <div className="about-zone-card">
+            <div className="about-zone-card__bar about-zone-card__bar--orange" />
+            <div className="about-zone-card__body">
+              <div className="about-zone-card__icon about-zone-card__icon--orange">
+                <IconGlobe />
+              </div>
+              <span className="about-zone-card__badge about-zone-card__badge--orange">Acceso abierto</span>
+              <h3>Zona Pública</h3>
+              <p>Página de presentación orientada a atraer nuevos comercios y usuarios finales al ecosistema ACME.</p>
+              <ul className="about-zone-feature-list">
+                {[
+                  'Presentación de beneficios ACME',
+                  'Descarga de apps móviles',
+                  'Formulario de captación de negocios',
+                  'Información sobre ser driver',
+                  'Casos de éxito y testimonios',
+                  'Preguntas frecuentes',
+                ].map(item => (
+                  <li key={item}>
+                    <i className="orange"><IconCheck /></i>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase", color: purpleDark, margin: "0 0 6px" }}>Acceso restringido</p>
-          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.4rem", fontWeight: 400, margin: "0 0 0.75rem" }}>Zona privada</h2>
-          <p style={{ fontSize: 14, lineHeight: 1.7, color: "#4b5563", margin: "0 0 1.25rem" }}>Portal exclusivo por local para operar y administrar el negocio.</p>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
-            {features.private.map(item => (
-              <li key={item} style={{ fontSize: 13, color: "#4b5563", display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 4, height: 4, borderRadius: "50%", background: purple, flexShrink: 0 }} />{item}
-              </li>
-            ))}
-          </ul>
+
+          {/* Zona privada */}
+          <div className="about-zone-card">
+            <div className="about-zone-card__bar about-zone-card__bar--purple" />
+            <div className="about-zone-card__body">
+              <div className="about-zone-card__icon about-zone-card__icon--purple">
+                <IconLock />
+              </div>
+              <span className="about-zone-card__badge about-zone-card__badge--purple">Acceso restringido</span>
+              <h3>Panel del Negocio</h3>
+              <p>Panel exclusivo para cada local aprobado. Administra tu operación completa desde un solo lugar.</p>
+              <ul className="about-zone-feature-list">
+                {[
+                  'Gestión de pedidos en tiempo real',
+                  'Control total del menú y precios',
+                  'Configuración de horarios y zonas',
+                  'Estado operativo del local',
+                  'Métricas y reportes de ventas',
+                  'Comunicación directa con drivers',
+                ].map(item => (
+                  <li key={item}>
+                    <i className="purple"><IconCheck /></i>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
+      </section>
+
+      {/* ── SECTION WAVE ── */}
+      <SectionWave fromColor="#ffffff" toColor="#f8f9fa" />
+
+      {/* ── PLATFORM FEATURES ── */}
+      <section className="about-section about-section--muted">
+        <div className="about-section-header">
+          <div className="about-section-eyebrow about-section-eyebrow--orange">
+            <span />
+            Tecnología
+          </div>
+          <h2 className="about-section-title">Todo lo que necesitas para operar</h2>
+          <p className="about-section-subtitle">
+            Herramientas de nivel enterprise, diseñadas para la realidad del delivery local en Huancavelica.
+          </p>
+        </div>
+
+        <div className="about-features-grid">
+          <div className="about-feature-item">
+            <div className="about-feature-item__icon"><IconRealtime /></div>
+            <div>
+              <h4>Pedidos en tiempo real</h4>
+              <p>Notificaciones instantáneas y actualizaciones de estado para clientes, negocios y drivers simultáneamente.</p>
+            </div>
+          </div>
+          <div className="about-feature-item">
+            <div className="about-feature-item__icon about-feature-item__icon--purple"><IconMap /></div>
+            <div>
+              <h4>Seguimiento GPS</h4>
+              <p>Monitorea la ubicación del driver durante toda la entrega y calcula tiempos de llegada precisos.</p>
+            </div>
+          </div>
+          <div className="about-feature-item">
+            <div className="about-feature-item__icon"><IconMenu /></div>
+            <div>
+              <h4>Gestión de menú dinámica</h4>
+              <p>Actualiza productos, precios, fotos y disponibilidad desde la app del negocio en segundos.</p>
+            </div>
+          </div>
+          <div className="about-feature-item">
+            <div className="about-feature-item__icon about-feature-item__icon--purple"><IconBarChart /></div>
+            <div>
+              <h4>Reportes y métricas</h4>
+              <p>Analiza ventas, horarios pico, productos más pedidos y performance de drivers con dashboards claros.</p>
+            </div>
+          </div>
+          <div className="about-feature-item">
+            <div className="about-feature-item__icon"><IconBell /></div>
+            <div>
+              <h4>Notificaciones inteligentes</h4>
+              <p>Push notifications para cada cambio de estado del pedido, desde la confirmación hasta la entrega.</p>
+            </div>
+          </div>
+          <div className="about-feature-item">
+            <div className="about-feature-item__icon about-feature-item__icon--purple"><IconShield /></div>
+            <div>
+              <h4>Pagos seguros</h4>
+              <p>Procesamiento seguro de transacciones con múltiples métodos de pago y liquidaciones automáticas.</p>
+            </div>
+          </div>
+          <div className="about-feature-item">
+            <div className="about-feature-item__icon"><IconPhone /></div>
+            <div>
+              <h4>App nativa para drivers</h4>
+              <p>Aplicación móvil dedicada con GPS, lista de pedidos, historial de ganancias y soporte integrado.</p>
+            </div>
+          </div>
+          <div className="about-feature-item">
+            <div className="about-feature-item__icon about-feature-item__icon--purple"><IconTruck /></div>
+            <div>
+              <h4>Asignación automática</h4>
+              <p>El sistema asigna al driver más cercano y disponible para minimizar tiempos de espera en cada pedido.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <div style={{ background: '#f8f9fa', lineHeight: 0, fontSize: 0, overflow: 'hidden' }}>
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: 60, transform: 'scaleX(-1)', verticalAlign: 'bottom' }}>
+          <path d="M0,35 C180,70 360,0 540,35 C720,70 900,0 1080,35 C1260,70 1380,15 1440,35 L1440,90 L0,90 Z" fill="#4d148c" />
+        </svg>
       </div>
-    </section>
+
+      <section className="about-cta">
+        <h2>¿Listo para ser parte de ACME?</h2>
+        <p>
+          Únete a la plataforma de delivery que está transformando Huancavelica. Ya seas un negocio, un driver o un cliente, tenemos un lugar para ti.
+        </p>
+        <div className="about-cta-buttons">
+          <Link to={AppRoutes.public.businesses} className="about-cta-btn about-cta-btn--primary">
+            <IconGlobe /> Registra tu negocio
+          </Link>
+          <Link to={AppRoutes.public.hazteDriver} className="about-cta-btn about-cta-btn--secondary">
+            <IconTruck /> Únete como driver
+          </Link>
+        </div>
+      </section>
+
+    </div>
   );
 }
