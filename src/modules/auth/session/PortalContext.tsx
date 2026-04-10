@@ -23,6 +23,9 @@ export const PortalContext = createContext<PortalContextState & {
   hasPlatformAccess: false,
   hasBusinessAccess: false,
   hasBranchAccess: false,
+  accessControl: null,
+  isAccountActive: true,
+  mustChangePassword: false,
   permissions: {
     canManageOrders: false,
     canManageMenu: false,

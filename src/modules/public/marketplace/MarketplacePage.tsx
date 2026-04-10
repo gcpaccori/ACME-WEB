@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AppRoutes } from '../../../core/constants/routes';
 import { publicMarketplaceService, PublicMarketplaceMerchant, PublicMarketplaceProduct } from '../../../core/services/publicMarketplaceService';
 import { usePublicStore } from '../store/PublicStoreContext';
 
@@ -30,12 +28,18 @@ function priceForBranch(product: PublicMarketplaceProduct, branchId: string | nu
 
 function gradientForIndex(index: number) {
   const gradients = [
-    'linear-gradient(135deg, rgba(255,98,0,.16), rgba(255,152,85,.28))',
-    'linear-gradient(135deg, rgba(77,20,140,.16), rgba(111,45,189,.28))',
-    'linear-gradient(135deg, rgba(22,163,74,.14), rgba(74,222,128,.28))',
-    'linear-gradient(135deg, rgba(14,165,233,.14), rgba(125,211,252,.28))',
+    'linear-gradient(135deg, rgba(255,98,0,.18), rgba(255,177,122,.34))',
+    'linear-gradient(135deg, rgba(77,20,140,.18), rgba(163,117,255,.28))',
+    'linear-gradient(135deg, rgba(22,163,74,.16), rgba(134,239,172,.28))',
+    'linear-gradient(135deg, rgba(14,165,233,.16), rgba(125,211,252,.30))',
   ];
   return gradients[index % gradients.length];
+}
+
+function productThumb(product: PublicMarketplaceProduct, index: number) {
+  return product.image_url
+    ? `center / cover no-repeat url(${product.image_url})`
+    : gradientForIndex(index);
 }
 
 export function MarketplacePage() {
@@ -46,7 +50,7 @@ export function MarketplacePage() {
   const [query, setQuery] = useState('');
   const [activeMerchantId, setActiveMerchantId] = useState<string | null>(null);
   const [activeBranchId, setActiveBranchId] = useState<string | null>(null);
-  const [activeCategoryId, setActiveCategoryId] = useState<string>('all');
+  const [activeCategoryId, setActiveCategoryId] = useState('all');
   const [selectedProduct, setSelectedProduct] = useState<PublicMarketplaceProduct | null>(null);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({});
   const [productNotes, setProductNotes] = useState('');
@@ -57,6 +61,7 @@ export function MarketplacePage() {
       setError(null);
       const result = await publicMarketplaceService.fetchSnapshot();
       setLoading(false);
+
       if (result.error) {
         setError(result.error.message);
         return;
@@ -64,9 +69,9 @@ export function MarketplacePage() {
 
       const merchants = result.data?.merchants ?? [];
       setSnapshot({ merchants });
-      if (!activeMerchantId && merchants.length > 0) {
-        setActiveMerchantId(merchants[0].id);
-        setActiveBranchId(merchants[0].branches[0]?.id ?? null);
+      if (merchants.length > 0) {
+        setActiveMerchantId((current) => current ?? merchants[0].id);
+        setActiveBranchId((current) => current ?? merchants[0].branches[0]?.id ?? null);
       }
     };
 
@@ -77,14 +82,16 @@ export function MarketplacePage() {
   const filteredMerchants = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     if (!normalized) return merchants;
+
     return merchants.filter((merchant) => {
       const haystack = [
         merchant.trade_name,
         ...merchant.branches.map((branch) => `${branch.name} ${branch.district} ${branch.city}`),
-        ...merchant.featured_product_names,
+        ...merchant.products.map((product) => product.name),
       ]
         .join(' ')
         .toLowerCase();
+
       return haystack.includes(normalized);
     });
   }, [merchants, query]);
@@ -95,6 +102,20 @@ export function MarketplacePage() {
     null;
 
   useEffect(() => {
+    if (!filteredMerchants.length) {
+      setActiveMerchantId(null);
+      setActiveBranchId(null);
+      return;
+    }
+
+    if (!activeMerchantId || !filteredMerchants.some((merchant) => merchant.id === activeMerchantId)) {
+      setActiveMerchantId(filteredMerchants[0].id);
+      setActiveBranchId(filteredMerchants[0].branches[0]?.id ?? null);
+      setActiveCategoryId('all');
+    }
+  }, [activeMerchantId, filteredMerchants]);
+
+  useEffect(() => {
     if (!activeMerchant) return;
     if (!activeBranchId || !activeMerchant.branches.some((branch) => branch.id === activeBranchId)) {
       setActiveBranchId(activeMerchant.branches[0]?.id ?? null);
@@ -103,10 +124,10 @@ export function MarketplacePage() {
 
   const visibleProducts = useMemo(() => {
     if (!activeMerchant) return [];
+
     return activeMerchant.products.filter((product) => {
       const matchesCategory = activeCategoryId === 'all' || product.category_id === activeCategoryId;
-      const matchesAvailability = isProductAvailable(product, activeBranchId);
-      return matchesCategory && matchesAvailability;
+      return matchesCategory && isProductAvailable(product, activeBranchId);
     });
   }, [activeBranchId, activeCategoryId, activeMerchant]);
 
@@ -151,119 +172,70 @@ export function MarketplacePage() {
     <section
       style={{
         minHeight: '100vh',
-        padding: '108px 24px 56px',
+        padding: '104px 20px 56px',
         background:
-          'radial-gradient(1100px 420px at -10% 0%, rgba(77,20,140,.12), transparent 55%), radial-gradient(900px 360px at 110% 10%, rgba(255,98,0,.14), transparent 55%), #f7f7fb',
+          'radial-gradient(900px 320px at -10% 0%, rgba(77,20,140,.10), transparent 55%), radial-gradient(820px 360px at 105% 10%, rgba(255,98,0,.10), transparent 55%), #f7f7fb',
       }}
     >
       <div style={{ maxWidth: '1320px', margin: '0 auto', display: 'grid', gap: '24px' }}>
         <section
           style={{
-            padding: '30px',
-            borderRadius: '30px',
-            background: 'linear-gradient(135deg, #1a0a2e 0%, #4d148c 55%, #ff6200 100%)',
-            color: '#fff',
             display: 'grid',
-            gridTemplateColumns: '1.3fr .9fr',
-            gap: '28px',
-            boxShadow: '0 22px 70px rgba(26,10,46,.24)',
+            gap: '14px',
+            padding: '22px 24px',
+            borderRadius: '28px',
+            background: 'rgba(255,255,255,.86)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,255,255,.7)',
+            boxShadow: '0 18px 42px rgba(17,24,39,.06)',
           }}
         >
-          <div style={{ display: 'grid', gap: '16px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,.8)' }}>
-              Marketplace ACME
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'grid', gap: '4px' }}>
+              <strong style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.35rem', color: '#1d1630' }}>Pide ahora</strong>
+              <span style={{ color: '#6b7280' }}>Elige un local y abre su carta.</span>
             </div>
-            <h1 style={{ margin: 0, fontFamily: "'Poppins', sans-serif", fontSize: 'clamp(2rem, 4vw, 3.6rem)', lineHeight: 1.06 }}>
-              Descubre negocios locales y pide desde una carta visual.
-            </h1>
-            <p style={{ margin: 0, maxWidth: '620px', color: 'rgba(255,255,255,.82)', lineHeight: 1.7 }}>
-              Esta capa ya deja ver lo que un cliente necesita al entrar: negocios, sucursales, categorías, productos, extras y un carrito que puede empezar sin iniciar sesión.
-            </p>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
-              <Link
-                to={AppRoutes.public.cart}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  padding: '14px 20px',
-                  borderRadius: '999px',
-                  background: '#fff',
-                  color: '#4d148c',
-                  fontWeight: 800,
-                }}
-              >
-                Ver carrito {publicStore.cartCount > 0 ? `(${publicStore.cartCount})` : ''}
-              </Link>
-              <Link
-                to={AppRoutes.public.account}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '14px 20px',
-                  borderRadius: '999px',
-                  border: '1px solid rgba(255,255,255,.22)',
-                  color: '#fff',
-                  fontWeight: 700,
-                  background: 'rgba(255,255,255,.08)',
-                }}
-              >
-                {publicStore.sessionUser ? 'Mi cuenta e historial' : 'Inicia sesion para pedir'}
-              </Link>
-            </div>
+            <span
+              style={{
+                padding: '10px 14px',
+                borderRadius: '999px',
+                background: '#fff7ed',
+                color: '#c2410c',
+                fontSize: '13px',
+                fontWeight: 800,
+              }}
+            >
+              {filteredMerchants.length} locales
+            </span>
           </div>
 
-          <div
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Buscar local o plato..."
             style={{
-              borderRadius: '24px',
-              background: 'rgba(255,255,255,.12)',
-              border: '1px solid rgba(255,255,255,.16)',
-              padding: '20px',
-              display: 'grid',
-              gap: '16px',
+              width: '100%',
+              border: '1px solid #ecebf5',
+              borderRadius: '18px',
+              padding: '14px 16px',
+              background: '#fff',
+              outline: 'none',
+              fontSize: '15px',
             }}
-          >
-            <strong style={{ fontSize: '1.05rem' }}>Explora por negocio</strong>
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Busca por negocio, sucursal o plato..."
-              style={{
-                width: '100%',
-                border: '1px solid rgba(255,255,255,.18)',
-                background: 'rgba(255,255,255,.12)',
-                color: '#fff',
-                borderRadius: '16px',
-                padding: '14px 16px',
-                outline: 'none',
-              }}
-            />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '12px' }}>
-              {[
-                { label: 'Negocios', value: String(filteredMerchants.length) },
-                { label: 'Productos', value: String(filteredMerchants.reduce((sum, merchant) => sum + merchant.products.length, 0)) },
-                { label: 'En carrito', value: String(publicStore.cartCount) },
-              ].map((metric) => (
-                <div key={metric.label} style={{ padding: '14px', borderRadius: '18px', background: 'rgba(255,255,255,.1)' }}>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{metric.value}</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,.72)' }}>{metric.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+          />
         </section>
 
         {loading ? (
-          <div style={{ padding: '32px', borderRadius: '24px', background: '#fff' }}>Cargando negocios...</div>
+          <div style={{ padding: '32px', borderRadius: '24px', background: '#fff' }}>Cargando locales...</div>
         ) : error ? (
           <div style={{ padding: '32px', borderRadius: '24px', background: '#fff', color: '#b91c1c' }}>{error}</div>
         ) : (
           <>
-            <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px' }}>
+            <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '20px' }}>
               {filteredMerchants.map((merchant, index) => {
-                const active = merchant.id === activeMerchant?.id;
+                const isActive = merchant.id === activeMerchant?.id;
+                const previewProducts = merchant.products.slice(0, 3);
+
                 return (
                   <button
                     key={merchant.id}
@@ -275,66 +247,140 @@ export function MarketplacePage() {
                     }}
                     style={{
                       textAlign: 'left',
-                      padding: '20px',
-                      borderRadius: '24px',
-                      border: active ? '1px solid rgba(77,20,140,.28)' : '1px solid #ebeaf5',
-                      background: active ? 'linear-gradient(180deg, #fff, #f7f3ff)' : '#fff',
-                      boxShadow: active ? '0 18px 42px rgba(77,20,140,.12)' : '0 10px 26px rgba(17,24,39,.06)',
+                      borderRadius: '28px',
+                      border: isActive ? '1px solid rgba(77,20,140,.24)' : '1px solid #ebeaf5',
+                      background: isActive ? 'linear-gradient(180deg, #fff, #faf7ff)' : '#fff',
+                      boxShadow: isActive ? '0 24px 48px rgba(77,20,140,.12)' : '0 16px 34px rgba(17,24,39,.06)',
+                      padding: '18px',
                       display: 'grid',
-                      gap: '14px',
+                      gap: '16px',
                     }}
                   >
                     <div
                       style={{
-                        minHeight: '120px',
-                        borderRadius: '20px',
-                        padding: '16px',
-                        background: gradientForIndex(index),
+                        minHeight: '124px',
+                        borderRadius: '22px',
+                        padding: '18px',
+                        background: merchant.logo_url
+                          ? `linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.02)), center / cover no-repeat url(${merchant.logo_url})`
+                          : gradientForIndex(index),
                         display: 'flex',
                         alignItems: 'flex-end',
                         justifyContent: 'space-between',
                         gap: '12px',
                       }}
                     >
-                      <div>
-                        <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#4d148c' }}>Negocio</div>
-                        <strong style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.15rem', color: '#1f1630' }}>{merchant.trade_name}</strong>
-                      </div>
-                      <span
+                      <div
                         style={{
-                          padding: '8px 10px',
-                          borderRadius: '999px',
-                          background: '#fff',
-                          fontSize: '12px',
-                          fontWeight: 800,
-                          color: '#4d148c',
+                          maxWidth: '78%',
+                          padding: '10px 12px',
+                          borderRadius: '16px',
+                          background: 'rgba(255,255,255,.86)',
+                          backdropFilter: 'blur(10px)',
                         }}
                       >
-                        {merchant.branches.length} sede{merchant.branches.length === 1 ? '' : 's'}
+                        <strong style={{ display: 'block', fontFamily: "'Poppins', sans-serif", fontSize: '1.05rem', color: '#1d1630' }}>
+                          {merchant.trade_name}
+                        </strong>
+                        <span style={{ fontSize: '13px', color: '#6b7280' }}>
+                          {merchant.branches[0]?.district || 'Huancayo'}
+                        </span>
+                      </div>
+
+                      <span
+                        style={{
+                          minWidth: '42px',
+                          height: '42px',
+                          borderRadius: '14px',
+                          background: '#fff',
+                          color: '#4d148c',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 900,
+                          fontSize: '18px',
+                          boxShadow: '0 10px 20px rgba(15,23,42,.10)',
+                        }}
+                      >
+                        {merchant.products.length}
                       </span>
                     </div>
-                    <div style={{ display: 'grid', gap: '8px', color: '#5b5870', fontSize: '14px' }}>
-                      <span>{merchant.branches[0]?.district || 'Huancayo'} · {merchant.products.length} productos</span>
-                      <span>{merchant.featured_product_names.join(' · ') || 'Carta lista para explorar'}</span>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '10px' }}>
+                      {previewProducts.map((product, previewIndex) => (
+                        <div key={product.id} style={{ display: 'grid', gap: '8px' }}>
+                          <div
+                            style={{
+                              aspectRatio: '1 / 1',
+                              borderRadius: '18px',
+                              background: productThumb(product, previewIndex + index),
+                              boxShadow: 'inset 0 -40px 60px rgba(17,24,39,.08)',
+                            }}
+                          />
+                          <span
+                            style={{
+                              fontSize: '12px',
+                              color: '#4b5563',
+                              lineHeight: 1.3,
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {product.name}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </button>
                 );
               })}
             </section>
 
+            {filteredMerchants.length === 0 ? (
+              <div
+                style={{
+                  padding: '36px',
+                  borderRadius: '28px',
+                  background: '#fff',
+                  color: '#6b7280',
+                  textAlign: 'center',
+                  boxShadow: '0 16px 34px rgba(17,24,39,.06)',
+                }}
+              >
+                No encontramos locales o platos con esa búsqueda.
+              </div>
+            ) : null}
+
             {activeMerchant ? (
-              <section style={{ display: 'grid', gridTemplateColumns: '1.45fr .55fr', gap: '20px', alignItems: 'start' }}>
-                <div style={{ display: 'grid', gap: '18px' }}>
-                  <div style={{ padding: '24px', borderRadius: '28px', background: '#fff', boxShadow: '0 14px 38px rgba(17,24,39,.07)', display: 'grid', gap: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '18px', flexWrap: 'wrap', alignItems: 'start' }}>
-                      <div style={{ display: 'grid', gap: '8px' }}>
-                        <div style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#ff6200' }}>Carta activa</div>
-                        <h2 style={{ margin: 0, fontFamily: "'Poppins', sans-serif", fontSize: '2rem', color: '#1d1630' }}>{activeMerchant.trade_name}</h2>
-                        <p style={{ margin: 0, color: '#6b7280', maxWidth: '720px', lineHeight: 1.7 }}>
-                          Negocio visible en la web pública con su carta completa, precio por sucursal y productos listos para pedir.
-                        </p>
-                      </div>
-                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <section
+                style={{
+                  display: 'grid',
+                  gap: '18px',
+                  padding: '22px',
+                  borderRadius: '30px',
+                  background: '#fff',
+                  boxShadow: '0 18px 42px rgba(17,24,39,.07)',
+                }}
+              >
+                <div style={{ display: 'grid', gap: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ display: 'grid', gap: '4px' }}>
+                      <h2 style={{ margin: 0, fontFamily: "'Poppins', sans-serif", fontSize: '1.8rem', color: '#1d1630' }}>
+                        {activeMerchant.trade_name}
+                      </h2>
+                      <span style={{ color: '#6b7280' }}>
+                        {activeBranchId
+                          ? activeMerchant.branches.find((branch) => branch.id === activeBranchId)?.address_label ||
+                            activeMerchant.branches.find((branch) => branch.id === activeBranchId)?.district ||
+                            'Carta disponible'
+                          : 'Carta disponible'}
+                      </span>
+                    </div>
+
+                    {activeMerchant.branches.length > 1 ? (
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                         {activeMerchant.branches.map((branch) => {
                           const branchActive = branch.id === activeBranchId;
                           return (
@@ -343,202 +389,151 @@ export function MarketplacePage() {
                               type="button"
                               onClick={() => setActiveBranchId(branch.id)}
                               style={{
-                                padding: '12px 14px',
-                                borderRadius: '18px',
+                                padding: '10px 14px',
+                                borderRadius: '999px',
                                 border: branchActive ? '1px solid rgba(77,20,140,.22)' : '1px solid #e5e7eb',
                                 background: branchActive ? '#f4eeff' : '#fff',
-                                display: 'grid',
-                                gap: '4px',
-                                minWidth: '210px',
-                                textAlign: 'left',
+                                color: branchActive ? '#4d148c' : '#374151',
+                                fontWeight: 700,
                               }}
                             >
-                              <strong>{branch.name}</strong>
-                              <span style={{ color: '#6b7280', fontSize: '13px' }}>{branch.address_label || `${branch.district} ${branch.city}`}</span>
-                              <span style={{ fontSize: '12px', color: branch.accepting_orders ? '#166534' : '#9a3412', fontWeight: 700 }}>
-                                {branch.accepting_orders ? 'Recibiendo pedidos' : 'No disponible'}
-                              </span>
+                              {branch.name}
                             </button>
                           );
                         })}
                       </div>
-                    </div>
+                    ) : null}
+                  </div>
 
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveCategoryId('all')}
+                      style={{
+                        padding: '10px 14px',
+                        borderRadius: '999px',
+                        border: activeCategoryId === 'all' ? '1px solid rgba(77,20,140,.22)' : '1px solid #e5e7eb',
+                        background: activeCategoryId === 'all' ? '#f4eeff' : '#fff',
+                        color: activeCategoryId === 'all' ? '#4d148c' : '#374151',
+                        fontWeight: 700,
+                      }}
+                    >
+                      Todo
+                    </button>
+                    {activeMerchant.categories.map((category) => (
                       <button
+                        key={category.id}
                         type="button"
-                        onClick={() => setActiveCategoryId('all')}
+                        onClick={() => setActiveCategoryId(category.id)}
                         style={{
                           padding: '10px 14px',
                           borderRadius: '999px',
-                          border: activeCategoryId === 'all' ? '1px solid rgba(77,20,140,.22)' : '1px solid #e5e7eb',
-                          background: activeCategoryId === 'all' ? '#f4eeff' : '#fff',
+                          border: activeCategoryId === category.id ? '1px solid rgba(77,20,140,.22)' : '1px solid #e5e7eb',
+                          background: activeCategoryId === category.id ? '#f4eeff' : '#fff',
+                          color: activeCategoryId === category.id ? '#4d148c' : '#374151',
                           fontWeight: 700,
-                          color: activeCategoryId === 'all' ? '#4d148c' : '#374151',
                         }}
                       >
-                        Toda la carta
+                        {category.name}
                       </button>
-                      {activeMerchant.categories.map((category) => (
-                        <button
-                          key={category.id}
-                          type="button"
-                          onClick={() => setActiveCategoryId(category.id)}
-                          style={{
-                            padding: '10px 14px',
-                            borderRadius: '999px',
-                            border: activeCategoryId === category.id ? '1px solid rgba(77,20,140,.22)' : '1px solid #e5e7eb',
-                            background: activeCategoryId === category.id ? '#f4eeff' : '#fff',
-                            fontWeight: 700,
-                            color: activeCategoryId === category.id ? '#4d148c' : '#374151',
-                          }}
-                        >
-                          {category.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '18px' }}>
-                    {visibleProducts.map((product, index) => {
-                      const setting = productSettingForBranch(product, activeBranchId);
-                      return (
-                        <article
-                          key={product.id}
-                          style={{
-                            borderRadius: '24px',
-                            border: '1px solid #ebeaf5',
-                            background: '#fff',
-                            overflow: 'hidden',
-                            boxShadow: '0 14px 32px rgba(17,24,39,.06)',
-                            display: 'grid',
-                          }}
-                        >
-                          <div
-                            style={{
-                              minHeight: '170px',
-                              background: product.image_url ? `center / cover no-repeat url(${product.image_url})` : gradientForIndex(index + 2),
-                              padding: '18px',
-                              display: 'flex',
-                              alignItems: 'flex-start',
-                              justifyContent: 'space-between',
-                            }}
-                          >
-                            <span
-                              style={{
-                                padding: '8px 12px',
-                                borderRadius: '999px',
-                                background: '#fff',
-                                color: '#4d148c',
-                                fontSize: '12px',
-                                fontWeight: 800,
-                              }}
-                            >
-                              {formatMoney(priceForBranch(product, activeBranchId))}
-                            </span>
-                            {setting?.stock_qty != null ? (
-                              <span style={{ color: '#1f2937', fontSize: '12px', fontWeight: 700, background: 'rgba(255,255,255,.78)', padding: '8px 10px', borderRadius: '999px' }}>
-                                Stock {setting.stock_qty}
-                              </span>
-                            ) : null}
-                          </div>
-                          <div style={{ padding: '18px', display: 'grid', gap: '12px' }}>
-                            <div style={{ display: 'grid', gap: '8px' }}>
-                              <strong style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1.05rem' }}>{product.name}</strong>
-                              <p style={{ margin: 0, color: '#6b7280', lineHeight: 1.6, minHeight: '44px' }}>
-                                {product.description || 'Producto disponible en la carta pública.'}
-                              </p>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center' }}>
-                              <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 700 }}>
-                                {product.modifier_groups.length > 0 ? `${product.modifier_groups.length} grupos de extras` : 'Sin extras'}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedProduct(product);
-                                  setSelectedOptions({});
-                                  setProductNotes('');
-                                }}
-                                style={{
-                                  border: 'none',
-                                  borderRadius: '14px',
-                                  padding: '12px 14px',
-                                  background: '#ff6200',
-                                  color: '#fff',
-                                  fontWeight: 800,
-                                }}
-                              >
-                                Agregar
-                              </button>
-                            </div>
-                          </div>
-                        </article>
-                      );
-                    })}
+                    ))}
                   </div>
                 </div>
 
-                <aside style={{ position: 'sticky', top: '92px', display: 'grid', gap: '16px' }}>
-                  <div style={{ borderRadius: '26px', background: '#fff', border: '1px solid #ebeaf5', padding: '22px', boxShadow: '0 14px 32px rgba(17,24,39,.06)' }}>
-                    <div style={{ display: 'grid', gap: '10px' }}>
-                      <strong style={{ fontSize: '1.1rem' }}>Carrito actual</strong>
-                      <span style={{ color: '#6b7280', lineHeight: 1.6 }}>
-                        Puedes armarlo sin iniciar sesión. El acceso solo se pedirá cuando confirmes tu pedido.
-                      </span>
-                      <div style={{ display: 'grid', gap: '8px', marginTop: '8px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>Items</span>
-                          <strong>{publicStore.cartCount}</strong>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>Subtotal</span>
-                          <strong>{formatMoney(publicStore.cartSubtotal)}</strong>
-                        </div>
-                      </div>
-                      <Link
-                        to={AppRoutes.public.cart}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '18px' }}>
+                  {visibleProducts.map((product, index) => {
+                    const setting = productSettingForBranch(product, activeBranchId);
+                    return (
+                      <article
+                        key={product.id}
                         style={{
-                          marginTop: '8px',
-                          borderRadius: '16px',
-                          padding: '14px 18px',
-                          textAlign: 'center',
-                          background: '#4d148c',
-                          color: '#fff',
-                          fontWeight: 800,
+                          borderRadius: '24px',
+                          overflow: 'hidden',
+                          background: '#fff',
+                          border: '1px solid #ecebf5',
+                          boxShadow: '0 12px 28px rgba(17,24,39,.06)',
                         }}
                       >
-                        Ir a carrito
-                      </Link>
-                    </div>
-                  </div>
+                        <div
+                          style={{
+                            aspectRatio: '1 / 1',
+                            background: productThumb(product, index + 4),
+                            padding: '14px',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <span
+                            style={{
+                              padding: '8px 12px',
+                              borderRadius: '999px',
+                              background: 'rgba(255,255,255,.92)',
+                              color: '#4d148c',
+                              fontSize: '12px',
+                              fontWeight: 800,
+                            }}
+                          >
+                            {formatMoney(priceForBranch(product, activeBranchId))}
+                          </span>
+                          {setting?.stock_qty != null ? (
+                            <span
+                              style={{
+                                padding: '8px 10px',
+                                borderRadius: '999px',
+                                background: 'rgba(255,255,255,.92)',
+                                color: '#374151',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                              }}
+                            >
+                              {setting.stock_qty}
+                            </span>
+                          ) : null}
+                        </div>
 
-                  <div style={{ borderRadius: '26px', background: '#fff', border: '1px solid #ebeaf5', padding: '22px', boxShadow: '0 14px 32px rgba(17,24,39,.06)' }}>
-                    <div style={{ display: 'grid', gap: '10px' }}>
-                      <strong style={{ fontSize: '1.1rem' }}>Cuenta cliente</strong>
-                      <span style={{ color: '#6b7280', lineHeight: 1.6 }}>
-                        {publicStore.sessionUser
-                          ? 'Ya puedes revisar historial, guardar direcciones y seguir el estado de tus pedidos.'
-                          : 'Regístrate o inicia sesión para validar tu cuenta y guardar historial.'}
-                      </span>
-                      <Link
-                        to={AppRoutes.public.account}
-                        style={{
-                          marginTop: '8px',
-                          borderRadius: '16px',
-                          padding: '14px 18px',
-                          textAlign: 'center',
-                          background: '#fff6f0',
-                          color: '#ff6200',
-                          border: '1px solid rgba(255,98,0,.16)',
-                          fontWeight: 800,
-                        }}
-                      >
-                        {publicStore.sessionUser ? 'Abrir mi cuenta' : 'Crear cuenta'}
-                      </Link>
-                    </div>
-                  </div>
-                </aside>
+                        <div style={{ padding: '16px', display: 'grid', gap: '10px' }}>
+                          <div style={{ display: 'grid', gap: '6px' }}>
+                            <strong style={{ fontFamily: "'Poppins', sans-serif", fontSize: '1rem', color: '#1d1630' }}>{product.name}</strong>
+                            <span
+                              style={{
+                                color: '#6b7280',
+                                fontSize: '14px',
+                                lineHeight: 1.5,
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                minHeight: '42px',
+                              }}
+                            >
+                              {product.description || 'Disponible para pedir ahora.'}
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setSelectedOptions({});
+                              setProductNotes('');
+                            }}
+                            style={{
+                              border: 'none',
+                              borderRadius: '16px',
+                              padding: '12px 14px',
+                              background: '#ff6200',
+                              color: '#fff',
+                              fontWeight: 800,
+                            }}
+                          >
+                            Agregar
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
               </section>
             ) : null}
           </>
@@ -588,7 +583,7 @@ export function MarketplacePage() {
                 <div style={{ display: 'grid', gap: '4px' }}>
                   <strong>{group.name}</strong>
                   <span style={{ color: '#6b7280', fontSize: '13px' }}>
-                    {group.is_required ? 'Requerido' : 'Opcional'} · hasta {Math.max(1, group.max_select)} seleccion{Math.max(1, group.max_select) === 1 ? '' : 'es'}
+                    {group.is_required ? 'Requerido' : 'Opcional'} · hasta {Math.max(1, group.max_select)} selección{Math.max(1, group.max_select) === 1 ? '' : 'es'}
                   </span>
                 </div>
                 <div style={{ display: 'grid', gap: '8px' }}>

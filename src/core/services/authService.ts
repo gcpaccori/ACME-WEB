@@ -2,6 +2,7 @@ import { supabase } from '../../integrations/supabase/client';
 import {
   Merchant,
   MerchantBranch,
+  MerchantAccessControl,
   PortalBusinessAssignment,
   MerchantStaff,
   PortalRoleAssignment,
@@ -10,6 +11,11 @@ import {
 
 function stringOrEmpty(value: unknown) {
   return typeof value === 'string' ? value : value == null ? '' : String(value);
+}
+
+function isMissingRelationError(error: { message?: string } | null | undefined, relationName: string) {
+  const message = String(error?.message ?? '').toLowerCase();
+  return message.includes(relationName.toLowerCase()) && (message.includes('does not exist') || message.includes('relation') || message.includes('schema cache'));
 }
 
 export const authService = {
@@ -23,10 +29,15 @@ export const authService = {
   },
 
   fetchPortalContext: async (userId: string) => {
-    const [profileResult, userRolesResult, staffAssignmentsResult] = await Promise.all([
+    const [profileResult, userRolesResult, staffAssignmentsResult, accessControlResult] = await Promise.all([
       supabase.from('profiles').select('user_id, full_name, email, phone, default_role, is_active').eq('user_id', userId).maybeSingle(),
       supabase.from('user_roles').select('id, role_id, roles:roles(id, code, name)').eq('user_id', userId),
       supabase.from('merchant_staff').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
+      supabase
+        .from('merchant_access_accounts')
+        .select('id, merchant_id, email, full_name, is_active, must_change_password, onboarding_status, access_origin, password_changed_at')
+        .eq('user_id', userId)
+        .maybeSingle(),
     ]);
 
     if (profileResult.error) {
@@ -37,6 +48,9 @@ export const authService = {
     }
     if (staffAssignmentsResult.error) {
       return { error: staffAssignmentsResult.error };
+    }
+    if (accessControlResult.error && !isMissingRelationError(accessControlResult.error, 'merchant_access_accounts')) {
+      return { error: accessControlResult.error };
     }
 
     const roleAssignments: PortalRoleAssignment[] = ((userRolesResult.data ?? []) as any[])
@@ -61,6 +75,22 @@ export const authService = {
           is_active: profileResult.data.is_active ?? undefined,
         }
       : null;
+    const accessControl: MerchantAccessControl | null = accessControlResult.data
+      ? {
+          id: stringOrEmpty(accessControlResult.data.id) || null,
+          merchant_id: stringOrEmpty(accessControlResult.data.merchant_id) || null,
+          email: stringOrEmpty(accessControlResult.data.email),
+          full_name: stringOrEmpty(accessControlResult.data.full_name),
+          is_active: Boolean(accessControlResult.data.is_active ?? true),
+          must_change_password: Boolean(accessControlResult.data.must_change_password ?? false),
+          onboarding_status: stringOrEmpty(accessControlResult.data.onboarding_status) || null,
+          access_origin: stringOrEmpty(accessControlResult.data.access_origin) || null,
+          password_changed_at: stringOrEmpty(accessControlResult.data.password_changed_at) || null,
+        }
+      : null;
+    const isOnboardingBlocked = ['pending_review', 'suspended'].includes(stringOrEmpty(accessControl?.onboarding_status).toLowerCase());
+    const isAccountActive = Boolean(profile?.is_active ?? true) && Boolean(accessControl?.is_active ?? true) && !isOnboardingBlocked;
+    const mustChangePassword = Boolean(accessControl?.must_change_password ?? false);
 
     const staffRows = Array.isArray(staffAssignmentsResult.data) ? (staffAssignmentsResult.data as any[]) : [];
 
@@ -74,6 +104,9 @@ export const authService = {
         currentMerchant: null,
         branches: [],
         currentBranch: null,
+        accessControl,
+        isAccountActive,
+        mustChangePassword,
       };
     }
     const merchantIds = Array.from(new Set(staffRows.map((row) => stringOrEmpty(row?.merchant_id)).filter(Boolean)));
@@ -180,6 +213,9 @@ export const authService = {
       currentMerchant: currentAssignment?.merchant ?? null,
       branches: currentAssignment?.branches ?? [],
       currentBranch,
+      accessControl,
+      isAccountActive,
+      mustChangePassword,
     };
   },
 };

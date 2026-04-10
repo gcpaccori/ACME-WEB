@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { PublicLayout, PortalLayout } from '../layouts';
 import { LoginPage } from '../../modules/auth/login/LoginPage';
+import { FirstAccessPasswordPage } from '../../modules/auth/first-access/FirstAccessPasswordPage';
 import { HomePage } from '../../modules/public/home/HomePage';
 import { AboutPage } from '../../modules/public/about/AboutPage';
 import { MarketplacePage } from '../../modules/public/marketplace/MarketplacePage';
@@ -102,6 +103,7 @@ export function AppRouter() {
           <Route path="admin/orders/:orderId" element={<OrderDetailAdminPage />} />
 
           <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="first-access" element={<FirstAccessPasswordPage />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route path="orders/:id" element={<OrderDetailPage />} />
           <Route path="menu" element={<MenuPage />} />

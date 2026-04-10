@@ -21,8 +21,9 @@ function formatDateTime(value: string) {
 function getStatusTone(status: string) {
   const normalized = status.trim().toLowerCase();
   if (normalized === 'active') return 'success' as const;
+  if (normalized === 'pending_review' || normalized === 'invited' || normalized === 'draft') return 'warning' as const;
   if (normalized === 'paused') return 'warning' as const;
-  if (normalized === 'inactive') return 'danger' as const;
+  if (normalized === 'inactive' || normalized === 'disabled' || normalized === 'suspended') return 'danger' as const;
   return 'neutral' as const;
 }
 

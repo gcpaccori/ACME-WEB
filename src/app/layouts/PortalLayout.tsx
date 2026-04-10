@@ -34,12 +34,14 @@ export function PortalLayout() {
   const activeModule = useMemo(() => getAdminModuleByPath(location.pathname), [location.pathname]);
   const enabledModules = useMemo(
     () =>
-      getEnabledAdminModules({
-        scopeType: portal.currentScopeType,
-        hasMerchant: !!portal.currentMerchant,
-        hasBranch: !!portal.currentBranch,
-      }).filter((module) => canAccessAdminModule(module.id, portal.permissions)),
-    [portal.currentScopeType, portal.currentMerchant, portal.currentBranch, portal.permissions]
+      portal.mustChangePassword || !portal.isAccountActive
+        ? []
+        : getEnabledAdminModules({
+            scopeType: portal.currentScopeType,
+            hasMerchant: !!portal.currentMerchant,
+            hasBranch: !!portal.currentBranch,
+          }).filter((module) => canAccessAdminModule(module.id, portal.permissions)),
+    [portal.currentScopeType, portal.currentMerchant, portal.currentBranch, portal.permissions, portal.mustChangePassword, portal.isAccountActive]
   );
 
   const isPlatformScope = portal.currentScopeType === 'platform';

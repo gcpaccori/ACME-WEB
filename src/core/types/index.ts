@@ -59,6 +59,18 @@ export interface PortalBusinessAssignment {
   primaryBranchId: string | null;
 }
 
+export interface MerchantAccessControl {
+  id: string | null;
+  merchant_id: string | null;
+  email: string;
+  full_name: string;
+  is_active: boolean;
+  must_change_password: boolean;
+  onboarding_status: string | null;
+  access_origin: string | null;
+  password_changed_at: string | null;
+}
+
 export interface PortalPermissions {
   canManageOrders: boolean;
   canManageMenu: boolean;
@@ -92,6 +104,9 @@ export interface PortalContextState {
   hasPlatformAccess: boolean;
   hasBusinessAccess: boolean;
   hasBranchAccess: boolean;
+  accessControl: MerchantAccessControl | null;
+  isAccountActive: boolean;
+  mustChangePassword: boolean;
   permissions: PortalPermissions;
   isLoading: boolean;
   error: string | null;

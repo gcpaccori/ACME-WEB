@@ -4,7 +4,7 @@ import { AdminDataTable } from '../../../../../components/admin/AdminDataTable';
 import { AdminPageFrame, FormStatusBar, SaveActions, SectionCard, StatusPill } from '../../../../../components/admin/AdminScaffold';
 import { AdminTabPanel, AdminTabs } from '../../../../../components/admin/AdminTabs';
 import { AdminTimeline } from '../../../../../components/admin/AdminTimeline';
-import { FieldGroup, SelectField } from '../../../../../components/admin/AdminFields';
+import { CheckboxField, FieldGroup, SelectField } from '../../../../../components/admin/AdminFields';
 import { LoadingScreen } from '../../../../../components/shared/LoadingScreen';
 import { TextField } from '../../../../../components/ui/TextField';
 import { getPortalActorLabel, getScopeLabel } from '../../../../../core/auth/portalAccess';
@@ -12,14 +12,38 @@ import { hasDirtyState, serializeDirtyState } from '../../../../../core/admin/ut
 import { AppRoutes } from '../../../../../core/constants/routes';
 import { MerchantAdminForm } from '../../../../../core/services/adminService';
 import { adminPlatformService, PlatformMerchantDetail } from '../../../../../core/services/adminPlatformService';
+import { MerchantAccessSnapshot, merchantAccessService } from '../../../../../core/services/merchantAccessService';
 import { PortalContext } from '../../../../auth/session/PortalContext';
 
-type DetailTab = 'summary' | 'branches' | 'staff' | 'activity' | 'audit';
+type DetailTab = 'summary' | 'access' | 'branches' | 'staff' | 'activity' | 'audit';
+
+interface MerchantAccessFormState {
+  email: string;
+  fullName: string;
+  password: string;
+  isActive: boolean;
+  mustChangePassword: boolean;
+  onboardingStatus: 'pending_review' | 'invited' | 'active' | 'suspended';
+  accessOrigin: 'platform_created' | 'public_signup' | 'migration';
+}
 
 const statusOptions = [
   { value: 'active', label: 'Activo' },
   { value: 'inactive', label: 'Inactivo' },
   { value: 'paused', label: 'Pausado' },
+];
+
+const accessStatusOptions = [
+  { value: 'pending_review', label: 'Pendiente de revision' },
+  { value: 'invited', label: 'Invitado' },
+  { value: 'active', label: 'Activo' },
+  { value: 'suspended', label: 'Suspendido' },
+];
+
+const accessOriginOptions = [
+  { value: 'platform_created', label: 'Creado por plataforma' },
+  { value: 'public_signup', label: 'Alta publica' },
+  { value: 'migration', label: 'Migrado' },
 ];
 
 function formatDateTime(value: string) {
@@ -39,6 +63,26 @@ function getBranchTone(isOpen: boolean, acceptsOrders: boolean) {
   return 'danger' as const;
 }
 
+function getAccessStatusTone(status: string) {
+  const normalized = status.trim().toLowerCase();
+  if (normalized === 'active') return 'success' as const;
+  if (normalized === 'pending_review' || normalized === 'invited') return 'warning' as const;
+  if (normalized === 'suspended') return 'danger' as const;
+  return 'neutral' as const;
+}
+
+function createAccessForm(snapshot: MerchantAccessSnapshot | null): MerchantAccessFormState {
+  return {
+    email: snapshot?.email ?? '',
+    fullName: snapshot?.full_name ?? '',
+    password: '',
+    isActive: Boolean(snapshot?.is_active ?? true),
+    mustChangePassword: Boolean(snapshot?.must_change_password ?? false),
+    onboardingStatus: ((snapshot?.onboarding_status as MerchantAccessFormState['onboardingStatus']) ?? 'active'),
+    accessOrigin: ((snapshot?.access_origin as MerchantAccessFormState['accessOrigin']) ?? 'platform_created'),
+  };
+}
+
 export function PlatformBusinessDetailPage() {
   const { merchantId = '' } = useParams();
   const portal = useContext(PortalContext);
@@ -50,13 +94,26 @@ export function PlatformBusinessDetailPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [accessSnapshot, setAccessSnapshot] = useState<MerchantAccessSnapshot | null>(null);
+  const [accessForm, setAccessForm] = useState<MerchantAccessFormState>(createAccessForm(null));
+  const [accessInitialState, setAccessInitialState] = useState(serializeDirtyState(createAccessForm(null)));
+  const [accessLoading, setAccessLoading] = useState(false);
+  const [accessSaving, setAccessSaving] = useState(false);
+  const [accessError, setAccessError] = useState<string | null>(null);
+  const [accessSuccess, setAccessSuccess] = useState<string | null>(null);
 
   const loadData = async () => {
     if (!merchantId) return;
     setLoading(true);
+    setAccessLoading(true);
     setError(null);
-    const result = await adminPlatformService.fetchMerchantDetail(merchantId);
+    setAccessError(null);
+    const [result, accessResult] = await Promise.all([
+      adminPlatformService.fetchMerchantDetail(merchantId),
+      merchantAccessService.fetchMerchantAccess(merchantId),
+    ]);
     setLoading(false);
+    setAccessLoading(false);
     if (result.error) {
       setError(result.error.message);
       return;
@@ -65,6 +122,20 @@ export function PlatformBusinessDetailPage() {
     setDetail(nextDetail);
     setForm(nextDetail?.merchant ?? null);
     setInitialState(serializeDirtyState(nextDetail?.merchant ?? null));
+
+    if (accessResult.error) {
+      setAccessSnapshot(null);
+      setAccessForm(createAccessForm(null));
+      setAccessInitialState(serializeDirtyState(createAccessForm(null)));
+      setAccessError(accessResult.error.message);
+      return;
+    }
+
+    const nextAccessSnapshot = accessResult.data ?? null;
+    const nextAccessForm = createAccessForm(nextAccessSnapshot);
+    setAccessSnapshot(nextAccessSnapshot);
+    setAccessForm(nextAccessForm);
+    setAccessInitialState(serializeDirtyState(nextAccessForm));
   };
 
   useEffect(() => {
@@ -72,6 +143,7 @@ export function PlatformBusinessDetailPage() {
   }, [merchantId]);
 
   const dirty = useMemo(() => (form ? hasDirtyState(form, initialState) : false), [form, initialState]);
+  const accessDirty = useMemo(() => hasDirtyState(accessForm, accessInitialState), [accessForm, accessInitialState]);
 
   const updateField = <K extends keyof MerchantAdminForm>(key: K, value: MerchantAdminForm[K]) => {
     setForm((current) => (current ? { ...current, [key]: value } : current));
@@ -90,6 +162,32 @@ export function PlatformBusinessDetailPage() {
     }
     setInitialState(serializeDirtyState(form));
     setSuccessMessage('Comercio actualizado');
+    await loadData();
+  };
+
+  const handleSaveAccess = async () => {
+    if (!merchantId) return;
+    setAccessSaving(true);
+    setAccessError(null);
+    setAccessSuccess(null);
+    const result = await merchantAccessService.upsertMerchantAccess({
+      merchantId,
+      email: accessForm.email,
+      fullName: accessForm.fullName,
+      password: accessForm.password.trim() ? accessForm.password : undefined,
+      isActive: accessForm.isActive,
+      mustChangePassword: accessForm.mustChangePassword,
+      onboardingStatus: accessForm.onboardingStatus,
+      accessOrigin: accessForm.accessOrigin,
+    });
+    setAccessSaving(false);
+
+    if (result.error) {
+      setAccessError(result.error.message);
+      return;
+    }
+
+    setAccessSuccess('Acceso del negocio actualizado');
     await loadData();
   };
 
@@ -142,6 +240,7 @@ export function PlatformBusinessDetailPage() {
         <AdminTabs
           tabs={[
             { id: 'summary', label: 'Identidad' },
+            { id: 'access', label: 'Acceso', badge: accessSnapshot?.email ? '1' : '0' },
             { id: 'branches', label: 'Sucursales', badge: String(detail.branches.length) },
             { id: 'staff', label: 'Equipo', badge: String(detail.staff.length) },
             { id: 'activity', label: 'Actividad', badge: String(detail.recent_orders.length) },
@@ -176,6 +275,117 @@ export function PlatformBusinessDetailPage() {
                 <SelectField value={form.status} onChange={(event) => updateField('status', event.target.value)} options={statusOptions} />
               </FieldGroup>
             </div>
+          </AdminTabPanel>
+        ) : null}
+
+        {activeTab === 'access' ? (
+          <AdminTabPanel>
+            <SectionCard
+              title="Acceso del negocio"
+              description="Aqui plataforma crea, aprueba, reactiva o suspende el correo de acceso del negocio. Si el alta vino desde la web publica, esta misma ficha sirve para revisarla."
+            >
+              {accessLoading ? <LoadingScreen message="Cargando acceso del negocio..." /> : null}
+
+              {!accessLoading ? (
+                <>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    <StatusPill label={accessSnapshot?.source ?? 'empty'} tone="info" />
+                    <StatusPill label={accessSnapshot?.onboarding_status ?? accessForm.onboardingStatus} tone={getAccessStatusTone(accessSnapshot?.onboarding_status ?? accessForm.onboardingStatus)} />
+                    <StatusPill label={accessSnapshot?.is_active ? 'Cuenta activa' : 'Cuenta inactiva'} tone={accessSnapshot?.is_active ? 'success' : 'danger'} />
+                    <StatusPill label={accessSnapshot?.must_change_password ? 'Cambio pendiente' : 'Sin cambio forzado'} tone={accessSnapshot?.must_change_password ? 'warning' : 'neutral'} />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+                    <FieldGroup label="Correo de acceso" hint="Este es el correo con el que el negocio entra al portal.">
+                      <TextField value={accessForm.email} onChange={(event) => setAccessForm((current) => ({ ...current, email: event.target.value }))} placeholder="owner@negocio.com" />
+                    </FieldGroup>
+                    <FieldGroup label="Responsable principal" hint="Nombre que quedara asociado al owner del negocio.">
+                      <TextField value={accessForm.fullName} onChange={(event) => setAccessForm((current) => ({ ...current, fullName: event.target.value }))} placeholder="Nombre del responsable" />
+                    </FieldGroup>
+                    <FieldGroup label="Contrasena temporal" hint="Si dejas este campo vacio, no se cambiara la contrasena actual.">
+                      <TextField type="password" value={accessForm.password} onChange={(event) => setAccessForm((current) => ({ ...current, password: event.target.value }))} placeholder={accessSnapshot?.has_auth_user ? 'Solo si deseas resetearla' : 'Obligatoria para crear el acceso'} />
+                    </FieldGroup>
+                    <FieldGroup label="Estado de onboarding" hint="Controla si el negocio esta pendiente de revision, invitado, activo o suspendido.">
+                      <SelectField value={accessForm.onboardingStatus} onChange={(event) => setAccessForm((current) => ({ ...current, onboardingStatus: event.target.value as MerchantAccessFormState['onboardingStatus'] }))} options={accessStatusOptions} />
+                    </FieldGroup>
+                    <FieldGroup label="Origen del acceso" hint="Diferencia altas creadas por plataforma frente a altas publicas.">
+                      <SelectField value={accessForm.accessOrigin} onChange={(event) => setAccessForm((current) => ({ ...current, accessOrigin: event.target.value as MerchantAccessFormState['accessOrigin'] }))} options={accessOriginOptions} />
+                    </FieldGroup>
+                    <FieldGroup label="Lectura operativa">
+                      <div style={{ display: 'grid', gap: '8px', padding: '12px 14px', borderRadius: '12px', border: '1px solid #e5e7eb', background: '#f9fafb' }}>
+                        <span>Usuario auth: {accessSnapshot?.has_auth_user ? 'Si' : 'No'}</span>
+                        <span>Owner asignado: {accessSnapshot?.has_staff_assignment ? 'Si' : 'No'}</span>
+                        <span>Ultimo cambio de contrasena: {accessSnapshot?.password_changed_at ? formatDateTime(accessSnapshot.password_changed_at) : 'Sin registro'}</span>
+                        <span>Ultima invitacion: {accessSnapshot?.last_invited_at ? formatDateTime(accessSnapshot.last_invited_at) : 'Sin registro'}</span>
+                      </div>
+                    </FieldGroup>
+                  </div>
+
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    <CheckboxField
+                      label="Acceso activo"
+                      checked={accessForm.isActive}
+                      onChange={(event) => setAccessForm((current) => ({ ...current, isActive: event.target.checked }))}
+                    />
+                    <CheckboxField
+                      label="Forzar cambio de contrasena en el siguiente ingreso"
+                      checked={accessForm.mustChangePassword}
+                      onChange={(event) => setAccessForm((current) => ({ ...current, mustChangePassword: event.target.checked }))}
+                    />
+                  </div>
+
+                  {accessForm.onboardingStatus === 'pending_review' ? (
+                    <div style={{ padding: '12px 14px', borderRadius: '12px', background: '#fff7ed', border: '1px solid #fed7aa', color: '#9a3412' }}>
+                      Mientras este en revision, el negocio queda visible para plataforma pero no puede operar el admin ni aceptar pedidos.
+                    </div>
+                  ) : null}
+
+                  {accessError ? (
+                    <div style={{ padding: '12px 14px', borderRadius: '12px', background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
+                      {accessError}
+                    </div>
+                  ) : null}
+
+                  {accessSuccess ? (
+                    <div style={{ padding: '12px 14px', borderRadius: '12px', background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534' }}>
+                      {accessSuccess}
+                    </div>
+                  ) : null}
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nextForm = createAccessForm(accessSnapshot);
+                        setAccessForm(nextForm);
+                        setAccessInitialState(serializeDirtyState(nextForm));
+                        setAccessError(null);
+                        setAccessSuccess(null);
+                      }}
+                      style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#ffffff', fontWeight: 800 }}
+                    >
+                      Revertir
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveAccess}
+                      disabled={!accessDirty || accessSaving}
+                      style={{
+                        padding: '12px 16px',
+                        borderRadius: '10px',
+                        border: 'none',
+                        background: '#111827',
+                        color: '#ffffff',
+                        fontWeight: 800,
+                        opacity: !accessDirty || accessSaving ? 0.65 : 1,
+                      }}
+                    >
+                      {accessSaving ? 'Guardando acceso...' : 'Guardar acceso'}
+                    </button>
+                  </div>
+                </>
+              ) : null}
+            </SectionCard>
           </AdminTabPanel>
         ) : null}
 

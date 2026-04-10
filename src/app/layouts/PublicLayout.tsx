@@ -53,6 +53,32 @@ export function PublicLayout() {
           background: #ff8533 !important;
         }
 
+        .acme-cart-link {
+          position: relative;
+          width: 44px;
+          height: 44px;
+          padding: 0 !important;
+          border-radius: 14px;
+        }
+
+        .acme-cart-badge {
+          position: absolute;
+          top: -6px;
+          right: -6px;
+          min-width: 20px;
+          height: 20px;
+          padding: 0 6px;
+          border-radius: 999px;
+          background: #ff6200;
+          color: #fff;
+          font-size: 11px;
+          font-weight: 800;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 8px 18px rgba(255,98,0,.35);
+        }
+
         .acme-footer-top {
           background: linear-gradient(180deg, #ff8a1d 0%, #ff6b14 100%);
           color: #fff;
@@ -278,8 +304,18 @@ export function PublicLayout() {
         </nav>
 
         <div className="public-header-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
-          <Link to={AppRoutes.public.cart} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.cart) ? ' active' : ''}`}>
-            Carrito{publicStore.cartCount > 0 ? ` (${publicStore.cartCount})` : ''}
+          <Link
+            to={AppRoutes.public.cart}
+            className={`acme-nav-link acme-cart-link${isActive(location.pathname, AppRoutes.public.cart) ? ' active' : ''}`}
+            aria-label={`Carrito${publicStore.cartCount > 0 ? ` con ${publicStore.cartCount} productos` : ''}`}
+            title="Carrito"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3 5h2l2.1 8.2a1 1 0 0 0 .97.75h8.76a1 1 0 0 0 .97-.76L20 7H7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="10" cy="19" r="1.5" fill="currentColor" />
+              <circle cx="17" cy="19" r="1.5" fill="currentColor" />
+            </svg>
+            {publicStore.cartCount > 0 ? <span className="acme-cart-badge">{publicStore.cartCount}</span> : null}
           </Link>
           <Link to={AppRoutes.public.account} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.account) ? ' active' : ''}`}>
             {publicStore.sessionUser ? 'Mi cuenta' : 'Ingresar'}

@@ -13,6 +13,7 @@ export const AppRoutes = {
   portal: {
     root: '/portal',
     dashboard: '/portal/dashboard',
+    firstAccess: '/portal/first-access',
     orders: '/portal/orders',
     orderDetail: '/portal/orders/:id',
     menu: '/portal/menu',

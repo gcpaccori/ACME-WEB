@@ -8,6 +8,7 @@ import {
   resolvePreferredScopeType,
 } from '../../core/auth/portalAccess';
 import { authService } from '../../core/services/authService';
+import { publicBusinessService } from '../../core/services/publicBusinessService';
 import { PortalContextState, PortalScopeType } from '../../core/types';
 
 const STORAGE_SCOPE_KEY = 'portalCurrentScopeType';
@@ -38,6 +39,9 @@ const initialState: PortalContextState = {
   hasPlatformAccess: false,
   hasBusinessAccess: false,
   hasBranchAccess: false,
+  accessControl: null,
+  isAccountActive: true,
+  mustChangePassword: false,
   permissions: {
     canManageOrders: false,
     canManageMenu: false,
@@ -82,11 +86,31 @@ export function PortalProvider({ children }: { children: ReactNode }) {
     }
 
     const userId = sessionData.session.user.id;
-    const portalResult = await authService.fetchPortalContext(userId);
+    const sessionMustChangePassword = Boolean((sessionData.session.user.app_metadata as Record<string, unknown> | undefined)?.must_change_password);
+    let portalResult = await authService.fetchPortalContext(userId);
 
     if (portalResult.error) {
       setState({ ...initialState, isLoading: false, error: portalResult.error.message });
       return;
+    }
+
+    const pendingBusinessResult = await publicBusinessService.finalizePendingBusinessRegistration(userId);
+    if (pendingBusinessResult.error) {
+      setState({
+        ...initialState,
+        sessionUserId: userId,
+        isLoading: false,
+        error: 'La cuenta fue creada, pero no se pudo terminar de configurar el negocio. Contacta soporte.',
+      });
+      return;
+    }
+
+    if (pendingBusinessResult.data) {
+      portalResult = await authService.fetchPortalContext(userId);
+      if (portalResult.error) {
+        setState({ ...initialState, isLoading: false, error: portalResult.error.message });
+        return;
+      }
     }
 
     const {
@@ -98,7 +122,13 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       currentMerchant,
       branches,
       currentBranch,
+      accessControl,
+      isAccountActive,
+      mustChangePassword,
     } = portalResult;
+    const effectiveMustChangePassword = accessControl
+      ? Boolean(mustChangePassword ?? false)
+      : Boolean(mustChangePassword ?? false) || sessionMustChangePassword;
     const storedMerchantId =
       typeof window !== 'undefined' ? sanitizeStoredValue(window.localStorage.getItem(STORAGE_MERCHANT_KEY)) : null;
     const platformOperator = hasPlatformRole(roleAssignments, profile ?? null);
@@ -159,37 +189,13 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       hasPlatformAccess: access.hasPlatformAccess,
       hasBusinessAccess: access.hasBusinessAccess,
       hasBranchAccess: access.hasBranchAccess,
+      accessControl: accessControl ?? null,
+      isAccountActive: Boolean(isAccountActive ?? true),
+      mustChangePassword: effectiveMustChangePassword,
       permissions,
       isLoading: false,
       error: null,
     });
-
-    // Check for pending business registration
-    const pendingData = localStorage.getItem('pendingBusinessRegistration');
-    if (pendingData) {
-      try {
-        const formData = JSON.parse(pendingData);
-        const { data: merchantData, error: mErr } = await supabase.from('merchants').insert([{ trade_name: formData.businessName }]).select().single();
-        if (mErr) throw mErr;
-        const { data: branchData, error: bErr } = await supabase.from('merchant_branches').insert([{ name: formData.branchName, merchant_id: merchantData.id, address_id: null, phone: formData.phone }]).select().single();
-        if (bErr) throw bErr;
-        const { error: pErr } = await supabase
-          .from('profiles')
-          .insert([{ user_id: userId, full_name: formData.ownerName, email: formData.email, phone: formData.phone }]);
-        if (pErr) throw pErr;
-        const { data: staffData, error: sErr } = await supabase.from('merchant_staff').insert([{ user_id: userId, merchant_id: merchantData.id, staff_role: 'owner', branch_id: null }]).select().single();
-        if (sErr) throw sErr;
-        if (!staffData?.id) throw new Error('No se pudo crear la asignación de staff.');
-        const { error: sbErr } = await supabase.from('merchant_staff_branches').insert([{ branch_id: branchData.id, merchant_staff_id: staffData.id, is_primary: true }]);
-        if (sbErr) throw sbErr;
-        localStorage.removeItem('pendingBusinessRegistration');
-        // Reload context to include new data
-        await loadPortalContext({ silent: true });
-      } catch (createErr: any) {
-        console.error('Error creating business:', createErr);
-        setState((current) => ({ ...current, error: 'Cuenta creada, pero error al configurar el negocio. Contacta soporte.' }));
-      }
-    }
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
@@ -391,3 +397,4 @@ export function PortalProvider({ children }: { children: ReactNode }) {
 
   return <PortalContext.Provider value={value}>{children}</PortalContext.Provider>;
 }
+
