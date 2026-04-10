@@ -38,6 +38,13 @@ import { SettlementsAdminPage } from '../../modules/portal/admin/settlements/Set
 import { MerchantSettlementDetailPage } from '../../modules/portal/admin/settlements/MerchantSettlementDetailPage';
 import { DriverSettlementDetailPage } from '../../modules/portal/admin/settlements/DriverSettlementDetailPage';
 import { SystemAdminPage } from '../../modules/portal/admin/system/SystemAdminPage';
+import { PlatformBusinessesPage } from '../../modules/portal/admin/platform/businesses/PlatformBusinessesPage';
+import { PlatformBusinessDetailPage } from '../../modules/portal/admin/platform/businesses/PlatformBusinessDetailPage';
+import { SecurityAdminPage } from '../../modules/portal/admin/platform/security/SecurityAdminPage';
+import { PaymentsAdminPage } from '../../modules/portal/admin/payments/PaymentsAdminPage';
+import { BranchTurnPage } from '../../modules/portal/admin/branch/BranchTurnPage';
+import { BranchLocalStatusPage } from '../../modules/portal/admin/branch/BranchLocalStatusPage';
+import { BranchOperationalMenuPage } from '../../modules/portal/admin/branch/BranchOperationalMenuPage';
 
 export function AppRouter() {
   return (
@@ -56,8 +63,15 @@ export function AppRouter() {
           <Route index element={<Navigate to="admin" replace />} />
 
           <Route path="admin" element={<AdminDashboardPage />} />
+          <Route path="admin/platform/businesses" element={<PlatformBusinessesPage />} />
+          <Route path="admin/platform/businesses/:merchantId" element={<PlatformBusinessDetailPage />} />
+          <Route path="admin/platform/security" element={<SecurityAdminPage />} />
+          <Route path="admin/payments" element={<PaymentsAdminPage />} />
+          <Route path="admin/turn" element={<BranchTurnPage />} />
           <Route path="admin/commerce" element={<CommercePage />} />
           <Route path="admin/branches" element={<BranchesPage />} />
+          <Route path="admin/local-status" element={<BranchLocalStatusPage />} />
+          <Route path="admin/operational-menu" element={<BranchOperationalMenuPage />} />
           <Route path="admin/branches/new" element={<BranchEditorPage />} />
           <Route path="admin/branches/:branchId" element={<BranchEditorPage />} />
           <Route path="admin/catalog/categories" element={<CategoriesAdminPage />} />

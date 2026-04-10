@@ -5,6 +5,17 @@ export interface UserProfile {
   full_name: string | null;
   email?: string;
   phone?: string;
+  default_role?: string;
+  is_active?: boolean;
+}
+
+export type PortalScopeType = 'platform' | 'business' | 'branch';
+
+export interface PortalRoleAssignment {
+  id: string;
+  role_id: string;
+  code: string;
+  name: string;
 }
 
 export interface MerchantBranch {
@@ -41,19 +52,47 @@ export interface MerchantStaff {
   branches?: MerchantStaffBranchRelation[];
 }
 
+export interface PortalBusinessAssignment {
+  merchant: Merchant;
+  staffAssignment: MerchantStaff;
+  branches: MerchantBranch[];
+  primaryBranchId: string | null;
+}
+
+export interface PortalPermissions {
+  canManageOrders: boolean;
+  canManageMenu: boolean;
+  canManageBranch: boolean;
+  canViewStaff: boolean;
+  canViewCustomers: boolean;
+  canManagePayments: boolean;
+  canManagePromotions: boolean;
+  canManageSettlements: boolean;
+  canManageMessages: boolean;
+  canManageSecurity: boolean;
+  canManageSystem: boolean;
+  canManageDrivers: boolean;
+  canAccessPlatform: boolean;
+  canAccessBusiness: boolean;
+  canAccessBranch: boolean;
+}
+
 export interface PortalContextState {
   sessionUserId: string | null;
   profile: UserProfile | null;
+  roleAssignments: PortalRoleAssignment[];
+  businessAssignments: PortalBusinessAssignment[];
   staffAssignment: MerchantStaff | null;
   merchant: Merchant | null;
+  currentMerchant: Merchant | null;
   branches: MerchantBranch[];
   currentBranch: MerchantBranch | null;
-  permissions: {
-    canManageOrders: boolean;
-    canManageMenu: boolean;
-    canManageBranch: boolean;
-    canViewStaff: boolean;
-  };
+  availableScopeTypes: PortalScopeType[];
+  currentScopeType: PortalScopeType | null;
+  hasPlatformAccess: boolean;
+  hasBusinessAccess: boolean;
+  hasBranchAccess: boolean;
+  permissions: PortalPermissions;
   isLoading: boolean;
   error: string | null;
 }

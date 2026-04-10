@@ -58,7 +58,7 @@ export function BranchEditorPage() {
   const portal = useContext(PortalContext);
   const navigate = useNavigate();
   const params = useParams();
-  const merchantId = portal.merchant?.id;
+  const merchantId = portal.currentMerchant?.id ?? portal.merchant?.id;
   const branchId = params.branchId;
   const isNew = !branchId;
   const [activeTab, setActiveTab] = useState('overview');
@@ -273,7 +273,7 @@ export function BranchEditorPage() {
     });
   };
 
-  const handleSave = async (redirectAfterSave: boolean) => {
+  const handleSave = async (returnToList: boolean) => {
     if (!form) return;
     setSaving(true);
     setError(null);
@@ -286,8 +286,8 @@ export function BranchEditorPage() {
 
     setSuccessMessage('Guardado');
     const nextId = (result.data as any)?.id ?? branchId;
-    if (redirectAfterSave && nextId) {
-      navigate(`/portal/admin/branches/${nextId}`);
+    if (returnToList) {
+      navigate(AppRoutes.portal.admin.branches);
       return;
     }
 
@@ -327,16 +327,18 @@ export function BranchEditorPage() {
       ]}
       contextItems={[
         { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Comercio', value: portal.currentMerchant?.name || portal.merchant?.name || 'sin comercio', tone: 'neutral' },
         { label: 'Sucursal', value: isNew ? 'Nueva' : form.name || 'sin nombre', tone: 'info' },
         { label: 'Modo', value: isNew ? 'Creacion' : 'Edicion', tone: dirty ? 'warning' : 'info' },
         { label: 'Estado', value: dirty ? 'Cambios pendientes' : 'Sin cambios', tone: dirty ? 'warning' : 'success' },
       ]}
       actions={
         <SaveActions
-          onSave={() => handleSave(true)}
-          onSecondarySave={() => handleSave(false)}
+          onSave={() => handleSave(false)}
+          onSecondarySave={() => handleSave(true)}
           onCancel={() => navigate(AppRoutes.portal.admin.branches)}
+          saveLabel="Guardar cambios"
+          secondaryLabel="Guardar y volver al listado"
           disabled={!dirty}
           isSaving={saving}
         />

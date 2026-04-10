@@ -1,5 +1,6 @@
 import { AppRoutes } from '../../constants/routes';
 import { AdminModuleSpec, EntityRootSpec } from '../contracts';
+import { PortalScopeType } from '../../types';
 
 export const adminModules: AdminModuleSpec[] = [
   {
@@ -9,6 +10,27 @@ export const adminModules: AdminModuleSpec[] = [
     route: AppRoutes.portal.admin.root,
     entityRootIds: [],
     enabled: true,
+    scopeVisibility: ['platform', 'business', 'branch'],
+  },
+  {
+    id: 'turn',
+    label: 'Turno',
+    description: 'Lectura rapida del turno actual con colas de pedidos, mensajes y alertas de la sucursal.',
+    route: AppRoutes.portal.admin.turn,
+    entityRootIds: [],
+    enabled: true,
+    scopeVisibility: ['branch'],
+    requiresMerchant: true,
+    requiresBranch: true,
+  },
+  {
+    id: 'businesses',
+    label: 'Comercios',
+    description: 'Supervision de negocios, responsables, sucursales y actividad desde plataforma.',
+    route: AppRoutes.portal.admin.platformBusinesses,
+    entityRootIds: ['platform_merchant'],
+    enabled: true,
+    scopeVisibility: ['platform'],
   },
   {
     id: 'commerce',
@@ -17,6 +39,8 @@ export const adminModules: AdminModuleSpec[] = [
     route: AppRoutes.portal.admin.commerce,
     entityRootIds: ['merchant'],
     enabled: true,
+    scopeVisibility: ['business'],
+    requiresMerchant: true,
   },
   {
     id: 'branches',
@@ -25,14 +49,18 @@ export const adminModules: AdminModuleSpec[] = [
     route: AppRoutes.portal.admin.branches,
     entityRootIds: ['branch'],
     enabled: true,
+    scopeVisibility: ['business'],
+    requiresMerchant: true,
   },
   {
     id: 'people',
     label: 'Personal',
-    description: 'Equipo interno, asignaciones por local y accesos.',
+    description: 'Equipo interno, roles operativos y asignaciones por local.',
     route: AppRoutes.portal.admin.staff,
     entityRootIds: ['staff'],
     enabled: true,
+    scopeVisibility: ['business'],
+    requiresMerchant: true,
   },
   {
     id: 'customers',
@@ -41,6 +69,8 @@ export const adminModules: AdminModuleSpec[] = [
     route: AppRoutes.portal.admin.customers,
     entityRootIds: ['customer'],
     enabled: true,
+    scopeVisibility: ['business'],
+    requiresMerchant: true,
   },
   {
     id: 'catalog',
@@ -49,6 +79,8 @@ export const adminModules: AdminModuleSpec[] = [
     route: AppRoutes.portal.admin.products,
     entityRootIds: ['category', 'product', 'modifier_group'],
     enabled: true,
+    scopeVisibility: ['business'],
+    requiresMerchant: true,
   },
   {
     id: 'orders',
@@ -57,6 +89,31 @@ export const adminModules: AdminModuleSpec[] = [
     route: AppRoutes.portal.admin.orders,
     entityRootIds: ['order'],
     enabled: true,
+    scopeVisibility: ['business', 'branch'],
+    requiresMerchant: true,
+    requiresBranch: true,
+  },
+  {
+    id: 'local_status',
+    label: 'Estado del local',
+    description: 'Control operativo de apertura, recepcion de pedidos y lectura del horario activo.',
+    route: AppRoutes.portal.admin.localStatus,
+    entityRootIds: [],
+    enabled: true,
+    scopeVisibility: ['branch'],
+    requiresMerchant: true,
+    requiresBranch: true,
+  },
+  {
+    id: 'operational_menu',
+    label: 'Menu operativo',
+    description: 'Disponibilidad por sucursal, pausas y ajustes rapidos de la carta en turno.',
+    route: AppRoutes.portal.admin.operationalMenu,
+    entityRootIds: [],
+    enabled: true,
+    scopeVisibility: ['branch'],
+    requiresMerchant: true,
+    requiresBranch: true,
   },
   {
     id: 'drivers',
@@ -65,14 +122,16 @@ export const adminModules: AdminModuleSpec[] = [
     route: AppRoutes.portal.admin.drivers,
     entityRootIds: ['driver'],
     enabled: true,
+    scopeVisibility: ['platform'],
   },
   {
     id: 'payments',
     label: 'Pagos',
-    description: 'Cobros, transacciones, metodos de pago, refunds y caja.',
-    route: '',
-    entityRootIds: ['payment'],
-    enabled: false,
+    description: 'Cobros, transacciones, refunds, metodos de pago y caja.',
+    route: AppRoutes.portal.admin.payments,
+    entityRootIds: ['payment', 'payment_method'],
+    enabled: true,
+    scopeVisibility: ['platform', 'business'],
   },
   {
     id: 'promotions',
@@ -81,6 +140,8 @@ export const adminModules: AdminModuleSpec[] = [
     route: AppRoutes.portal.admin.promotions,
     entityRootIds: ['promotion'],
     enabled: true,
+    scopeVisibility: ['business'],
+    requiresMerchant: true,
   },
   {
     id: 'settlements',
@@ -89,6 +150,8 @@ export const adminModules: AdminModuleSpec[] = [
     route: AppRoutes.portal.admin.settlements,
     entityRootIds: ['commission_rule', 'merchant_settlement', 'driver_settlement'],
     enabled: true,
+    scopeVisibility: ['business'],
+    requiresMerchant: true,
   },
   {
     id: 'messages',
@@ -97,6 +160,17 @@ export const adminModules: AdminModuleSpec[] = [
     route: AppRoutes.portal.admin.messages,
     entityRootIds: ['conversation', 'notification'],
     enabled: true,
+    scopeVisibility: ['business', 'branch'],
+    requiresMerchant: true,
+  },
+  {
+    id: 'security',
+    label: 'Seguridad',
+    description: 'Roles, accesos, jerarquia y gobierno de plataforma.',
+    route: AppRoutes.portal.admin.security,
+    entityRootIds: ['access_control'],
+    enabled: true,
+    scopeVisibility: ['platform'],
   },
   {
     id: 'system',
@@ -105,10 +179,27 @@ export const adminModules: AdminModuleSpec[] = [
     route: AppRoutes.portal.admin.system,
     entityRootIds: ['system'],
     enabled: true,
+    scopeVisibility: ['platform'],
   },
 ];
 
 export const adminEntityRoots: EntityRootSpec[] = [
+  {
+    id: 'platform_merchant',
+    moduleId: 'businesses',
+    label: 'Comercios',
+    singularLabel: 'Comercio de plataforma',
+    description: 'Centro de supervision de negocios para el admin general.',
+    ownerTables: ['merchants'],
+    childRelations: [
+      { table: 'merchant_branches', label: 'Sucursales', exposure: 'tab', editable: false, saveStrategy: 'readonly_backend' },
+      { table: 'merchant_staff', label: 'Responsables', exposure: 'tab', editable: false, saveStrategy: 'readonly_backend' },
+      { table: 'orders', label: 'Actividad', exposure: 'tab', editable: false, saveStrategy: 'readonly_backend' },
+      { table: 'promotions', label: 'Promociones', exposure: 'drawer', editable: false, saveStrategy: 'readonly_backend' },
+    ],
+    listRoute: AppRoutes.portal.admin.platformBusinesses,
+    detailRoute: AppRoutes.portal.admin.platformBusinessDetail,
+  },
   {
     id: 'merchant',
     moduleId: 'commerce',
@@ -117,6 +208,7 @@ export const adminEntityRoots: EntityRootSpec[] = [
     description: 'Ficha principal del negocio con su contexto general.',
     ownerTables: ['merchants'],
     childRelations: [
+      { table: 'merchant_settings', label: 'Configuracion del negocio', exposure: 'tab', editable: true, saveStrategy: 'direct' },
       { table: 'merchant_branches', label: 'Sucursales', exposure: 'tab', editable: false, saveStrategy: 'readonly_backend' },
       { table: 'merchant_staff', label: 'Personal', exposure: 'tab', editable: false, saveStrategy: 'readonly_backend' },
       { table: 'merchant_audit_logs', label: 'Auditoria', exposure: 'timeline', editable: false, saveStrategy: 'readonly_backend' },
@@ -146,13 +238,11 @@ export const adminEntityRoots: EntityRootSpec[] = [
     moduleId: 'people',
     label: 'Personal',
     singularLabel: 'Persona',
-    description: 'Gestion de equipo interno y permisos de operacion.',
+    description: 'Gestion del equipo interno y sus asignaciones operativas por sucursal.',
     ownerTables: ['merchant_staff'],
     childRelations: [
       { table: 'profiles', label: 'Perfil', exposure: 'tab', editable: true, saveStrategy: 'direct' },
       { table: 'merchant_staff_branches', label: 'Asignaciones', exposure: 'tab', editable: true, saveStrategy: 'relational_nested' },
-      { table: 'roles', label: 'Rol base', exposure: 'drawer', editable: false, saveStrategy: 'readonly_backend' },
-      { table: 'user_roles', label: 'Permisos', exposure: 'tab', editable: true, saveStrategy: 'relational_nested' },
     ],
     listRoute: AppRoutes.portal.admin.staff,
   },
@@ -261,6 +351,29 @@ export const adminEntityRoots: EntityRootSpec[] = [
     detailRoute: AppRoutes.portal.admin.driverDetail,
   },
   {
+    id: 'payment',
+    moduleId: 'payments',
+    label: 'Pagos',
+    singularLabel: 'Pago',
+    description: 'Centro financiero de cobros, transacciones y refunds en la plataforma.',
+    ownerTables: ['payments'],
+    childRelations: [
+      { table: 'payment_transactions', label: 'Transacciones', exposure: 'tab', editable: false, saveStrategy: 'readonly_backend' },
+      { table: 'refunds', label: 'Refunds', exposure: 'tab', editable: false, saveStrategy: 'readonly_backend' },
+    ],
+    listRoute: AppRoutes.portal.admin.payments,
+  },
+  {
+    id: 'payment_method',
+    moduleId: 'payments',
+    label: 'Metodos de pago',
+    singularLabel: 'Metodo de pago',
+    description: 'Catalogo global de metodos disponibles para cobro en la plataforma.',
+    ownerTables: ['payment_methods'],
+    childRelations: [],
+    listRoute: AppRoutes.portal.admin.payments,
+  },
+  {
     id: 'promotion',
     moduleId: 'promotions',
     label: 'Promociones',
@@ -353,14 +466,67 @@ export const adminEntityRoots: EntityRootSpec[] = [
     ],
     listRoute: AppRoutes.portal.admin.system,
   },
+  {
+    id: 'access_control',
+    moduleId: 'security',
+    label: 'Seguridad',
+    singularLabel: 'Acceso',
+    description: 'Centro institucional para roles y permisos de usuario.',
+    ownerTables: ['roles', 'user_roles'],
+    childRelations: [
+      { table: 'profiles', label: 'Perfil', exposure: 'tab', editable: true, saveStrategy: 'direct' },
+      { table: 'merchant_staff', label: 'Negocio', exposure: 'drawer', editable: false, saveStrategy: 'readonly_backend' },
+      { table: 'drivers', label: 'Reparto', exposure: 'drawer', editable: false, saveStrategy: 'readonly_backend' },
+      { table: 'customers', label: 'Cliente', exposure: 'drawer', editable: false, saveStrategy: 'readonly_backend' },
+    ],
+    listRoute: AppRoutes.portal.admin.security,
+  },
 ];
 
-export function getEnabledAdminModules() {
-  return adminModules.filter((module) => module.enabled && module.route);
+export function getEnabledAdminModules(options?: {
+  scopeType?: PortalScopeType | null;
+  hasMerchant?: boolean;
+  hasBranch?: boolean;
+}) {
+  return adminModules.filter((module) => {
+    if (!module.enabled || !module.route) {
+      return false;
+    }
+    if (options?.scopeType && !module.scopeVisibility.includes(options.scopeType)) {
+      return false;
+    }
+    if (module.requiresMerchant && !options?.hasMerchant) {
+      return false;
+    }
+    if (module.requiresBranch && !options?.hasBranch) {
+      return false;
+    }
+    return true;
+  });
 }
 
 export function getAdminModuleById(moduleId: AdminModuleSpec['id']) {
   return adminModules.find((module) => module.id === moduleId);
+}
+
+export function getAdminModuleByPath(pathname: string) {
+  const normalizedPath = pathname.replace(/\/+$/, '') || '/';
+  const candidates = [...adminModules]
+    .filter((module) => module.enabled && module.route)
+    .sort((left, right) => right.route.length - left.route.length);
+
+  return (
+    candidates.find((module) => {
+      const normalizedRoute = module.route.replace(/\/+$/, '') || '/';
+      if (normalizedPath === normalizedRoute) {
+        return true;
+      }
+      if (normalizedRoute === AppRoutes.portal.admin.root) {
+        return normalizedPath === normalizedRoute;
+      }
+      return normalizedPath.startsWith(`${normalizedRoute}/`);
+    }) ?? null
+  );
 }
 
 export function getEntityRootsByModule(moduleId: AdminModuleSpec['id']) {

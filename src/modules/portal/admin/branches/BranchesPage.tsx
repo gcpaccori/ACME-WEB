@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminService, BranchAdminSummary } from '../../../../core/services/adminService';
 import { PortalContext } from '../../../auth/session/PortalContext';
@@ -34,6 +35,10 @@ export function BranchesPage() {
     return <div>No hay comercio activo para gestionar sucursales.</div>;
   }
 
+  if (portal.currentScopeType !== 'business') {
+    return <div>Esta vista pertenece a la capa negocio.</div>;
+  }
+
   return (
     <AdminPageFrame
       title="Sucursales"
@@ -43,7 +48,8 @@ export function BranchesPage() {
         { label: 'Sucursales' },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
         { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
         { label: 'Entidad', value: 'Sucursal', tone: 'info' },
         { label: 'Modo', value: 'Consulta', tone: 'success' },
@@ -95,7 +101,19 @@ export function BranchesPage() {
                 render: (branch) => (
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <StatusPill label={branch.is_open ? 'Abierta' : 'Cerrada'} tone={branch.is_open ? 'success' : 'danger'} />
-                    <StatusPill label={branch.accepts_orders ? 'Acepta pedidos' : 'No acepta pedidos'} tone={branch.accepts_orders ? 'info' : 'warning'} />
+                    <StatusPill label={branch.accepting_orders ? 'Acepta pedidos' : 'No acepta pedidos'} tone={branch.accepting_orders ? 'info' : 'warning'} />
+                    <StatusPill label={branch.status_code || branch.status} tone={branch.is_open ? 'info' : 'warning'} />
+                  </div>
+                ),
+              },
+              {
+                id: 'relations',
+                header: 'Detalle relacional',
+                render: (branch) => (
+                  <div style={{ display: 'grid', gap: '6px' }}>
+                    <span>{branch.hours_count} horarios / {branch.coverage_count} zonas</span>
+                    <span style={{ color: '#6b7280' }}>{branch.closures_count} cierres especiales</span>
+                    <span style={{ color: '#6b7280' }}>{branch.pause_reason || 'Sin observacion operativa'}</span>
                   </div>
                 ),
               },

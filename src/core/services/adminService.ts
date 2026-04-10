@@ -69,8 +69,14 @@ export interface BranchAdminSummary {
   phone: string;
   status: string;
   accepts_orders: boolean;
+  accepting_orders: boolean;
   prep_time_avg_min: number;
   is_open: boolean;
+  status_code: string;
+  pause_reason: string;
+  hours_count: number;
+  closures_count: number;
+  coverage_count: number;
   address_text: string;
 }
 
@@ -433,7 +439,10 @@ export const adminService = {
         accepts_orders,
         prep_time_avg_min,
         address:addresses(id, line1, district, city),
-        branch_status:merchant_branch_status(branch_id, is_open)
+        branch_status:merchant_branch_status(branch_id, is_open, accepting_orders, status_code, pause_reason),
+        hours:merchant_branch_hours(id, is_closed),
+        closures:merchant_branch_closures(id),
+        coverage:branch_delivery_zones(id, is_active)
       `)
       .eq('merchant_id', merchantId)
       .order('name', { ascending: true });
@@ -446,8 +455,14 @@ export const adminService = {
       phone: stringOrEmpty(row.phone),
       status: stringOrEmpty(row.status) || 'active',
       accepts_orders: Boolean(row.accepts_orders ?? false),
+      accepting_orders: Boolean(row.branch_status?.accepting_orders ?? row.accepts_orders ?? false),
       prep_time_avg_min: Number(row.prep_time_avg_min ?? 0),
       is_open: Boolean(row.branch_status?.is_open ?? false),
+      status_code: stringOrEmpty(row.branch_status?.status_code) || 'closed',
+      pause_reason: stringOrEmpty(row.branch_status?.pause_reason),
+      hours_count: Array.isArray(row.hours) ? row.hours.filter((item: any) => !Boolean(item?.is_closed)).length : 0,
+      closures_count: Array.isArray(row.closures) ? row.closures.length : 0,
+      coverage_count: Array.isArray(row.coverage) ? row.coverage.filter((item: any) => Boolean(item?.is_active ?? true)).length : 0,
       address_text: [row.address?.line1, row.address?.district, row.address?.city].filter(Boolean).join(', ') || 'Sin direccion',
     }));
 

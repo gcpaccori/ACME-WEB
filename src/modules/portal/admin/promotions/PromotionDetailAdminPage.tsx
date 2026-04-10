@@ -9,6 +9,7 @@ import { AdminPageFrame, FormStatusBar, SectionCard, StatusPill } from '../../..
 import { AdminTabPanel, AdminTabs } from '../../../../components/admin/AdminTabs';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { TextField } from '../../../../components/ui/TextField';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import {
   adminPromotionsService,
@@ -89,11 +90,24 @@ function getTargetTypeLabel(targetType: string) {
   return targetType || 'Target';
 }
 
+function getCouponStatus(record: PromotionCouponRecord) {
+  if (!record.is_active) {
+    return { label: 'Inactivo', tone: 'warning' as const };
+  }
+  if (record.ends_at) {
+    const parsed = new Date(record.ends_at);
+    if (!Number.isNaN(parsed.getTime()) && parsed.getTime() < Date.now()) {
+      return { label: 'Vencido', tone: 'danger' as const };
+    }
+  }
+  return { label: 'Activo', tone: 'success' as const };
+}
+
 export function PromotionDetailAdminPage() {
   const navigate = useNavigate();
   const { promotionId } = useParams();
   const portal = useContext(PortalContext);
-  const merchantId = portal.merchant?.id;
+  const merchantId = portal.currentMerchant?.id ?? portal.merchant?.id;
 
   const [activeTab, setActiveTab] = useState<PromotionDetailTab>('summary');
   const [detail, setDetail] = useState<PromotionAdminDetail | null>(null);
@@ -131,7 +145,7 @@ export function PromotionDetailAdminPage() {
   const targetOptions = useMemo(() => {
     if (!detail || !merchantId) return [{ value: '', label: 'Selecciona un destino' }];
     if (targetForm.target_type === 'merchant') {
-      return [{ value: merchantId, label: portal.merchant?.name || 'Comercio actual' }];
+      return [{ value: merchantId, label: portal.currentMerchant?.name || portal.merchant?.name || 'Comercio actual' }];
     }
     if (targetForm.target_type === 'branch') {
       return [{ value: '', label: 'Selecciona una sucursal' }, ...detail.branch_options.map((item) => ({ value: item.id, label: item.label }))];
@@ -143,7 +157,31 @@ export function PromotionDetailAdminPage() {
       return [{ value: '', label: 'Selecciona un producto' }, ...detail.product_options.map((item) => ({ value: item.id, label: item.label }))];
     }
     return [{ value: '', label: 'Selecciona un destino' }];
-  }, [detail, merchantId, portal.merchant?.name, targetForm.target_type]);
+  }, [detail, merchantId, portal.currentMerchant?.name, portal.merchant?.name, targetForm.target_type]);
+
+  const couponSummary = useMemo(
+    () => ({
+      total: detail?.coupons.length ?? 0,
+      active: (detail?.coupons ?? []).filter((coupon) => getCouponStatus(coupon).label === 'Activo').length,
+      expired: (detail?.coupons ?? []).filter((coupon) => getCouponStatus(coupon).label === 'Vencido').length,
+      redeemed: (detail?.coupons ?? []).filter((coupon) => coupon.redemption_count > 0).length,
+    }),
+    [detail]
+  );
+
+  const usageSummary = useMemo(() => {
+    const redemptions = detail?.redemptions ?? [];
+    const uniqueCustomers = new Set(redemptions.map((item) => item.customer_id).filter(Boolean));
+    const totalDiscount = redemptions.reduce((sum, item) => sum + item.discount_amount, 0);
+    const averageDiscount = redemptions.length > 0 ? totalDiscount / redemptions.length : 0;
+    return {
+      redemptions: redemptions.length,
+      customers: uniqueCustomers.size,
+      totalDiscount,
+      averageDiscount,
+      lastRedemption: redemptions[0]?.redeemed_at || '',
+    };
+  }, [detail]);
 
   const openPromotionModal = () => {
     if (!detail) return;
@@ -258,8 +296,9 @@ export function PromotionDetailAdminPage() {
         { label: detail.name || detail.id },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
+        { label: 'Comercio', value: portal.currentMerchant?.name || portal.merchant?.name || 'sin comercio', tone: 'neutral' },
         { label: 'Entidad', value: 'Promocion', tone: 'info' },
         { label: 'Modo', value: 'Comercial', tone: 'warning' },
         { label: 'Estado', value: getPromotionStatusLabel(detail), tone: getPromotionTone(detail) },
@@ -391,6 +430,22 @@ export function PromotionDetailAdminPage() {
 
       {activeTab === 'coupons' ? (
         <AdminTabPanel>
+          <SectionCard title="Lectura de cupones" description="Resumen para ver si la campana tiene suficiente inventario, actividad y vencimientos.">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
+              {[
+                { label: 'Cupones', value: String(couponSummary.total) },
+                { label: 'Activos', value: String(couponSummary.active) },
+                { label: 'Vencidos', value: String(couponSummary.expired) },
+                { label: 'Con uso real', value: String(couponSummary.redeemed) },
+              ].map((item) => (
+                <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                  <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
+                  <strong>{item.value}</strong>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
           <AdminInlineRelationTable
             title="Cupones"
             description="coupons vive dentro de la promocion para mantener consistencia entre campana y codigos."
@@ -429,7 +484,7 @@ export function PromotionDetailAdminPage() {
                 {
                   id: 'status',
                   header: 'Estado',
-                  render: (record) => <StatusPill label={record.is_active ? 'Activo' : 'Inactivo'} tone={record.is_active ? 'success' : 'warning'} />,
+                  render: (record) => <StatusPill label={getCouponStatus(record).label} tone={getCouponStatus(record).tone} />,
                 },
                 {
                   id: 'action',
@@ -450,6 +505,23 @@ export function PromotionDetailAdminPage() {
 
       {activeTab === 'usage' ? (
         <AdminTabPanel>
+          <SectionCard title="Uso real" description="Lectura comercial de redenciones para validar alcance, adopcion y costo promocional.">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
+              {[
+                { label: 'Redenciones', value: String(usageSummary.redemptions) },
+                { label: 'Clientes unicos', value: String(usageSummary.customers) },
+                { label: 'Descuento total', value: formatMoney(usageSummary.totalDiscount) },
+                { label: 'Descuento promedio', value: formatMoney(usageSummary.averageDiscount) },
+                { label: 'Ultima redencion', value: usageSummary.lastRedemption ? formatDateTime(usageSummary.lastRedemption) : 'Sin uso' },
+              ].map((item) => (
+                <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                  <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
+                  <strong>{item.value}</strong>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
           <AdminInlineRelationTable title="Redenciones" description="coupon_redemptions muestra el uso real de la campana por cliente y pedido.">
             <AdminDataTable
               rows={detail.redemptions}

@@ -6,6 +6,7 @@ import { AdminModalForm } from '../../../../components/admin/AdminModalForm';
 import { AdminPageFrame, FormStatusBar, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { TextField } from '../../../../components/ui/TextField';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import {
   adminDriversService,
@@ -158,6 +159,10 @@ export function DriversAdminPage() {
     navigate(AppRoutes.portal.admin.driverDetail.replace(':driverId', driverId));
   };
 
+  if (portal.currentScopeType !== 'platform') {
+    return <div>Esta vista pertenece a la capa plataforma.</div>;
+  }
+
   return (
     <AdminPageFrame
       title="Reparto"
@@ -167,10 +172,10 @@ export function DriversAdminPage() {
         { label: 'Reparto' },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
         { label: 'Entidad', value: 'Repartidor', tone: 'info' },
-        { label: 'Modo', value: 'Operacion', tone: 'warning' },
+        { label: 'Modo', value: 'Supervision de flota', tone: 'warning' },
       ]}
       actions={
         <button

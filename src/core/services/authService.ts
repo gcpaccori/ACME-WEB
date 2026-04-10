@@ -2,9 +2,15 @@ import { supabase } from '../../integrations/supabase/client';
 import {
   Merchant,
   MerchantBranch,
+  PortalBusinessAssignment,
   MerchantStaff,
+  PortalRoleAssignment,
   UserProfile,
 } from '../types';
+
+function stringOrEmpty(value: unknown) {
+  return typeof value === 'string' ? value : value == null ? '' : String(value);
+}
 
 export const authService = {
   signIn: async (email: string, password: string) => {
@@ -17,104 +23,162 @@ export const authService = {
   },
 
   fetchPortalContext: async (userId: string) => {
-    const profileResult = await supabase.from('profiles').select('user_id, full_name, email, phone').eq('user_id', userId).maybeSingle();
+    const [profileResult, userRolesResult, staffAssignmentsResult] = await Promise.all([
+      supabase.from('profiles').select('user_id, full_name, email, phone, default_role, is_active').eq('user_id', userId).maybeSingle(),
+      supabase.from('user_roles').select('id, role_id, roles:roles(id, code, name)').eq('user_id', userId),
+      supabase.from('merchant_staff').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
+    ]);
+
     if (profileResult.error) {
       return { error: profileResult.error };
     }
-
-    const staffResult = await supabase
-      .from('merchant_staff')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    if (staffResult.error) {
-      return { error: staffResult.error };
+    if (userRolesResult.error) {
+      return { error: userRolesResult.error };
+    }
+    if (staffAssignmentsResult.error) {
+      return { error: staffAssignmentsResult.error };
     }
 
-    if (!staffResult.data) {
+    const roleAssignments: PortalRoleAssignment[] = ((userRolesResult.data ?? []) as any[])
+      .map((row) => {
+        const roleRow = row?.roles ?? null;
+        return {
+          id: stringOrEmpty(row?.id),
+          role_id: stringOrEmpty(row?.role_id),
+          code: stringOrEmpty(roleRow?.code),
+          name: stringOrEmpty(roleRow?.name) || stringOrEmpty(roleRow?.code),
+        } satisfies PortalRoleAssignment;
+      })
+      .filter((assignment) => assignment.role_id && assignment.code);
+
+    const profile: UserProfile | null = profileResult.data
+      ? {
+          id: profileResult.data.user_id,
+          full_name: profileResult.data.full_name,
+          email: profileResult.data.email,
+          phone: profileResult.data.phone,
+          default_role: profileResult.data.default_role ?? undefined,
+          is_active: profileResult.data.is_active ?? undefined,
+        }
+      : null;
+
+    const staffRows = Array.isArray(staffAssignmentsResult.data) ? (staffAssignmentsResult.data as any[]) : [];
+
+    if (staffRows.length === 0) {
       return {
-        profile: profileResult.data
-          ? { id: profileResult.data.user_id, full_name: profileResult.data.full_name, email: profileResult.data.email, phone: profileResult.data.phone }
-          : null,
+        profile,
+        roleAssignments,
+        businessAssignments: [],
         staffAssignment: null,
         merchant: null,
+        currentMerchant: null,
         branches: [],
         currentBranch: null,
       };
     }
+    const merchantIds = Array.from(new Set(staffRows.map((row) => stringOrEmpty(row?.merchant_id)).filter(Boolean)));
+    const staffIds = Array.from(new Set(staffRows.map((row) => stringOrEmpty(row?.id)).filter(Boolean)));
 
-    const staffRow = staffResult.data as any;
-    const merchantResult = staffRow?.merchant_id
-      ? await supabase.from('merchants').select('*').eq('id', staffRow.merchant_id).maybeSingle()
-      : { data: null, error: null };
+    const [merchantsResult, branchRelationsResult] = await Promise.all([
+      merchantIds.length > 0
+        ? supabase.from('merchants').select('*').in('id', merchantIds)
+        : Promise.resolve({ data: [], error: null } as any),
+      staffIds.length > 0
+        ? supabase.from('merchant_staff_branches').select('*').in('merchant_staff_id', staffIds)
+        : Promise.resolve({ data: [], error: null } as any),
+    ]);
 
-    if (merchantResult.error) {
-      return { error: merchantResult.error };
+    if (merchantsResult.error) {
+      return { error: merchantsResult.error };
+    }
+    if (branchRelationsResult.error) {
+      return { error: branchRelationsResult.error };
     }
 
-    const merchantRow = merchantResult.data as any;
-    const merchant: Merchant | null = merchantRow
-      ? {
-          id: merchantRow.id,
-          name: merchantRow.name ?? merchantRow.trade_name ?? 'Comercio',
-          slug: merchantRow.slug ?? undefined,
-          active: merchantRow.active ?? merchantRow.is_active ?? undefined,
+    const merchantMap = new Map<string, Merchant>(
+      ((merchantsResult.data ?? []) as any[]).map((row) => [
+        stringOrEmpty(row.id),
+        {
+          id: row.id,
+          name: row.name ?? row.trade_name ?? 'Comercio',
+          slug: row.slug ?? undefined,
+          active: row.active ?? row.is_active ?? undefined,
+        } satisfies Merchant,
+      ])
+    );
+
+    const branchRelationRows = Array.isArray(branchRelationsResult.data) ? (branchRelationsResult.data as any[]) : [];
+    const branchIds = Array.from(new Set(branchRelationRows.map((row) => stringOrEmpty(row?.branch_id)).filter(Boolean)));
+    const branchesResult =
+      branchIds.length > 0
+        ? await supabase.from('merchant_branches').select('*').in('id', branchIds)
+        : ({ data: [], error: null } as any);
+
+    if (branchesResult.error) {
+      return { error: branchesResult.error };
+    }
+
+    const branchMap = new Map<string, MerchantBranch>(
+      ((branchesResult.data ?? []) as any[]).map((row) => [
+        stringOrEmpty(row.id),
+        {
+          id: row.id,
+          name: row.name ?? row.trade_name ?? 'Sucursal',
+          slug: row.slug ?? undefined,
+          is_open: row.is_open ?? row.open ?? undefined,
+          accepting_orders: row.accepting_orders ?? undefined,
+          address: row.address ?? undefined,
+          merchant_id: row.merchant_id ?? undefined,
+        } satisfies MerchantBranch,
+      ])
+    );
+
+    const businessAssignments: PortalBusinessAssignment[] = staffRows
+      .map((staffRow: any) => {
+        const merchant = merchantMap.get(stringOrEmpty(staffRow.merchant_id));
+        if (!merchant) {
+          return null;
         }
-      : null;
 
-    const staffAssignment: MerchantStaff = {
-      id: staffRow.id,
-      user_id: staffRow.user_id,
-      merchant_id: staffRow.merchant_id,
-      role: staffRow.role ?? staffRow.staff_role ?? 'staff',
-      merchant: merchant ?? undefined,
-    };
+        const staffAssignment: MerchantStaff = {
+          id: stringOrEmpty(staffRow.id),
+          user_id: stringOrEmpty(staffRow.user_id),
+          merchant_id: stringOrEmpty(staffRow.merchant_id),
+          role: stringOrEmpty(staffRow.role ?? staffRow.staff_role) || 'staff',
+          merchant,
+        };
 
-    const branchRelationResult = await supabase
-      .from('merchant_staff_branches')
-      .select('*')
-      .eq('merchant_staff_id', staffRow.id);
+        const relations = branchRelationRows.filter((row) => stringOrEmpty(row.merchant_staff_id) === staffAssignment.id);
+        const primaryBranchId = relations.find((row) => Boolean(row.is_primary))?.branch_id
+          ? stringOrEmpty(relations.find((row) => Boolean(row.is_primary))?.branch_id)
+          : null;
+        const branches = relations
+          .map((row) => branchMap.get(stringOrEmpty(row.branch_id)))
+          .filter(Boolean) as MerchantBranch[];
 
-    if (branchRelationResult.error) {
-      return { error: branchRelationResult.error };
-    }
+        return {
+          merchant,
+          staffAssignment,
+          branches,
+          primaryBranchId,
+        } satisfies PortalBusinessAssignment;
+      })
+      .filter(Boolean) as PortalBusinessAssignment[];
 
-    const relationRows = Array.isArray(branchRelationResult.data) ? (branchRelationResult.data as any[]) : [];
-    const branchIds = relationRows.map((row) => row?.branch_id).filter(Boolean);
-
-    let branches: MerchantBranch[] = [];
-    if (branchIds.length > 0) {
-      const branchResult = await supabase
-        .from('merchant_branches')
-        .select('*')
-        .in('id', branchIds);
-
-      if (branchResult.error) {
-        return { error: branchResult.error };
-      }
-
-      branches = (branchResult.data ?? []).map((row: any) => ({
-        id: row.id,
-        name: row.name ?? row.trade_name ?? 'Sucursal',
-        slug: row.slug ?? undefined,
-        is_open: row.is_open ?? row.open ?? undefined,
-        accepting_orders: row.accepting_orders ?? undefined,
-        address: row.address ?? undefined,
-        merchant_id: row.merchant_id ?? undefined,
-      }));
-    }
-
-    const primaryBranchId = relationRows.find((row) => row?.is_primary)?.branch_id;
-    const currentBranch = branches.find((branch) => branch.id === primaryBranchId) ?? branches[0] ?? null;
+    const currentAssignment = businessAssignments[0] ?? null;
+    const currentBranch =
+      currentAssignment?.branches.find((branch) => branch.id === currentAssignment.primaryBranchId) ??
+      currentAssignment?.branches[0] ??
+      null;
 
     return {
-      profile: profileResult.data
-        ? { id: profileResult.data.user_id, full_name: profileResult.data.full_name, email: profileResult.data.email, phone: profileResult.data.phone }
-        : null,
-      staffAssignment,
-      merchant: merchant ?? null,
-      branches,
+      profile,
+      roleAssignments,
+      businessAssignments,
+      staffAssignment: currentAssignment?.staffAssignment ?? null,
+      merchant: currentAssignment?.merchant ?? null,
+      currentMerchant: currentAssignment?.merchant ?? null,
+      branches: currentAssignment?.branches ?? [],
       currentBranch,
     };
   },

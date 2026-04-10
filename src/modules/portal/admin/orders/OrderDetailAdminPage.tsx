@@ -17,6 +17,7 @@ import {
   getAdminOrderStatusTone,
   normalizeAdminOrderStatus,
 } from '../../../../core/admin/utils/orderWorkflow';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import {
   adminOrdersService,
@@ -37,6 +38,14 @@ import {
 import { PortalContext } from '../../../auth/session/PortalContext';
 
 type DetailTab = 'summary' | 'items' | 'operations' | 'support' | 'payments';
+
+function normalizeId(value: string | null | undefined) {
+  const normalized = String(value ?? '').trim().toLowerCase();
+  if (!normalized || normalized === 'null' || normalized === 'undefined') {
+    return null;
+  }
+  return String(value);
+}
 
 function formatMoney(value: number, currency = 'PEN') {
   return new Intl.NumberFormat('es-PE', {
@@ -67,7 +76,7 @@ export function OrderDetailAdminPage() {
   const navigate = useNavigate();
   const { orderId } = useParams();
   const portal = useContext(PortalContext);
-  const branchId = portal.currentBranch?.id;
+  const branchId = normalizeId(portal.currentBranch?.id);
 
   const [activeTab, setActiveTab] = useState<DetailTab>('summary');
   const [order, setOrder] = useState<OrderAdminDetail | null>(null);
@@ -311,8 +320,13 @@ export function OrderDetailAdminPage() {
         { label: `#${order.order_code}` },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        {
+          label: 'Actor',
+          value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }),
+          tone: 'info',
+        },
+        { label: 'Comercio', value: portal.currentMerchant?.name || 'sin comercio', tone: 'neutral' },
         { label: 'Sucursal', value: portal.currentBranch?.name || 'sin sucursal', tone: 'neutral' },
         { label: 'Entidad', value: 'Pedido', tone: 'info' },
         { label: 'Modo', value: 'Operacion', tone: 'warning' },

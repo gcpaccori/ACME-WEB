@@ -162,6 +162,7 @@ export function SaveActions({
     <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
       {onCancel ? (
         <button
+          type="button"
           onClick={onCancel}
           style={{
             padding: '12px 16px',
@@ -177,6 +178,7 @@ export function SaveActions({
       ) : null}
       {onSecondarySave ? (
         <button
+          type="button"
           onClick={onSecondarySave}
           disabled={disabled || isSaving}
           style={{

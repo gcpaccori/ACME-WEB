@@ -171,16 +171,27 @@ async function logAdminSideEffects(params: {
   ]);
 }
 
-async function fetchMessagingLookups(merchantId: string) {
+async function fetchMessagingLookups(merchantId: string, branchId?: string | null) {
+  const branchQuery = supabase.from('merchant_branches').select('id, name').eq('merchant_id', merchantId).order('name', { ascending: true });
+  const orderQuery = supabase
+    .from('orders')
+    .select('id, order_code, branch_id, customer_id, current_driver_id')
+    .eq('merchant_id', merchantId)
+    .order('placed_at', { ascending: false })
+    .limit(200);
+
+  const staffQuery =
+    branchId && branchId.trim()
+      ? supabase
+          .from('merchant_staff_branches')
+          .select('merchant_staff:merchant_staff!inner(user_id)')
+          .eq('branch_id', branchId)
+      : supabase.from('merchant_staff').select('user_id').eq('merchant_id', merchantId);
+
   const [branchResult, orderResult, staffResult] = await Promise.all([
-    supabase.from('merchant_branches').select('id, name').eq('merchant_id', merchantId).order('name', { ascending: true }),
-    supabase
-      .from('orders')
-      .select('id, order_code, branch_id, customer_id, current_driver_id')
-      .eq('merchant_id', merchantId)
-      .order('placed_at', { ascending: false })
-      .limit(200),
-    supabase.from('merchant_staff').select('user_id').eq('merchant_id', merchantId),
+    branchQuery,
+    branchId && branchId.trim() ? orderQuery.eq('branch_id', branchId) : orderQuery,
+    staffQuery,
   ]);
 
   if (branchResult.error) return { data: null, error: branchResult.error };
@@ -196,7 +207,7 @@ async function fetchMessagingLookups(merchantId: string) {
 
   const customersResult =
     customerIds.length > 0
-      ? await supabase.from('customers').select('id, user_id').in('id', customerIds)
+      ? await supabase.from('customers').select('user_id').in('user_id', customerIds)
       : ({ data: [], error: null } as any);
 
   if (customersResult.error) return { data: null, error: customersResult.error };
@@ -244,7 +255,10 @@ async function fetchMessagingLookups(merchantId: string) {
       orderMap: new Map<string, any>(orderRows.map((row) => [stringOrEmpty(row.id), row])),
       participantOptions,
       profileMap,
-      staffUserIds: uniqueStrings(staffRows.map((row) => stringOrEmpty(row.user_id))),
+      staffUserIds: uniqueStrings(
+        staffRows.map((row) => stringOrEmpty((row as any).user_id ?? (row as any).merchant_staff?.user_id))
+      ),
+      branchId: branchId ? stringOrEmpty(branchId) : '',
     },
     error: null,
   };
@@ -290,8 +304,8 @@ export const adminMessagesService = {
     is_system: false,
   }),
 
-  fetchMessagesOverview: async (merchantId: string, currentUserId: string | null) => {
-    const lookupsResult = await fetchMessagingLookups(merchantId);
+  fetchMessagesOverview: async (merchantId: string, currentUserId: string | null, branchId?: string | null) => {
+    const lookupsResult = await fetchMessagingLookups(merchantId, branchId);
     if (lookupsResult.error) return { data: null, error: lookupsResult.error };
 
     const { orderRows, orderOptions, orderMap, branchMap, participantOptions, profileMap, staffUserIds } = lookupsResult.data!;
@@ -409,7 +423,24 @@ export const adminMessagesService = {
       };
     });
 
-    const notifications: NotificationOverviewRecord[] = notificationRows.map((row) => ({
+    const notifications: NotificationOverviewRecord[] = notificationRows
+      .filter((row) => {
+        if (!branchId) {
+          return true;
+        }
+        const entityType = stringOrEmpty(row.entity_type);
+        const entityId = stringOrEmpty(row.entity_id);
+        if (entityType === 'order') {
+          return orderMap.has(entityId);
+        }
+        if (entityType === 'conversation') {
+          const conversation = conversations.find((item) => stringOrEmpty(item.id) === entityId);
+          if (!conversation) return false;
+          return orderMap.has(stringOrEmpty(conversation.order_id));
+        }
+        return false;
+      })
+      .map((row) => ({
       id: stringOrEmpty(row.id),
       user_id: stringOrEmpty(row.user_id),
       user_label: getUserLabel(profileMap, stringOrEmpty(row.user_id)),
@@ -436,8 +467,8 @@ export const adminMessagesService = {
     };
   },
 
-  fetchConversationDetail: async (merchantId: string, conversationId: string) => {
-    const lookupsResult = await fetchMessagingLookups(merchantId);
+  fetchConversationDetail: async (merchantId: string, conversationId: string, branchId?: string | null) => {
+    const lookupsResult = await fetchMessagingLookups(merchantId, branchId);
     if (lookupsResult.error) return { data: null, error: lookupsResult.error };
 
     const { orderOptions, orderMap, branchMap, participantOptions, profileMap, staffUserIds } = lookupsResult.data!;

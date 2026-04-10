@@ -9,7 +9,7 @@ import { PortalContext } from '../../../auth/session/PortalContext';
 
 export function ProductsAdminPage() {
   const portal = useContext(PortalContext);
-  const merchantId = portal.merchant?.id;
+  const merchantId = portal.currentMerchant?.id ?? portal.merchant?.id;
   const [products, setProducts] = useState<ProductAdminSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export function ProductsAdminPage() {
       ]}
       contextItems={[
         { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Comercio', value: portal.currentMerchant?.name || portal.merchant?.name || 'sin comercio', tone: 'neutral' },
         { label: 'Entidad', value: 'Producto', tone: 'info' },
         { label: 'Modo', value: 'Consulta', tone: 'success' },
         { label: 'Estado', value: 'Sin cambios', tone: 'success' },

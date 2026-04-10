@@ -4,11 +4,20 @@ import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { getAdminOrderStatusLabel, getAdminOrderStatusTone, normalizeAdminOrderStatus } from '../../../../core/admin/utils/orderWorkflow';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminOrdersService, OrderAdminRecord } from '../../../../core/services/adminOrdersService';
 import { PortalContext } from '../../../auth/session/PortalContext';
 
 type OrderFilter = 'all' | 'active' | 'issues' | 'finished';
+
+function normalizeId(value: string | null | undefined) {
+  const normalized = String(value ?? '').trim().toLowerCase();
+  if (!normalized || normalized === 'null' || normalized === 'undefined') {
+    return null;
+  }
+  return String(value);
+}
 
 function resolveOrderFilter(record: OrderAdminRecord) {
   const normalizedStatus = normalizeAdminOrderStatus(record.status);
@@ -32,7 +41,7 @@ function formatMoney(value: number, currency = 'PEN') {
 
 export function OrdersAdminPage() {
   const portal = useContext(PortalContext);
-  const branchId = portal.currentBranch?.id;
+  const branchId = normalizeId(portal.currentBranch?.id);
   const [orders, setOrders] = useState<OrderAdminRecord[]>([]);
   const [filter, setFilter] = useState<OrderFilter>('active');
   const [loading, setLoading] = useState(false);
@@ -92,8 +101,13 @@ export function OrdersAdminPage() {
         { label: 'Pedidos' },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        {
+          label: 'Actor',
+          value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }),
+          tone: 'info',
+        },
+        { label: 'Comercio', value: portal.currentMerchant?.name || portal.merchant?.name || 'sin comercio', tone: 'neutral' },
         { label: 'Sucursal', value: portal.currentBranch?.name || 'sin sucursal', tone: 'neutral' },
         { label: 'Entidad', value: 'Pedido', tone: 'info' },
         { label: 'Modo', value: 'Operacion', tone: 'warning' },

@@ -6,6 +6,7 @@ import { AdminModalForm } from '../../../../components/admin/AdminModalForm';
 import { AdminPageFrame, FormStatusBar, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { TextField } from '../../../../components/ui/TextField';
+import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminMessagesService, ConversationCreateForm, MessagesOverview, NotificationOverviewRecord } from '../../../../core/services/adminMessagesService';
 import { PortalContext } from '../../../auth/session/PortalContext';
@@ -38,6 +39,7 @@ function getNotificationLink(record: NotificationOverviewRecord) {
 export function MessagesAdminPage() {
   const portal = useContext(PortalContext);
   const merchantId = portal.merchant?.id;
+  const branchId = portal.currentScopeType === 'branch' ? portal.currentBranch?.id ?? null : null;
   const sessionUserId = portal.sessionUserId;
   const [query, setQuery] = useState('');
   const [overview, setOverview] = useState<MessagesOverview | null>(null);
@@ -82,7 +84,7 @@ export function MessagesAdminPage() {
     if (!merchantId) return;
     setLoading(true);
     setError(null);
-    const result = await adminMessagesService.fetchMessagesOverview(merchantId, sessionUserId);
+    const result = await adminMessagesService.fetchMessagesOverview(merchantId, sessionUserId, branchId);
     setLoading(false);
     if (result.error) {
       setError(result.error.message);
@@ -93,7 +95,7 @@ export function MessagesAdminPage() {
 
   useEffect(() => {
     loadData();
-  }, [merchantId, sessionUserId]);
+  }, [branchId, merchantId, sessionUserId]);
 
   const normalizedQuery = query.trim().toLowerCase();
   const filteredConversations = useMemo(() => {
@@ -157,8 +159,10 @@ export function MessagesAdminPage() {
         { label: 'Mensajes' },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
+        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+        { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
         { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Sucursal', value: portal.currentScopeType === 'branch' ? portal.currentBranch?.name || 'sin sucursal' : 'Todas', tone: portal.currentScopeType === 'branch' ? 'neutral' : 'warning' },
         { label: 'Entidad', value: 'Mensajes', tone: 'info' },
         { label: 'Modo', value: 'Soporte', tone: 'warning' },
       ]}
