@@ -281,10 +281,10 @@ export function PublicLayout() {
             Para negocios
           </Link>
           <Link
-            to={AppRoutes.public.downloads}
-            className={`acme-nav-link${location.pathname === AppRoutes.public.downloads ? ' active' : ''}`}
+            to={AppRoutes.public.hazteDriver}
+            className={`acme-nav-link${location.pathname === AppRoutes.public.hazteDriver ? ' active' : ''}`}
           >
-            Descargar
+            HAZTE DRIVER
           </Link>
           <Link
             to={AppRoutes.public.contact}
@@ -349,8 +349,8 @@ export function PublicLayout() {
             <div>
               <h4 className="acme-footer-col-title">Accesos</h4>
               <div className="acme-footer-links">
-                <Link to={AppRoutes.public.downloads} className="acme-footer-link">
-                  Descargar
+                <Link to={AppRoutes.public.hazteDriver} className="acme-footer-link">
+                  HAZTE DRIVER
                 </Link>
                 <Link to={AppRoutes.public.contact} className="acme-footer-link">
                   Contacto

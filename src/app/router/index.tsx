@@ -5,7 +5,7 @@ import { HomePage } from '../../modules/public/home/HomePage';
 import { AboutPage } from '../../modules/public/about/AboutPage';
 import { BusinessPage } from '../../modules/public/business/BusinessPage';
 import { ContactPage } from '../../modules/public/contact/ContactPage';
-import { DownloadsPage } from '../../modules/public/downloads/DownloadsPage';
+import { HazteDriverPage } from '../../modules/public/downloads/HazteDriverPage';
 import { PrivateRoute } from '../../modules/auth/guards/PrivateRoute';
 import { DashboardPage } from '../../modules/portal/dashboard/DashboardPage';
 import { OrdersPage, OrderDetailPage } from '../../modules/portal/orders';
@@ -46,7 +46,7 @@ export function AppRouter() {
         <Route index element={<HomePage />} />
         <Route path="como-funciona" element={<AboutPage />} />
         <Route path="para-negocios" element={<BusinessPage />} />
-        <Route path="descargar" element={<DownloadsPage />} />
+        <Route path="hazte-driver" element={<HazteDriverPage />} />
         <Route path="contacto" element={<ContactPage />} />
         <Route path="portal/login" element={<LoginPage />} />
       </Route>

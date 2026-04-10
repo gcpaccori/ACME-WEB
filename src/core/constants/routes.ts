@@ -3,7 +3,7 @@ export const AppRoutes = {
     home: '/',
     howItWorks: '/como-funciona',
     businesses: '/para-negocios',
-    downloads: '/descargar',
+    hazteDriver: '/hazte-driver',
     contact: '/contacto',
     portalLogin: '/portal/login',
   },
