@@ -112,7 +112,7 @@ export function ProductEditorPage() {
     setSuccessMessage(null);
   };
 
-  const handleSave = async (redirectAfterSave: boolean) => {
+  const handleSave = async (returnToList: boolean) => {
     if (!merchantId || !form) return;
     setSaving(true);
     setError(null);
@@ -124,8 +124,8 @@ export function ProductEditorPage() {
     }
     setSuccessMessage('Guardado');
     const nextId = (result.data as any)?.id ?? productId;
-    if (redirectAfterSave && nextId) {
-      navigate(`/portal/admin/catalog/products/${nextId}`);
+    if (returnToList) {
+      navigate(AppRoutes.portal.admin.products);
       return;
     }
     if (nextId) {
@@ -164,9 +164,10 @@ export function ProductEditorPage() {
       ]}
       actions={
         <SaveActions
-          onSave={() => handleSave(true)}
-          onSecondarySave={() => handleSave(false)}
+          onSave={() => handleSave(false)}
+          onSecondarySave={() => handleSave(true)}
           onCancel={() => navigate(AppRoutes.portal.admin.products)}
+          secondaryLabel="Guardar y volver"
           disabled={!dirty}
           isSaving={saving}
         />
