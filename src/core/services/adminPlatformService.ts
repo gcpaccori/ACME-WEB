@@ -88,19 +88,49 @@ function uniqueStrings(values: string[]) {
   return Array.from(new Set(values.filter(Boolean)));
 }
 
+function isPromotionTargetForMerchant(
+  targetType: string,
+  targetId: string,
+  merchantId: string,
+  branchIds: Set<string>,
+  categoryIds: Set<string>,
+  productIds: Set<string>
+) {
+  const normalized = targetType.trim().toLowerCase();
+  if (!targetId) return false;
+  if (normalized === 'merchant') return targetId === merchantId;
+  if (normalized === 'branch') return branchIds.has(targetId);
+  if (normalized === 'category') return categoryIds.has(targetId);
+  if (normalized === 'product') return productIds.has(targetId);
+  return false;
+}
+
 function getMerchantLabel(row: any) {
   return stringOrEmpty(row?.trade_name) || stringOrEmpty(row?.legal_name) || stringOrEmpty(row?.id);
 }
 
 export const adminPlatformService = {
   fetchMerchants: async () => {
-    const [merchantsResult, branchesResult, staffResult, profilesResult, ordersResult, promotionsResult] = await Promise.all([
+    const [
+      merchantsResult,
+      branchesResult,
+      staffResult,
+      profilesResult,
+      ordersResult,
+      categoriesResult,
+      productsResult,
+      promotionsResult,
+      promotionTargetsResult,
+    ] = await Promise.all([
       supabase.from('merchants').select('*').order('created_at', { ascending: false }),
       supabase.from('merchant_branches').select('id, merchant_id, name, branch_status:merchant_branch_status(is_open)'),
       supabase.from('merchant_staff').select('id, merchant_id, user_id, staff_role'),
       supabase.from('profiles').select('user_id, full_name, email'),
       supabase.from('orders').select('id, merchant_id, status'),
-      supabase.from('promotions').select('id, merchant_id, is_active'),
+      supabase.from('categories').select('id, merchant_id'),
+      supabase.from('products').select('id, merchant_id'),
+      supabase.from('promotions').select('id, is_active'),
+      supabase.from('promotion_targets').select('promotion_id, target_type, target_id'),
     ]);
 
     if (merchantsResult.error) return { data: null, error: merchantsResult.error };
@@ -108,20 +138,53 @@ export const adminPlatformService = {
     if (staffResult.error) return { data: null, error: staffResult.error };
     if (profilesResult.error) return { data: null, error: profilesResult.error };
     if (ordersResult.error) return { data: null, error: ordersResult.error };
+    if (categoriesResult.error) return { data: null, error: categoriesResult.error };
+    if (productsResult.error) return { data: null, error: productsResult.error };
     if (promotionsResult.error) return { data: null, error: promotionsResult.error };
+    if (promotionTargetsResult.error) return { data: null, error: promotionTargetsResult.error };
 
     const profileMap = new Map<string, any>(((profilesResult.data ?? []) as any[]).map((row) => [stringOrEmpty(row.user_id), row]));
     const branchRows = (branchesResult.data ?? []) as any[];
     const staffRows = (staffResult.data ?? []) as any[];
     const orderRows = (ordersResult.data ?? []) as any[];
+    const categoryRows = (categoriesResult.data ?? []) as any[];
+    const productRows = (productsResult.data ?? []) as any[];
     const promotionRows = (promotionsResult.data ?? []) as any[];
+    const promotionTargetRows = (promotionTargetsResult.data ?? []) as any[];
 
     const data: PlatformMerchantRecord[] = ((merchantsResult.data ?? []) as any[]).map((row) => {
       const merchantId = stringOrEmpty(row.id);
       const merchantBranches = branchRows.filter((branch) => stringOrEmpty(branch.merchant_id) === merchantId);
       const merchantStaff = staffRows.filter((staff) => stringOrEmpty(staff.merchant_id) === merchantId);
       const merchantOrders = orderRows.filter((order) => stringOrEmpty(order.merchant_id) === merchantId);
-      const merchantPromotions = promotionRows.filter((promotion) => stringOrEmpty(promotion.merchant_id) === merchantId);
+      const merchantBranchIds = new Set(merchantBranches.map((branch) => stringOrEmpty(branch.id)));
+      const merchantCategoryIds = new Set(
+        categoryRows
+          .filter((category) => stringOrEmpty(category.merchant_id) === merchantId)
+          .map((category) => stringOrEmpty(category.id))
+      );
+      const merchantProductIds = new Set(
+        productRows
+          .filter((product) => stringOrEmpty(product.merchant_id) === merchantId)
+          .map((product) => stringOrEmpty(product.id))
+      );
+      const merchantPromotionIds = new Set(
+        uniqueStrings(
+          promotionTargetRows
+            .filter((target) =>
+              isPromotionTargetForMerchant(
+                stringOrEmpty(target.target_type),
+                stringOrEmpty(target.target_id),
+                merchantId,
+                merchantBranchIds,
+                merchantCategoryIds,
+                merchantProductIds
+              )
+            )
+            .map((target) => stringOrEmpty(target.promotion_id))
+        )
+      );
+      const merchantPromotions = promotionRows.filter((promotion) => merchantPromotionIds.has(stringOrEmpty(promotion.id)));
       const owner = merchantStaff.find((staff) => stringOrEmpty(staff.staff_role).toLowerCase() === 'owner') ?? merchantStaff[0];
       const ownerProfile = owner ? profileMap.get(stringOrEmpty(owner.user_id)) : null;
 
@@ -154,7 +217,18 @@ export const adminPlatformService = {
   },
 
   fetchMerchantDetail: async (merchantId: string) => {
-    const [merchantResult, platformBranchesResult, staffResult, ordersResult, promotionsResult, customersResult, merchantAuditResult] = await Promise.all([
+    const [
+      merchantResult,
+      platformBranchesResult,
+      staffResult,
+      ordersResult,
+      categoriesResult,
+      productsResult,
+      promotionsResult,
+      promotionTargetsResult,
+      customersResult,
+      merchantAuditResult,
+    ] = await Promise.all([
       adminService.fetchMerchant(merchantId),
       supabase
         .from('merchant_branches')
@@ -178,7 +252,10 @@ export const adminPlatformService = {
         .eq('merchant_id', merchantId)
         .order('placed_at', { ascending: false })
         .limit(12),
-      supabase.from('promotions').select('id, is_active').eq('merchant_id', merchantId),
+      supabase.from('categories').select('id, merchant_id').eq('merchant_id', merchantId),
+      supabase.from('products').select('id, merchant_id').eq('merchant_id', merchantId),
+      supabase.from('promotions').select('id, is_active'),
+      supabase.from('promotion_targets').select('promotion_id, target_type, target_id'),
       supabase.from('customers').select('user_id, merchant_id').eq('merchant_id', merchantId),
       supabase.from('merchant_audit_logs').select('*').eq('merchant_id', merchantId).order('created_at', { ascending: false }).limit(40),
     ]);
@@ -187,12 +264,19 @@ export const adminPlatformService = {
     if (platformBranchesResult.error) return { data: null, error: platformBranchesResult.error };
     if (staffResult.error) return { data: null, error: staffResult.error };
     if (ordersResult.error) return { data: null, error: ordersResult.error };
+    if (categoriesResult.error) return { data: null, error: categoriesResult.error };
+    if (productsResult.error) return { data: null, error: productsResult.error };
     if (promotionsResult.error) return { data: null, error: promotionsResult.error };
+    if (promotionTargetsResult.error) return { data: null, error: promotionTargetsResult.error };
     if (customersResult.error) return { data: null, error: customersResult.error };
     if (merchantAuditResult.error) return { data: null, error: merchantAuditResult.error };
     if (!merchantResult.data) return { data: null, error: new Error('No se encontro el comercio solicitado') };
 
     const branchRows = (platformBranchesResult.data ?? []) as any[];
+    const categoryRows = (categoriesResult.data ?? []) as any[];
+    const productRows = (productsResult.data ?? []) as any[];
+    const promotionRows = (promotionsResult.data ?? []) as any[];
+    const promotionTargetRows = (promotionTargetsResult.data ?? []) as any[];
     const staff = staffResult.data ?? [];
     const orders = ((ordersResult.data ?? []) as any[]).map((row) => ({
       id: stringOrEmpty(row.id),
@@ -207,6 +291,26 @@ export const adminPlatformService = {
       const status = order.status.toLowerCase();
       return status && !['delivered', 'cancelled', 'rejected'].includes(status);
     }).length;
+    const merchantBranchIds = new Set(branchRows.map((row) => stringOrEmpty(row.id)));
+    const merchantCategoryIds = new Set(categoryRows.map((row) => stringOrEmpty(row.id)));
+    const merchantProductIds = new Set(productRows.map((row) => stringOrEmpty(row.id)));
+    const merchantPromotionIds = new Set(
+      uniqueStrings(
+        promotionTargetRows
+          .filter((target) =>
+            isPromotionTargetForMerchant(
+              stringOrEmpty(target.target_type),
+              stringOrEmpty(target.target_id),
+              merchantId,
+              merchantBranchIds,
+              merchantCategoryIds,
+              merchantProductIds
+            )
+          )
+          .map((target) => stringOrEmpty(target.promotion_id))
+      )
+    );
+    const merchantPromotions = promotionRows.filter((promotion) => merchantPromotionIds.has(stringOrEmpty(promotion.id)));
 
     const branchMap = new Map<string, string>(
       branchRows.map((row) => [stringOrEmpty(row.id), stringOrEmpty(row.name) || stringOrEmpty(row.id)])
@@ -274,7 +378,7 @@ export const adminPlatformService = {
           staff: staff.length,
           orders: orders.length,
           active_orders: activeOrders,
-          promotions: ((promotionsResult.data ?? []) as any[]).filter((promotion) => Boolean(promotion.is_active ?? true)).length,
+          promotions: merchantPromotions.filter((promotion) => Boolean(promotion.is_active ?? true)).length,
           customers: uniqueStrings(((customersResult.data ?? []) as any[]).map((row) => stringOrEmpty(row.user_id))).length,
           audit_logs: auditLogs.length,
         },
