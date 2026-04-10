@@ -2,6 +2,9 @@ export const AppRoutes = {
   public: {
     home: '/',
     howItWorks: '/como-funciona',
+    marketplace: '/pedir',
+    cart: '/carrito',
+    account: '/mi-cuenta',
     businesses: '/para-negocios',
     hazteDriver: '/hazte-driver',
     contact: '/contacto',

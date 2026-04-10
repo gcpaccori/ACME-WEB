@@ -1,15 +1,19 @@
-import { Outlet } from 'react-router-dom';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { AppRoutes } from '../../core/constants/routes';
 import headerLogo from '../../images/logo/logo-acme.jpeg';
 import footerLogo from '../../images/logo/logo-acme.png';
+import { usePublicStore } from '../../modules/public/store/PublicStoreContext';
+
+function isActive(pathname: string, route: string) {
+  return pathname === route;
+}
 
 export function PublicLayout() {
   const location = useLocation();
+  const publicStore = usePublicStore();
 
   return (
     <div className="page-shell" style={{ fontFamily: "'Nunito', sans-serif" }}>
-      {/* Google Fonts */}
       <link
         href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Poppins:wght@400;500;600;800&display=swap"
         rel="stylesheet"
@@ -17,41 +21,36 @@ export function PublicLayout() {
 
       <style>{`
         .acme-nav-link {
-          font-size: .88rem;
-          font-weight: 600;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          font-size: .9rem;
+          font-weight: 700;
           color: #5b4b78;
           text-decoration: none;
-          padding: 7px 14px;
-          border-radius: 8px;
-          transition: background .18s, color .18s;
+          padding: 9px 14px;
+          border-radius: 999px;
+          transition: background .18s, color .18s, border-color .18s;
+          border: 1px solid transparent;
+          white-space: nowrap;
         }
 
-        .acme-nav-link:hover {
-          background: #f0e8ff;
-          color: #4d148c !important;
-        }
-
+        .acme-nav-link:hover,
         .acme-nav-link.active {
           background: #f0e8ff;
           color: #4d148c !important;
+          border-color: rgba(77, 20, 140, .12);
         }
 
         .acme-nav-portal {
           background: #ff6200 !important;
           color: #ffffff !important;
-          border-radius: 20px !important;
-          padding: 8px 18px !important;
-          font-weight: 700 !important;
-          transition: background .18s !important;
+          border-color: rgba(255, 98, 0, .2) !important;
         }
 
         .acme-nav-portal:hover {
           background: #ff8533 !important;
-        }
-
-        /* FOOTER */
-        .acme-footer {
-          margin-top: 0;
         }
 
         .acme-footer-top {
@@ -74,22 +73,12 @@ export function PublicLayout() {
         }
 
         .acme-footer-logo {
-          display: flex;
+          display: inline-flex;
           align-items: center;
-          gap: 12px;
-          text-decoration: none;
-        }
-
-        .acme-footer-logo-title {
-          font-family: 'Poppins', sans-serif;
-          font-weight: 800;
-          font-size: 1.6rem;
-          color: #fff;
-          letter-spacing: -.4px;
         }
 
         .acme-footer-text {
-          max-width: 340px;
+          max-width: 360px;
           font-size: .96rem;
           line-height: 1.7;
           color: rgba(255,255,255,.92);
@@ -122,8 +111,7 @@ export function PublicLayout() {
           color: #fff;
           background: rgba(255,255,255,.14);
           border: 1px solid rgba(255,255,255,.18);
-          backdrop-filter: blur(4px);
-          transition: transform .18s ease, background .18s ease, border-color .18s ease;
+          transition: transform .18s ease, background .18s ease;
           font-weight: 800;
           font-size: 1rem;
         }
@@ -131,7 +119,6 @@ export function PublicLayout() {
         .acme-footer-social:hover {
           transform: translateY(-2px);
           background: rgba(255,255,255,.22);
-          border-color: rgba(255,255,255,.35);
         }
 
         .acme-footer-links {
@@ -145,7 +132,7 @@ export function PublicLayout() {
           width: fit-content;
           color: rgba(255,255,255,.95);
           text-decoration: none;
-          font-size: 1.02rem;
+          font-size: 1rem;
           font-weight: 600;
           padding: 8px 0;
           transition: opacity .18s ease, transform .18s ease;
@@ -165,14 +152,6 @@ export function PublicLayout() {
           justify-content: space-between;
           gap: 18px;
           flex-wrap: wrap;
-        }
-
-        .acme-footer-copy {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          flex-wrap: wrap;
-          font-size: .95rem;
         }
 
         .acme-powered-btn {
@@ -197,6 +176,25 @@ export function PublicLayout() {
           opacity: .97;
         }
 
+        @media (max-width: 1180px) {
+          .public-header-shell {
+            height: auto !important;
+            padding: 12px 18px !important;
+            gap: 12px;
+            flex-wrap: wrap;
+          }
+
+          .public-header-nav {
+            order: 3;
+            width: 100%;
+            flex-wrap: wrap;
+          }
+
+          .public-header-actions {
+            margin-left: auto;
+          }
+        }
+
         @media (max-width: 980px) {
           .acme-footer-top {
             padding: 44px 28px 38px;
@@ -213,16 +211,17 @@ export function PublicLayout() {
         }
 
         @media (max-width: 640px) {
-          .acme-footer-logo-title {
-            font-size: 1.35rem;
+          .public-header-shell {
+            margin: 0 12px !important;
+            max-width: calc(100vw - 24px) !important;
           }
 
-          .acme-footer-link {
-            font-size: .98rem;
-          }
-
-          .acme-footer-copy {
-            font-size: .88rem;
+          .public-header-nav,
+          .public-header-actions {
+            display: flex;
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 4px;
           }
 
           .acme-powered-btn {
@@ -232,8 +231,8 @@ export function PublicLayout() {
         }
       `}</style>
 
-      {/* ── HEADER ── */}
       <header
+        className="public-header-shell"
         style={{
           position: 'sticky',
           top: '12px',
@@ -242,84 +241,73 @@ export function PublicLayout() {
           backdropFilter: 'blur(10px)',
           borderRadius: '20px',
           border: '1px solid var(--acme-border)',
-          padding: '0 32px',
-          height: '60px',
+          padding: '0 22px',
+          height: '66px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           boxShadow: 'var(--acme-shadow-md)',
           margin: '0 24px',
           maxWidth: 'calc(100vw - 48px)',
+          gap: '14px',
         }}
       >
-        {/* Logo */}
-        <Link
-          to={AppRoutes.public.home}
-          style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}
-        >
-          <img src={headerLogo} alt="ACME Logo" style={{ height: '40px' }} />
+        <Link to={AppRoutes.public.home} style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none', flexShrink: 0 }}>
+          <img src={headerLogo} alt="ACME Logo" style={{ height: '42px' }} />
         </Link>
 
-        {/* Nav */}
-        <nav style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-          <Link
-            to={AppRoutes.public.home}
-            className={`acme-nav-link${location.pathname === AppRoutes.public.home ? ' active' : ''}`}
-          >
+        <nav className="public-header-nav" style={{ display: 'flex', gap: '6px', alignItems: 'center', minWidth: 0, flex: 1 }}>
+          <Link to={AppRoutes.public.home} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.home) ? ' active' : ''}`}>
             Inicio
           </Link>
-          <Link
-            to={AppRoutes.public.howItWorks}
-            className={`acme-nav-link${location.pathname === AppRoutes.public.howItWorks ? ' active' : ''}`}
-          >
-            Cómo funciona
+          <Link to={AppRoutes.public.howItWorks} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.howItWorks) ? ' active' : ''}`}>
+            Como funciona
           </Link>
-          <Link
-            to={AppRoutes.public.businesses}
-            className={`acme-nav-link${location.pathname === AppRoutes.public.businesses ? ' active' : ''}`}
-          >
+          <Link to={AppRoutes.public.marketplace} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.marketplace) ? ' active' : ''}`}>
+            Pide ahora
+          </Link>
+          <Link to={AppRoutes.public.businesses} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.businesses) ? ' active' : ''}`}>
             Para negocios
           </Link>
-          <Link
-            to={AppRoutes.public.hazteDriver}
-            className={`acme-nav-link${location.pathname === AppRoutes.public.hazteDriver ? ' active' : ''}`}
-          >
+<<<<<<< HEAD
+          <Link to={AppRoutes.public.hazteDriver} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.hazteDriver) ? ' active' : ''}`}>
             HAZTE DRIVER
           </Link>
-          <Link
-            to={AppRoutes.public.contact}
-            className={`acme-nav-link${location.pathname === AppRoutes.public.contact ? ' active' : ''}`}
-          >
+          <Link to={AppRoutes.public.contact} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.contact) ? ' active' : ''}`}>
             Contacto
+          </Link>
+        </nav>
+
+        <div className="public-header-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+          <Link to={AppRoutes.public.cart} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.cart) ? ' active' : ''}`}>
+            Carrito{publicStore.cartCount > 0 ? ` (${publicStore.cartCount})` : ''}
+          </Link>
+          <Link to={AppRoutes.public.account} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.account) ? ' active' : ''}`}>
+            {publicStore.sessionUser ? 'Mi cuenta' : 'Ingresar'}
           </Link>
           <Link to={AppRoutes.public.portalLogin} className="acme-nav-link acme-nav-portal">
             Portal
           </Link>
-        </nav>
+        </div>
       </header>
 
-      {/* ── MAIN ── */}
-      <main style={{ marginTop: '-72px' }}>
+      <main style={{ marginTop: '-78px' }}>
         <Outlet />
       </main>
 
-      {/* ── FOOTER ── */}
-      <footer className="acme-footer">
+      <footer>
         <div className="acme-footer-top">
           <div className="acme-footer-grid">
-            {/* Columna 1 */}
             <div className="acme-footer-brand">
               <Link to={AppRoutes.public.home} className="acme-footer-logo">
                 <img src={footerLogo} alt="ACME Footer Logo" style={{ height: '50px' }} />
               </Link>
-
               <p className="acme-footer-text">
-                Soluciones de delivery y gestión para negocios que quieren vender más,
+                Soluciones de delivery y gestion para negocios que quieren vender mas,
                 operar mejor y ofrecer una experiencia moderna a sus clientes.
               </p>
-
               <div>
-                <h4 className="acme-footer-social-title">Síguenos en las redes</h4>
+                <h4 className="acme-footer-social-title">Siguenos en redes</h4>
                 <div className="acme-footer-socials">
                   <a href="#" className="acme-footer-social" aria-label="Facebook">f</a>
                   <a href="#" className="acme-footer-social" aria-label="Instagram">ig</a>
@@ -329,45 +317,31 @@ export function PublicLayout() {
               </div>
             </div>
 
-            {/* Columna 2 */}
             <div>
               <h4 className="acme-footer-col-title">Explora</h4>
               <div className="acme-footer-links">
-                <Link to={AppRoutes.public.home} className="acme-footer-link">
-                  Inicio
-                </Link>
-                <Link to={AppRoutes.public.howItWorks} className="acme-footer-link">
-                  Cómo funciona
-                </Link>
-                <Link to={AppRoutes.public.businesses} className="acme-footer-link">
-                  Para negocios
-                </Link>
+                <Link to={AppRoutes.public.home} className="acme-footer-link">Inicio</Link>
+                <Link to={AppRoutes.public.howItWorks} className="acme-footer-link">Como funciona</Link>
+                <Link to={AppRoutes.public.marketplace} className="acme-footer-link">Pide ahora</Link>
+                <Link to={AppRoutes.public.businesses} className="acme-footer-link">Para negocios</Link>
               </div>
             </div>
 
-            {/* Columna 3 */}
             <div>
               <h4 className="acme-footer-col-title">Accesos</h4>
               <div className="acme-footer-links">
-                <Link to={AppRoutes.public.hazteDriver} className="acme-footer-link">
-                  HAZTE DRIVER
-                </Link>
-                <Link to={AppRoutes.public.contact} className="acme-footer-link">
-                  Contacto
-                </Link>
-                <Link to={AppRoutes.public.portalLogin} className="acme-footer-link">
-                  Portal
-                </Link>
+                <Link to={AppRoutes.public.hazteDriver} className="acme-footer-link">HAZTE DRIVER</Link>
+                <Link to={AppRoutes.public.contact} className="acme-footer-link">Contacto</Link>
+                <Link to={AppRoutes.public.cart} className="acme-footer-link">Carrito</Link>
+                <Link to={AppRoutes.public.account} className="acme-footer-link">Mi cuenta</Link>
+                <Link to={AppRoutes.public.portalLogin} className="acme-footer-link">Portal</Link>
               </div>
             </div>
           </div>
         </div>
 
         <div className="acme-footer-bottom">
-          <div className="acme-footer-copy">
-            <span>© Copyright 2026 Acme Pedidos. Todos los derechos reservados.</span>
-          </div>
-
+          <span>© Copyright 2026 Acme Pedidos. Todos los derechos reservados.</span>
           <a
             href="https://accuracynexus.wuaze.com"
             target="_blank"

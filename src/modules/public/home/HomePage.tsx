@@ -209,8 +209,8 @@ export function HomePage() {
             seguimiento en tiempo real, y tus negocios favoritos en un solo lugar.
           </p>
           <div style={S.heroCtas}>
-            <Link to={AppRoutes.public.hazteDriver} className="acme-btn-primary" style={S.btnPrimary}>
-              HAZTE DRIVER
+            <Link to={AppRoutes.public.marketplace} className="acme-btn-primary" style={S.btnPrimary}>
+              Ordenar ahora
             </Link>
             <Link to={AppRoutes.public.businesses} className="acme-btn-secondary" style={S.btnSecondary}>
               Afilia tu negocio
@@ -461,7 +461,7 @@ export function HomePage() {
 
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
         <Link
-          to={AppRoutes.public.hazteDriver}
+          to={AppRoutes.public.marketplace}
           style={{
             display: 'flex', alignItems: 'center', gap: '10px',
             background: '#111', color: '#fff', padding: '12px 20px',
@@ -475,7 +475,7 @@ export function HomePage() {
           </div>
         </Link>
         <Link
-          to={AppRoutes.public.hazteDriver}
+          to={AppRoutes.public.marketplace}
           style={{
             display: 'flex', alignItems: 'center', gap: '10px',
             background: '#111', color: '#fff', padding: '12px 20px',

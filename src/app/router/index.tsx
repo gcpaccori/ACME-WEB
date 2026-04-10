@@ -3,6 +3,9 @@ import { PublicLayout, PortalLayout } from '../layouts';
 import { LoginPage } from '../../modules/auth/login/LoginPage';
 import { HomePage } from '../../modules/public/home/HomePage';
 import { AboutPage } from '../../modules/public/about/AboutPage';
+import { MarketplacePage } from '../../modules/public/marketplace/MarketplacePage';
+import { CartPage } from '../../modules/public/cart/CartPage';
+import { AccountPage } from '../../modules/public/account/AccountPage';
 import { BusinessPage } from '../../modules/public/business/BusinessPage';
 import { ContactPage } from '../../modules/public/contact/ContactPage';
 import { HazteDriverPage } from '../../modules/public/downloads/HazteDriverPage';
@@ -52,6 +55,9 @@ export function AppRouter() {
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<HomePage />} />
         <Route path="como-funciona" element={<AboutPage />} />
+        <Route path="pedir" element={<MarketplacePage />} />
+        <Route path="carrito" element={<CartPage />} />
+        <Route path="mi-cuenta" element={<AccountPage />} />
         <Route path="para-negocios" element={<BusinessPage />} />
         <Route path="hazte-driver" element={<HazteDriverPage />} />
         <Route path="contacto" element={<ContactPage />} />
