@@ -208,6 +208,7 @@ export const adminEntityRoots: EntityRootSpec[] = [
     description: 'Ficha principal del negocio con su contexto general.',
     ownerTables: ['merchants'],
     childRelations: [
+      { table: 'merchant_settings', label: 'Configuracion del negocio', exposure: 'tab', editable: true, saveStrategy: 'direct' },
       { table: 'merchant_branches', label: 'Sucursales', exposure: 'tab', editable: false, saveStrategy: 'readonly_backend' },
       { table: 'merchant_staff', label: 'Personal', exposure: 'tab', editable: false, saveStrategy: 'readonly_backend' },
       { table: 'merchant_audit_logs', label: 'Auditoria', exposure: 'timeline', editable: false, saveStrategy: 'readonly_backend' },

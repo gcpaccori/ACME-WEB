@@ -537,6 +537,11 @@ Regla de salida:
 
 ## Fase 9. Migracion de settings
 
+Estado actual:
+
+- `Ejecutada en codigo`
+- `SQL de migracion versionada`
+
 Objetivo:
 
 - separar configuracion global de configuracion del negocio
@@ -556,7 +561,27 @@ Regla:
 - esta fase no reemplaza la cobertura de `64 / 64`
 - la mejora
 
+Resultado aplicado:
+
+- `merchant_settings` ya tiene servicio y vista util en `Comercio`
+- `system_settings` deja de aceptar claves de negocio en la UI de plataforma
+- `order_timeouts` deja de mostrarse como setting global y pasa a negocio
+- la migracion SQL quedo versionada en `database/2026-04-10-phase-9-merchant-settings-migration.sql`
+
+Nota operativa:
+
+- si la base actual aun no tiene `merchant_settings`, la UI de negocio muestra el fallback heredado y bloquea edicion hasta aplicar la SQL
+
 ## Fase 10. Auditoria final 64 por 64
+
+Estado actual:
+
+- `Ejecutada`
+- `No aprobada para cierre total`
+
+Documento de auditoria:
+
+- `docs/fase-10-auditoria-final-64x64-2026-04-10.md`
 
 Objetivo:
 
@@ -569,6 +594,13 @@ No se cierra el proyecto si falla alguna de estas reglas:
 3. una tabla solo se usa en servicio pero no en UI
 4. un perfil ve modulos que no le corresponden
 5. una tabla global sigue editable desde negocio
+
+Dictamen actual:
+
+- `64 / 64` tablas originales ya viven en vistas utiles
+- el cierre total sigue bloqueado por:
+  - migracion real de `merchant_settings`
+  - rutas legacy aun montadas
 
 ## Estado actual contra estas fases
 

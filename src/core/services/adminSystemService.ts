@@ -1,5 +1,7 @@
 import { supabase } from '../../integrations/supabase/client';
 
+const BUSINESS_SETTING_KEYS = new Set(['order_timeouts']);
+
 export interface SystemSettingRecord {
   id: string;
   key: string;
@@ -178,14 +180,16 @@ export const adminSystemService = {
 
     const profileMap = new Map<string, any>(((profilesResult.data ?? []) as any[]).map((row) => [stringOrEmpty(row.user_id), row]));
 
-    const settings: SystemSettingRecord[] = ((settingsResult.data ?? []) as any[]).map((row) => ({
-      id: stringOrEmpty(row.id),
-      key: stringOrEmpty(row.key),
-      description: stringOrEmpty(row.description),
-      value_json: row.value_json ?? null,
-      created_at: stringOrEmpty(row.created_at),
-      updated_at: stringOrEmpty(row.updated_at),
-    }));
+    const settings: SystemSettingRecord[] = ((settingsResult.data ?? []) as any[])
+      .filter((row) => !BUSINESS_SETTING_KEYS.has(stringOrEmpty(row.key)))
+      .map((row) => ({
+        id: stringOrEmpty(row.id),
+        key: stringOrEmpty(row.key),
+        description: stringOrEmpty(row.description),
+        value_json: row.value_json ?? null,
+        created_at: stringOrEmpty(row.created_at),
+        updated_at: stringOrEmpty(row.updated_at),
+      }));
 
     const auditLogs: AuditLogRecord[] = auditRows.map((row) => ({
       id: stringOrEmpty(row.id),
@@ -244,6 +248,13 @@ export const adminSystemService = {
   },
 
   saveSetting: async (actorUserId: string, form: SystemSettingForm) => {
+    if (BUSINESS_SETTING_KEYS.has(form.key.trim())) {
+      return {
+        data: null,
+        error: new Error('Esta clave ya pertenece a merchant_settings y debe administrarse desde la ficha del negocio.'),
+      };
+    }
+
     let parsedValue: unknown;
     try {
       parsedValue = JSON.parse(form.value_json_text);

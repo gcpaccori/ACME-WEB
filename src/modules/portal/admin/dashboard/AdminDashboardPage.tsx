@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
-import { getPortalActorLabel, getScopeDescription, getScopeLabel } from '../../../../core/auth/portalAccess';
+import { canAccessAdminModule, getPortalActorLabel, getScopeDescription, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { getEnabledAdminModules, getEntityRootsByModule } from '../../../../core/admin/registry/moduleRegistry';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminOverviewService, AdminMetricCard } from '../../../../core/services/adminOverviewService';
@@ -21,8 +21,8 @@ export function AdminDashboardPage() {
         scopeType: portal.currentScopeType,
         hasMerchant: !!portal.currentMerchant,
         hasBranch: !!portal.currentBranch,
-      }),
-    [portal.currentScopeType, portal.currentMerchant, portal.currentBranch]
+      }).filter((module) => canAccessAdminModule(module.id, portal.permissions)),
+    [portal.currentScopeType, portal.currentMerchant, portal.currentBranch, portal.permissions]
   );
 
   useEffect(() => {
@@ -50,6 +50,13 @@ export function AdminDashboardPage() {
     profile: portal.profile,
     staffAssignment: portal.staffAssignment,
   });
+  const isPlatformScope = portal.currentScopeType === 'platform';
+  const businessLabel = isPlatformScope ? 'Todos los negocios' : portal.currentMerchant?.name || 'No aplica';
+  const branchLabel = isPlatformScope
+    ? 'No aplica'
+    : portal.currentScopeType === 'branch'
+      ? portal.currentBranch?.name || 'No aplica'
+      : `${portal.branches.length} sucursales visibles`;
 
   return (
     <AdminPageFrame
@@ -61,9 +68,9 @@ export function AdminDashboardPage() {
       ]}
       contextItems={[
         { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
-        { label: 'Actor', value: actorLabel, tone: 'info' },
-        { label: 'Comercio', value: portal.currentMerchant?.name || 'No aplica', tone: portal.currentMerchant ? 'neutral' : 'warning' },
-        { label: 'Sucursal', value: portal.currentBranch?.name || 'No aplica', tone: portal.currentBranch ? 'neutral' : 'warning' },
+        { label: 'Perfil', value: actorLabel, tone: 'info' },
+        { label: isPlatformScope ? 'Cobertura' : 'Comercio', value: isPlatformScope ? 'Plataforma completa' : businessLabel, tone: 'neutral' },
+        { label: isPlatformScope ? 'Negocios visibles' : 'Sucursal', value: isPlatformScope ? String(portal.businessAssignments.length || 0) : branchLabel, tone: 'neutral' },
         { label: 'Modulos', value: String(visibleModules.length), tone: 'success' },
       ]}
     >
@@ -148,7 +155,7 @@ export function AdminDashboardPage() {
         />
       </SectionCard>
 
-      <SectionCard title="Cambio de capa" description="Si el usuario tiene varias responsabilidades, puede cambiar entre plataforma, negocio y sucursal desde el sidebar sin reiniciar sesion.">
+      <SectionCard title="Cambio de capa" description="Si el usuario tiene varias responsabilidades, puede cambiar entre plataforma, negocio y sucursal desde el contexto de trabajo sin reiniciar sesion.">
         <div style={{ display: 'grid', gap: '10px' }}>
           {portal.availableScopeTypes.map((scope) => (
             <div
