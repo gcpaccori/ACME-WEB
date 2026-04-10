@@ -269,7 +269,6 @@ export function PublicLayout() {
           <Link to={AppRoutes.public.businesses} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.businesses) ? ' active' : ''}`}>
             Para negocios
           </Link>
-<<<<<<< HEAD
           <Link to={AppRoutes.public.hazteDriver} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.hazteDriver) ? ' active' : ''}`}>
             HAZTE DRIVER
           </Link>
