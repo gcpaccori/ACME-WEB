@@ -14,6 +14,15 @@ const STORAGE_SCOPE_KEY = 'portalCurrentScopeType';
 const STORAGE_MERCHANT_KEY = 'portalCurrentMerchantId';
 const STORAGE_BRANCH_KEY = 'portalCurrentBranchId';
 
+function sanitizeStoredValue(value: string | null) {
+  if (!value) return null;
+  const normalized = value.trim().toLowerCase();
+  if (!normalized || normalized === 'null' || normalized === 'undefined') {
+    return null;
+  }
+  return value;
+}
+
 const initialState: PortalContextState = {
   sessionUserId: null,
   profile: null,
@@ -90,7 +99,8 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       branches,
       currentBranch,
     } = portalResult;
-    const storedMerchantId = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_MERCHANT_KEY) : null;
+    const storedMerchantId =
+      typeof window !== 'undefined' ? sanitizeStoredValue(window.localStorage.getItem(STORAGE_MERCHANT_KEY)) : null;
     const platformOperator = hasPlatformRole(roleAssignments, profile ?? null);
     const storedBusinessAssignment = businessAssignments.find((assignment) => assignment.merchant.id === storedMerchantId) ?? null;
     const accessSeedAssignment = storedBusinessAssignment ?? businessAssignments[0] ?? null;
@@ -108,12 +118,15 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       branches: accessSeedAssignment?.branches ?? branches ?? [],
     });
     const storedScopeType =
-      typeof window !== 'undefined' ? (window.localStorage.getItem(STORAGE_SCOPE_KEY) as PortalScopeType | null) : null;
+      typeof window !== 'undefined'
+        ? (sanitizeStoredValue(window.localStorage.getItem(STORAGE_SCOPE_KEY)) as PortalScopeType | null)
+        : null;
     const preferredScopeType = resolvePreferredScopeType({
       availableScopeTypes: access.availableScopeTypes,
       preferredScopeType: storedScopeType,
     });
-    const storedBranchId = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_BRANCH_KEY) : null;
+    const storedBranchId =
+      typeof window !== 'undefined' ? sanitizeStoredValue(window.localStorage.getItem(STORAGE_BRANCH_KEY)) : null;
     const resolvedCurrentBranch = currentBusinessAssignment
       ? resolvedBranches.find((branch) => branch.id === storedBranchId) ??
         currentBusinessAssignment.branches.find((branch) => branch.id === currentBusinessAssignment.primaryBranchId) ??

@@ -207,7 +207,7 @@ async function fetchMessagingLookups(merchantId: string, branchId?: string | nul
 
   const customersResult =
     customerIds.length > 0
-      ? await supabase.from('customers').select('id, user_id').in('id', customerIds)
+      ? await supabase.from('customers').select('user_id').in('user_id', customerIds)
       : ({ data: [], error: null } as any);
 
   if (customersResult.error) return { data: null, error: customersResult.error };

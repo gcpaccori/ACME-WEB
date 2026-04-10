@@ -124,7 +124,7 @@ export const adminSecurityService = {
       supabase.from('user_roles').select('id, user_id, role_id'),
       supabase.from('merchant_staff').select('user_id, merchant_id, staff_role, is_active'),
       supabase.from('merchants').select('id, trade_name, legal_name'),
-      supabase.from('drivers').select('user_id, status, is_active'),
+      supabase.from('drivers').select('user_id, status'),
       supabase.from('customers').select('user_id'),
     ]);
 
