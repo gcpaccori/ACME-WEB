@@ -4,6 +4,7 @@ export function Button({ children, ...props }: PropsWithChildren<ButtonHTMLAttri
   return (
     <button
       {...props}
+      type={props.type ?? 'button'}
       style={{
         border: '1px solid rgba(77, 20, 140, 0.28)',
         borderRadius: '14px',

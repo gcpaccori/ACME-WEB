@@ -39,6 +39,14 @@ import { PortalContext } from '../../../auth/session/PortalContext';
 
 type DetailTab = 'summary' | 'items' | 'operations' | 'support' | 'payments';
 
+function normalizeId(value: string | null | undefined) {
+  const normalized = String(value ?? '').trim().toLowerCase();
+  if (!normalized || normalized === 'null' || normalized === 'undefined') {
+    return null;
+  }
+  return String(value);
+}
+
 function formatMoney(value: number, currency = 'PEN') {
   return new Intl.NumberFormat('es-PE', {
     style: 'currency',
@@ -68,7 +76,7 @@ export function OrderDetailAdminPage() {
   const navigate = useNavigate();
   const { orderId } = useParams();
   const portal = useContext(PortalContext);
-  const branchId = portal.currentBranch?.id;
+  const branchId = normalizeId(portal.currentBranch?.id);
 
   const [activeTab, setActiveTab] = useState<DetailTab>('summary');
   const [order, setOrder] = useState<OrderAdminDetail | null>(null);

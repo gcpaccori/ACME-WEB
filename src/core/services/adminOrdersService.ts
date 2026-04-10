@@ -348,8 +348,8 @@ async function fetchDriverDirectory(merchantId?: string | null) {
     if (merchantOrdersResult.error) return { data: null, error: merchantOrdersResult.error };
 
     const merchantOrderRows = (merchantOrdersResult.data ?? []) as any[];
-    const orderIds = uniqueStrings(merchantOrderRows.map((row) => String(row.id)).filter(Boolean));
-    const currentDriverIds = uniqueStrings(merchantOrderRows.map((row) => String(row.current_driver_id)).filter(Boolean));
+    const orderIds = uniqueStrings(merchantOrderRows.map((row) => stringOrEmpty(row.id)).filter(Boolean));
+    const currentDriverIds = uniqueStrings(merchantOrderRows.map((row) => stringOrEmpty(row.current_driver_id)).filter(Boolean));
     const assignmentsResult =
       orderIds.length > 0
         ? await supabase.from('order_assignments').select('driver_id').in('order_id', orderIds)
@@ -358,7 +358,7 @@ async function fetchDriverDirectory(merchantId?: string | null) {
     if (assignmentsResult.error) return { data: null, error: assignmentsResult.error };
     allowedDriverIds = uniqueStrings([
       ...currentDriverIds,
-      ...(((assignmentsResult.data ?? []) as any[]).map((row) => String(row.driver_id)).filter(Boolean)),
+      ...(((assignmentsResult.data ?? []) as any[]).map((row) => stringOrEmpty(row.driver_id)).filter(Boolean)),
     ]);
   }
 
@@ -551,10 +551,10 @@ export const adminOrdersService = {
     if (ordersResult.error) return { data: null, error: ordersResult.error };
 
     const orderRows = (ordersResult.data ?? []) as any[];
-    const orderIds = orderRows.map((row) => String(row.id));
-    const customerIds = uniqueStrings(orderRows.map((row) => String(row.customer_id)).filter(Boolean));
-    const paymentMethodIds = uniqueStrings(orderRows.map((row) => String(row.payment_method_id)).filter(Boolean));
-    const driverIds = uniqueStrings(orderRows.map((row) => String(row.current_driver_id)).filter(Boolean));
+    const orderIds = uniqueStrings(orderRows.map((row) => stringOrEmpty(row.id)).filter(Boolean));
+    const customerIds = uniqueStrings(orderRows.map((row) => stringOrEmpty(row.customer_id)).filter(Boolean));
+    const paymentMethodIds = uniqueStrings(orderRows.map((row) => stringOrEmpty(row.payment_method_id)).filter(Boolean));
+    const driverIds = uniqueStrings(orderRows.map((row) => stringOrEmpty(row.current_driver_id)).filter(Boolean));
 
     const [profilesResult, deliveryResult, paymentMethodsResult, driverProfilesResult] = await Promise.all([
       customerIds.length > 0
@@ -590,9 +590,9 @@ export const adminOrdersService = {
         payment_status: stringOrEmpty(row.payment_status),
         fulfillment_type: stringOrEmpty(row.fulfillment_type) || 'delivery',
         total: numberOrZero(row.total),
-        customer_label: customerMap.get(String(row.customer_id)) || stringOrEmpty(delivery?.recipient_name) || 'Cliente',
-        payment_label: paymentMethodMap.get(String(row.payment_method_id)) || 'Sin metodo',
-        driver_label: driverMap.get(String(row.current_driver_id)) || '',
+        customer_label: customerMap.get(stringOrEmpty(row.customer_id)) || stringOrEmpty(delivery?.recipient_name) || 'Cliente',
+        payment_label: paymentMethodMap.get(stringOrEmpty(row.payment_method_id)) || 'Sin metodo',
+        driver_label: driverMap.get(stringOrEmpty(row.current_driver_id)) || '',
         placed_at: stringOrEmpty(row.placed_at),
         address_label: stringOrEmpty(delivery?.address_snapshot) || 'Sin direccion',
       };
@@ -653,14 +653,14 @@ export const adminOrdersService = {
     if (driverDirectoryResult.error) return { data: null, error: driverDirectoryResult.error };
 
     const itemRows = (itemsResult.data ?? []) as any[];
-    const itemIds = uniqueStrings(itemRows.map((row) => String(row.id)).filter(Boolean));
+    const itemIds = uniqueStrings(itemRows.map((row) => stringOrEmpty(row.id)).filter(Boolean));
     const paymentRows = (paymentsResult.data ?? []) as any[];
-    const paymentIds = uniqueStrings(paymentRows.map((row) => String(row.id)).filter(Boolean));
+    const paymentIds = uniqueStrings(paymentRows.map((row) => stringOrEmpty(row.id)).filter(Boolean));
     const actorUserIds = uniqueStrings(
       [
-        ...((historyResult.data ?? []) as any[]).map((row) => String(row.actor_user_id)).filter(Boolean),
-        ...((cancellationsResult.data ?? []) as any[]).map((row) => String(row.cancelled_by_user_id)).filter(Boolean),
-        String(orderRow.customer_id || ''),
+        ...((historyResult.data ?? []) as any[]).map((row) => stringOrEmpty(row.actor_user_id)).filter(Boolean),
+        ...((cancellationsResult.data ?? []) as any[]).map((row) => stringOrEmpty(row.cancelled_by_user_id)).filter(Boolean),
+        stringOrEmpty(orderRow.customer_id),
       ].filter(Boolean)
     );
 
@@ -695,7 +695,7 @@ export const adminOrdersService = {
       ])
     );
     const paymentLabelMap = new Map<string, string>(
-      paymentRows.map((row) => [String(row.id), paymentMethodMap.get(String(row.payment_method_id))?.name || 'Sin metodo'])
+      paymentRows.map((row) => [String(row.id), paymentMethodMap.get(stringOrEmpty(row.payment_method_id))?.name || 'Sin metodo'])
     );
     const profileLabelMap = createProfileLabelMap((profilesResult.data ?? []) as any[]);
 
@@ -738,13 +738,13 @@ export const adminOrdersService = {
       from_status: stringOrEmpty(row.from_status),
       to_status: stringOrEmpty(row.to_status),
       actor_type: stringOrEmpty(row.actor_type) || 'system',
-      actor_user_label: profileLabelMap.get(String(row.actor_user_id)) || stringOrEmpty(row.actor_type) || 'Sistema',
+      actor_user_label: profileLabelMap.get(stringOrEmpty(row.actor_user_id)) || stringOrEmpty(row.actor_type) || 'Sistema',
       note: stringOrEmpty(row.note),
       created_at: stringOrEmpty(row.created_at),
     }));
 
     const assignments: OrderAdminAssignment[] = ((assignmentsResult.data ?? []) as any[]).map((row) => {
-      const driver = driverMap.get(String(row.driver_id));
+      const driver = driverMap.get(stringOrEmpty(row.driver_id));
       return {
         id: String(row.id),
         driver_id: stringOrEmpty(row.driver_id),
@@ -764,7 +764,7 @@ export const adminOrdersService = {
     const cancellations: OrderAdminCancellation[] = ((cancellationsResult.data ?? []) as any[]).map((row) => ({
       id: String(row.id),
       actor_type: stringOrEmpty(row.actor_type),
-      cancelled_by_label: profileLabelMap.get(String(row.cancelled_by_user_id)) || stringOrEmpty(row.actor_type) || 'Sistema',
+      cancelled_by_label: profileLabelMap.get(stringOrEmpty(row.cancelled_by_user_id)) || stringOrEmpty(row.actor_type) || 'Sistema',
       reason_code: stringOrEmpty(row.reason_code),
       reason_text: stringOrEmpty(row.reason_text),
       refund_amount: numberOrZero(row.refund_amount),
@@ -774,7 +774,7 @@ export const adminOrdersService = {
     const incidents: OrderAdminIncident[] = ((incidentsResult.data ?? []) as any[]).map((row) => ({
       id: String(row.id),
       driver_id: stringOrEmpty(row.driver_id),
-      driver_label: driverMap.get(String(row.driver_id))?.label || '',
+      driver_label: driverMap.get(stringOrEmpty(row.driver_id))?.label || '',
       incident_type: stringOrEmpty(row.incident_type),
       description: stringOrEmpty(row.description),
       status: stringOrEmpty(row.status),
@@ -785,7 +785,7 @@ export const adminOrdersService = {
     const evidences: OrderAdminEvidence[] = ((evidencesResult.data ?? []) as any[]).map((row) => ({
       id: String(row.id),
       driver_id: stringOrEmpty(row.driver_id),
-      driver_label: driverMap.get(String(row.driver_id))?.label || '',
+      driver_label: driverMap.get(stringOrEmpty(row.driver_id))?.label || '',
       evidence_type: stringOrEmpty(row.evidence_type),
       file_url: stringOrEmpty(row.file_url),
       note: stringOrEmpty(row.note),
@@ -795,7 +795,7 @@ export const adminOrdersService = {
     const payments: OrderAdminPayment[] = paymentRows.map((row) => ({
       id: String(row.id),
       payment_method_id: stringOrEmpty(row.payment_method_id),
-      payment_method_label: paymentMethodMap.get(String(row.payment_method_id))?.name || 'Sin metodo',
+      payment_method_label: paymentMethodMap.get(stringOrEmpty(row.payment_method_id))?.name || 'Sin metodo',
       amount: numberOrZero(row.amount),
       currency: stringOrEmpty(row.currency) || 'PEN',
       status: stringOrEmpty(row.status),
@@ -855,13 +855,13 @@ export const adminOrdersService = {
       delivered_at: stringOrEmpty(orderRow.delivered_at),
       cancelled_at: stringOrEmpty(orderRow.cancelled_at),
       customer_id: stringOrEmpty(orderRow.customer_id),
-      customer_label: profileLabelMap.get(String(orderRow.customer_id)) || deliveryDetail?.recipient_name || 'Cliente',
+      customer_label: profileLabelMap.get(stringOrEmpty(orderRow.customer_id)) || deliveryDetail?.recipient_name || 'Cliente',
       current_driver_id: stringOrEmpty(orderRow.current_driver_id),
-      current_driver_label: driverMap.get(String(orderRow.current_driver_id))?.label || '',
+      current_driver_label: driverMap.get(stringOrEmpty(orderRow.current_driver_id))?.label || '',
       zone_name: stringOrEmpty((zoneResult.data as any)?.name),
       coupon_code: stringOrEmpty((couponResult.data as any)?.code),
       payment_method_id: stringOrEmpty(orderRow.payment_method_id),
-      payment_method_label: paymentMethodMap.get(String(orderRow.payment_method_id))?.name || 'Sin metodo',
+      payment_method_label: paymentMethodMap.get(stringOrEmpty(orderRow.payment_method_id))?.name || 'Sin metodo',
       items,
       delivery_detail: deliveryDetail,
       history,
