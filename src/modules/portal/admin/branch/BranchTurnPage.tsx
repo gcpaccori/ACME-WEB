@@ -16,10 +16,18 @@ function formatDateTime(value: string) {
   return new Intl.DateTimeFormat('es-PE', { dateStyle: 'medium', timeStyle: 'short' }).format(parsed);
 }
 
+function normalizeId(value: string | null | undefined) {
+  const normalized = String(value ?? '').trim().toLowerCase();
+  if (!normalized || normalized === 'null' || normalized === 'undefined') {
+    return null;
+  }
+  return String(value);
+}
+
 export function BranchTurnPage() {
   const portal = useContext(PortalContext);
-  const merchantId = portal.currentMerchant?.id;
-  const branchId = portal.currentBranch?.id;
+  const merchantId = normalizeId(portal.currentMerchant?.id ?? portal.merchant?.id);
+  const branchId = normalizeId(portal.currentBranch?.id);
   const [overview, setOverview] = useState<BranchTurnOverview | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

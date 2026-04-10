@@ -14,11 +14,14 @@ export function ProductEditorPage() {
   const portal = useContext(PortalContext);
   const navigate = useNavigate();
   const params = useParams();
-  const merchantId = portal.merchant?.id;
+  const merchantId = portal.currentMerchant?.id ?? portal.merchant?.id;
   const productId = params.productId;
   const isNew = !productId;
   const [activeTab, setActiveTab] = useState('base');
-  const branchOptions = portal.branches.map((branch) => ({ id: branch.id, name: branch.name }));
+  const branchOptions = useMemo(
+    () => portal.branches.map((branch) => ({ id: branch.id, name: branch.name })),
+    [portal.branches]
+  );
   const [form, setForm] = useState<ProductAdminForm | null>(null);
   const [categories, setCategories] = useState<Array<{ value: string; label: string }>>([]);
   const [modifierGroups, setModifierGroups] = useState<ModifierGroupAdminRecord[]>([]);
@@ -154,7 +157,7 @@ export function ProductEditorPage() {
       ]}
       contextItems={[
         { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.merchant?.name || 'sin comercio', tone: 'neutral' },
+        { label: 'Comercio', value: portal.currentMerchant?.name || portal.merchant?.name || 'sin comercio', tone: 'neutral' },
         { label: 'Entidad', value: 'Producto', tone: 'info' },
         { label: 'Modo', value: isNew ? 'Creacion' : 'Edicion', tone: dirty ? 'warning' : 'info' },
         { label: 'Estado', value: dirty ? 'Cambios pendientes' : 'Sin cambios', tone: dirty ? 'warning' : 'success' },
