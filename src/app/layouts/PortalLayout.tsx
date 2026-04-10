@@ -51,6 +51,19 @@ export function PortalLayout() {
     : isBusinessScope
       ? 'Estas operando un negocio completo con sus sucursales y modulos comerciales.'
       : 'Estas operando una sucursal puntual con foco en el turno actual.';
+  const scopeIdentityTitle = isPlatformScope
+    ? 'Administrador de plataforma'
+    : isBusinessScope
+      ? 'Administrador de negocio'
+      : 'Operador de sucursal';
+  const scopeEntityLabel = isPlatformScope ? 'Cobertura' : isBusinessScope ? 'Negocio activo' : 'Sucursal activa';
+  const scopeEntityValue = isPlatformScope ? 'Toda la plataforma' : isBusinessScope ? displayBusinessLabel : `${branchName} / ${merchantName}`;
+  const scopeCoverageValue =
+    portal.currentScopeType === 'platform'
+      ? `${businessCount} negocios supervisados`
+      : portal.currentScopeType === 'business'
+        ? `${branchCount} sucursales visibles`
+        : '1 sucursal operativa';
 
   const enabledModules = useMemo(
     () =>
@@ -95,13 +108,17 @@ export function PortalLayout() {
     }
   };
 
-  const isNavActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
-
   const handleNavClick = () => {
     setSidebarOpen(false);
   };
 
   const canSwitchBranch = (portal.currentScopeType === 'business' || portal.currentScopeType === 'branch') && portal.branches.length > 1;
+  const isNavActive = (path: string) => {
+    if (path === AppRoutes.portal.admin.root) {
+      return location.pathname === path;
+    }
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+  };
 
   return (
     <div className={`portal-shell ${sidebarOpen ? 'portal-shell--sidebarOpen' : ''}`}>
@@ -123,25 +140,97 @@ export function PortalLayout() {
           </div>
         </div>
 
-        <nav className="portal-nav">
-          <div className="portal-sidebar__sectionTitle">Modulos de {currentScopeLabel}</div>
-          {navItems.map((item) => {
-            const active = isNavActive(item.to);
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={`portal-nav__item ${active ? 'portal-nav__item--active' : ''}`}
-                onClick={handleNavClick}
+        <div className="portal-sidebar__stack">
+          <section className="portal-panel">
+            <span className="portal-panel__eyebrow">Tu nivel actual</span>
+            <strong className="portal-panel__title">{scopeIdentityTitle}</strong>
+            <span className="portal-panel__caption">{scopeNarrative}</span>
+            <div className="portal-contextList">
+              <div className="portal-contextRow">
+                <span>Perfil</span>
+                <strong>{actorLabel}</strong>
+              </div>
+              <div className="portal-contextRow">
+                <span>Capa</span>
+                <strong>{currentScopeLabel}</strong>
+              </div>
+              <div className="portal-contextRow">
+                <span>{scopeEntityLabel}</span>
+                <strong>{scopeEntityValue}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section className="portal-panel">
+            <span className="portal-panel__eyebrow">Jerarquia</span>
+            <strong className="portal-panel__title">Cambiar capa</strong>
+            <div className="portal-switchGrid">
+              {portal.availableScopeTypes.map((scopeType) => (
+                <button
+                  key={scopeType}
+                  type="button"
+                  onClick={() => portal.setCurrentScopeType(scopeType)}
+                  style={scopeButtonStyles(portal.currentScopeType === scopeType)}
+                >
+                  {getScopeLabel(scopeType)}
+                </button>
+              ))}
+            </div>
+            <span className="portal-panel__caption">{currentScopeDescription}</span>
+          </section>
+
+          {canSwitchMerchant ? (
+            <section className="portal-panel">
+              <span className="portal-panel__eyebrow">Contexto</span>
+              <strong className="portal-panel__title">Negocio de trabajo</strong>
+              <select
+                value={portal.currentMerchant?.id ?? ''}
+                onChange={(event) => portal.setCurrentMerchantId(event.target.value)}
+                className="portal-select"
               >
-                <span className="portal-nav__itemContent">
-                  <span className="portal-nav__itemLabel">{item.label}</span>
-                  <span className="portal-nav__itemMeta">{item.description}</span>
-                </span>
-              </Link>
-            );
-          })}
-        </nav>
+                {portal.businessAssignments.map((assignment) => (
+                  <option key={assignment.merchant.id} value={assignment.merchant.id}>
+                    {assignment.merchant.name}
+                  </option>
+                ))}
+              </select>
+              <span className="portal-panel__caption">Solo define el contexto cuando bajas a negocio o sucursal.</span>
+            </section>
+          ) : null}
+
+          {canSwitchBranch ? (
+            <section className="portal-panel">
+              <span className="portal-panel__eyebrow">Contexto</span>
+              <strong className="portal-panel__title">Sucursal operativa</strong>
+              <select
+                value={portal.currentBranch?.id ?? ''}
+                onChange={(event) => portal.setCurrentBranchId(event.target.value)}
+                className="portal-select"
+              >
+                {portal.branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+            </section>
+          ) : null}
+
+          <section className="portal-panel">
+            <span className="portal-panel__eyebrow">Cobertura</span>
+            <strong className="portal-panel__title">{scopeCoverageValue}</strong>
+            <div className="portal-contextList">
+              <div className="portal-contextRow">
+                <span>Modulo activo</span>
+                <strong>{activeModule?.label ?? 'Resumen'}</strong>
+              </div>
+              <div className="portal-contextRow">
+                <span>Modulos visibles</span>
+                <strong>{visibleModulesCount}</strong>
+              </div>
+            </div>
+          </section>
+        </div>
 
         <div className="portal-actions">
           <button
@@ -168,145 +257,62 @@ export function PortalLayout() {
               Menu
             </button>
             <div style={{ display: 'grid', gap: '4px', textAlign: 'right' }}>
-              <span style={{ fontWeight: 900, color: 'var(--acme-purple)' }}>{workspaceTitle}</span>
+              <span style={{ fontWeight: 900, color: 'var(--acme-purple)' }}>{scopeIdentityTitle}</span>
               <span style={{ color: 'var(--acme-text-muted)', fontSize: '13px' }}>{currentModeLabel}</span>
-              <span style={{ color: 'var(--acme-text-muted)', fontSize: '13px' }}>{displayBusinessLabel}</span>
-              <span style={{ color: 'var(--acme-text-muted)', fontSize: '12px' }}>{displayBranchLabel}</span>
+              <span style={{ color: 'var(--acme-text-muted)', fontSize: '13px' }}>{activeModule?.label ?? 'Resumen'}</span>
             </div>
           </div>
 
-          <section
-            style={{
-              padding: '18px 20px',
-              borderRadius: '18px',
-              background: 'rgba(255, 255, 255, 0.92)',
-              border: '1px solid var(--acme-border)',
-              boxShadow: 'var(--acme-shadow-sm)',
-              display: 'grid',
-              gap: '18px',
-            }}
-          >
-            <div style={{ display: 'grid', gap: '6px' }}>
-              <span className="portal-workspace__eyebrow">Contexto de trabajo</span>
-              <strong style={{ fontSize: '20px', color: 'var(--acme-purple)' }}>{currentModeLabel}</strong>
-              <span style={{ color: 'var(--acme-text-muted)' }}>{scopeNarrative}</span>
-            </div>
-
-            <div style={{ display: 'grid', gap: '14px', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+          <section className="portal-header">
+            <div className="portal-header__top">
               <div style={{ display: 'grid', gap: '8px' }}>
-                <strong style={{ fontSize: '13px' }}>Capa actual</strong>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {portal.availableScopeTypes.map((scopeType) => (
-                    <button
-                      key={scopeType}
-                      type="button"
-                      onClick={() => portal.setCurrentScopeType(scopeType)}
-                      style={scopeButtonStyles(portal.currentScopeType === scopeType)}
-                    >
-                      {getScopeLabel(scopeType)}
-                    </button>
-                  ))}
-                </div>
-                <span style={{ color: 'var(--acme-text-muted)', fontSize: '12px' }}>{currentScopeDescription}</span>
-              </div>
-
-              {canSwitchMerchant ? (
-                <div style={{ display: 'grid', gap: '8px' }}>
-                  <strong style={{ fontSize: '13px' }}>Contexto de negocio</strong>
-                  <select
-                    value={portal.currentMerchant?.id ?? ''}
-                    onChange={(event) => portal.setCurrentMerchantId(event.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '12px',
-                      border: '1px solid var(--acme-border)',
-                      background: 'var(--acme-white)',
-                    }}
-                  >
-                    {portal.businessAssignments.map((assignment) => (
-                      <option key={assignment.merchant.id} value={assignment.merchant.id}>
-                        {assignment.merchant.name}
-                      </option>
-                    ))}
-                  </select>
-                  <span style={{ color: 'var(--acme-text-muted)', fontSize: '12px' }}>
-                    Esto define sobre que negocio trabajas al entrar a capa negocio o sucursal.
-                  </span>
-                </div>
-              ) : null}
-
-              {canSwitchBranch ? (
-                <div style={{ display: 'grid', gap: '8px' }}>
-                  <strong style={{ fontSize: '13px' }}>Sucursal operativa</strong>
-                  <select
-                    value={portal.currentBranch?.id ?? ''}
-                    onChange={(event) => portal.setCurrentBranchId(event.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '12px',
-                      border: '1px solid var(--acme-border)',
-                      background: 'var(--acme-white)',
-                    }}
-                  >
-                    {portal.branches.map((branch) => (
-                      <option key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : null}
-            </div>
-          </section>
-
-          <section className="portal-workspace">
-            <div className="portal-workspace__header">
-              <div style={{ display: 'grid', gap: '8px' }}>
-                <span className="portal-workspace__eyebrow">Workspace actual</span>
-                <h1 className="portal-workspace__title">{workspaceTitle}</h1>
-                <p className="portal-workspace__description">{workspaceDescription}</p>
+                <span className="portal-workspace__eyebrow">Navegacion principal</span>
+                <h1 className="portal-header__title">{workspaceTitle}</h1>
+                <p className="portal-header__description">{workspaceDescription}</p>
               </div>
               <div className="portal-workspace__chips">
+                <span className="portal-badge">{scopeIdentityTitle}</span>
                 <span className="portal-badge">{currentModeLabel}</span>
                 {activeModule ? <span className="portal-badge">{activeModule.label}</span> : null}
               </div>
             </div>
 
-            <div className="portal-workspace__contextGrid">
-              <div className="portal-chip">
-                <span className="portal-chip__label">Perfil actual</span>
+            <div className="portal-header__facts">
+              <div className="portal-header__fact">
+                <span className="portal-chip__label">Perfil</span>
                 <strong className="portal-chip__value">{actorLabel}</strong>
               </div>
-              <div className="portal-chip">
+              <div className="portal-header__fact">
                 <span className="portal-chip__label">Capa</span>
                 <strong className="portal-chip__value">{currentScopeLabel}</strong>
               </div>
-              <div className="portal-chip">
-                <span className="portal-chip__label">{isPlatformScope ? 'Cobertura' : 'Comercio'}</span>
-                <strong className="portal-chip__value">{isPlatformScope ? 'Toda la plataforma' : displayBusinessLabel}</strong>
+              <div className="portal-header__fact">
+                <span className="portal-chip__label">{scopeEntityLabel}</span>
+                <strong className="portal-chip__value">{scopeEntityValue}</strong>
               </div>
-              <div className="portal-chip">
-                <span className="portal-chip__label">{isPlatformScope ? 'Negocios visibles' : 'Sucursal'}</span>
-                <strong className="portal-chip__value">{isPlatformScope ? `${businessCount} negocios` : displayBranchLabel}</strong>
-              </div>
-              <div className="portal-chip">
-                <span className="portal-chip__label">Modulos visibles</span>
-                <strong className="portal-chip__value">{visibleModulesCount}</strong>
-              </div>
-              <div className="portal-chip">
-                <span className="portal-chip__label">Cobertura operativa</span>
-                <strong className="portal-chip__value">
-                  {portal.currentScopeType === 'platform'
-                    ? `${businessCount} negocios`
-                    : portal.currentScopeType === 'business'
-                      ? `${branchCount} sucursales`
-                      : '1 sucursal'}
-                </strong>
+              <div className="portal-header__fact">
+                <span className="portal-chip__label">Cobertura</span>
+                <strong className="portal-chip__value">{scopeCoverageValue}</strong>
               </div>
             </div>
           </section>
+
+          <nav className="portal-tabbar">
+            {navItems.map((item) => {
+              const active = isNavActive(item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`portal-tabbar__item ${active ? 'portal-tabbar__item--active' : ''}`}
+                  onClick={handleNavClick}
+                >
+                  <span className="portal-tabbar__label">{item.label}</span>
+                  <span className="portal-tabbar__meta">{item.description}</span>
+                </Link>
+              );
+            })}
+          </nav>
 
           <Outlet />
         </div>
