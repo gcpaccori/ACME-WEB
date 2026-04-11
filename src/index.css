@@ -31,10 +31,42 @@
   --portal-header-height: 64px;
 }
 
-html, body {
+html {
   height: 100%;
-  overflow: hidden;
+  overflow-y: scroll; /* Consistently show scrollbar track to avoid layout shift */
+}
+
+body {
+  min-height: 100%;
   margin: 0;
+  overflow-x: hidden; /* Handle horizontal overflow globally */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Purple Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--acme-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--acme-purple);
+  border-radius: 10px;
+  border: 2px solid var(--acme-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--acme-purple-light);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--acme-purple) var(--acme-bg);
 }
 
 body {
@@ -75,6 +107,8 @@ img {
   background-color: var(--acme-bg);
   color: var(--acme-text);
   overflow: hidden;
+  position: fixed; /* Fix to viewport to prevent body scroll */
+  width: 100%;
 }
 
 .portal-sidebar {

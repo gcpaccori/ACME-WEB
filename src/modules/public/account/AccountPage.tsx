@@ -1,10 +1,12 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { publicCustomerService, CustomerAccountSnapshot, CustomerAddressForm } from '../../../core/services/publicCustomerService';
 import { usePublicStore } from '../store/PublicStoreContext';
+import './AccountPage.css';
 
 type AccountTab = 'profile' | 'addresses' | 'orders';
 type AuthMode = 'login' | 'register';
+type LocationStatus = 'pending' | 'checking' | 'allowed' | 'blocked' | 'denied';
 
 function formatMoney(value: number, currency = 'PEN') {
   return new Intl.NumberFormat('es-PE', {
@@ -47,7 +49,74 @@ function statusTone(status: string) {
   return '#4b5563';
 }
 
+const UserIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+    <circle cx="12" cy="7" r="4"></circle>
+  </svg>
+);
+
+const MailIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+    <polyline points="22,6 12,13 2,6"></polyline>
+  </svg>
+);
+
+const PhoneIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+  </svg>
+);
+
+const LockIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+  </svg>
+);
+
+const MapPinIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+    <circle cx="12" cy="10" r="3"></circle>
+  </svg>
+);
+
+const PackageIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="16.5" y1="9.4" x2="7.5" y2="4.6"></line>
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+  </svg>
+);
+
+const LocationIcon = () => (
+  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <line x1="12" y1="16" x2="12" y2="12"></line>
+    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+  </svg>
+);
+
+const ShieldAlertIcon = () => (
+  <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+    <line x1="12" y1="8" x2="12" y2="12"></line>
+    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+  </svg>
+);
+
+const HomeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+  </svg>
+);
+
 export function AccountPage() {
+  const navigate = useNavigate();
   const publicStore = usePublicStore();
   const [searchParams] = useSearchParams();
   const requestedTab = (searchParams.get('tab') as AccountTab | null) ?? 'profile';
@@ -70,10 +139,48 @@ export function AccountPage() {
   });
   const [authError, setAuthError] = useState<string | null>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(requestedOrderId);
+  const [locationStatus, setLocationStatus] = useState<LocationStatus>('checking');
 
   useEffect(() => {
     setActiveTab(requestedTab);
   }, [requestedTab]);
+
+  useEffect(() => {
+    const checkLocationPrematurely = async () => {
+      if (publicStore.sessionUser) {
+        setLocationStatus('allowed');
+        return;
+      }
+
+      setLocationStatus('checking');
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 8000,
+            maximumAge: 0
+          });
+        });
+
+        const { latitude, longitude } = position.coords;
+        // Bounds for Huancavelica Province
+        const isInProvince = (
+          latitude >= -13.15 && latitude <= -12.45 &&
+          longitude >= -75.35 && longitude <= -74.75
+        );
+
+        if (isInProvince) {
+          setLocationStatus('allowed');
+        } else {
+          setLocationStatus('blocked');
+        }
+      } catch (err) {
+        setLocationStatus('denied');
+      }
+    };
+
+    checkLocationPrematurely();
+  }, [publicStore.sessionUser]);
 
   const loadAccount = async () => {
     if (!publicStore.sessionUser) return;
@@ -154,7 +261,14 @@ export function AccountPage() {
     if (authMode === 'login') {
       const result = await publicStore.signInCustomer(loginEmail, loginPassword);
       setSaving(false);
-      if (result.error) setAuthError(result.error.message);
+      if (result.error) {
+        setAuthError(result.error.message);
+      } else {
+        const redirectTo = searchParams.get('redirect');
+        if (redirectTo) {
+          navigate(redirectTo);
+        }
+      }
       return;
     }
 
@@ -164,304 +278,512 @@ export function AccountPage() {
       setAuthError(result.error.message);
       return;
     }
-    if (!result.data.session) {
+    
+    if (result.data.session) {
+      const redirectTo = searchParams.get('redirect');
+      if (redirectTo) {
+        navigate(redirectTo);
+      }
+    } else {
       setAuthError('Tu cuenta fue creada. Revisa tu correo para validarla y vuelve a entrar.');
     }
   };
 
+  if (locationStatus === 'checking') {
+    return (
+      <div className="location-overlay">
+        <div className="location-checking-card">
+          <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid rgba(77,20,140,0.1)', borderTopColor: 'var(--acme-purple)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          <h2>Verificando ubicación</h2>
+          <p>Estamos confirmando que te encuentras dentro de nuestra zona de servicio en Huancavelica...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (locationStatus === 'blocked' || locationStatus === 'denied') {
+    return (
+      <main className="account-page">
+        <div className="account-container">
+          <section className="account-card hard-block-container">
+            <div className="hard-block-icon">
+              <ShieldAlertIcon />
+            </div>
+            <div className="hard-block-content">
+              <h2 className="hard-block-title">Acceso restringido</h2>
+              <p className="hard-block-text">
+                {locationStatus === 'blocked' 
+                  ? 'Lo sentimos, ACME Pedidos actualmente solo opera en la provincia de Huancavelica. No hemos podido verificar tu ubicación dentro de nuestra zona de cobertura.'
+                  : 'Es necesario permitir el acceso a tu ubicación para verificar que te encuentras en nuestra zona de servicio autorizada.'}
+              </p>
+            </div>
+            <a href="/" className="btn-primary" style={{ textDecoration: 'none' }}>
+              <HomeIcon />
+              Volver al inicio
+            </a>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
   if (!publicStore.sessionUser) {
     return (
-      <section
-        style={{
-          minHeight: '100vh',
-          padding: '108px 24px 56px',
-          background:
-            'radial-gradient(900px 320px at -10% 0%, rgba(77,20,140,.10), transparent 55%), radial-gradient(820px 360px at 105% 10%, rgba(255,98,0,.10), transparent 55%), #f7f7fb',
-        }}
-      >
-        <div style={{ maxWidth: '720px', margin: '0 auto', display: 'grid', gap: '24px' }}>
-          <div style={{ display: 'grid', gap: '8px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#ff6200' }}>Cuenta cliente</div>
-            <h1 style={{ margin: 0, fontFamily: "'Poppins', sans-serif", fontSize: 'clamp(2rem, 4vw, 3rem)', color: '#1d1630' }}>Ingresa para guardar tu perfil y ver tus pedidos</h1>
-          </div>
-          <section style={{ padding: '28px', borderRadius: '30px', background: '#fff', boxShadow: '0 16px 42px rgba(17,24,39,.06)', display: 'grid', gap: '18px' }}>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              {[
-                { id: 'login', label: 'Ingresar' },
-                { id: 'register', label: 'Crear cuenta' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setAuthMode(tab.id as AuthMode)}
-                  style={{
-                    flex: 1,
-                    padding: '12px 14px',
-                    borderRadius: '14px',
-                    border: authMode === tab.id ? '1px solid rgba(77,20,140,.28)' : '1px solid #e5e7eb',
-                    background: authMode === tab.id ? '#f4eeff' : '#fff',
-                    color: authMode === tab.id ? '#4d148c' : '#374151',
-                    fontWeight: 700,
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
+      <main className="account-page">
+        <div className="account-container">
+          <header className="account-header">
+            <div className="account-header__eyebrow">Acceso Seguro</div>
+            <h1 className="account-header__title">
+              {authMode === 'login' ? 'Bienvenido de nuevo' : 'Únete a ACME'}
+            </h1>
+            <p className="account-header__subtitle">
+              Gestiona tus pedidos y direcciones en la red más eficiente de la provincia.
+            </p>
+          </header>
+
+          <section className="account-card auth-card">
+            <div className="account-tabs">
+              <button
+                type="button"
+                className={`account-tab-btn ${authMode === 'login' ? 'account-tab-btn--active' : ''}`}
+                onClick={() => { setAuthMode('login'); setAuthError(null); }}
+              >
+                Iniciar Sesión
+              </button>
+              <button
+                type="button"
+                className={`account-tab-btn ${authMode === 'register' ? 'account-tab-btn--active' : ''}`}
+                onClick={() => { setAuthMode('register'); setAuthError(null); }}
+              >
+                Crear Cuenta
+              </button>
             </div>
-            <form onSubmit={handleAuthSubmit} style={{ display: 'grid', gap: '12px' }}>
+
+            <form onSubmit={handleAuthSubmit} className="account-form">
               {authMode === 'register' ? (
                 <>
-                  <input value={registerForm.full_name} onChange={(event) => setRegisterForm((current) => ({ ...current, full_name: event.target.value }))} placeholder="Nombre completo" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-                  <input value={registerForm.phone} onChange={(event) => setRegisterForm((current) => ({ ...current, phone: event.target.value }))} placeholder="Teléfono" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-                  <input value={registerForm.email} onChange={(event) => setRegisterForm((current) => ({ ...current, email: event.target.value }))} placeholder="Correo" type="email" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-                  <input value={registerForm.password} onChange={(event) => setRegisterForm((current) => ({ ...current, password: event.target.value }))} placeholder="Contraseña" type="password" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
+                  <div className="account-field">
+                    <label className="account-label">Nombre completo</label>
+                    <div className="account-input-wrapper">
+                      <input
+                        className="account-input"
+                        value={registerForm.full_name}
+                        onChange={(e) => setRegisterForm({ ...registerForm, full_name: e.target.value })}
+                        placeholder="Ej. Juan Pérez"
+                        required
+                      />
+                      <div className="account-input-icon"><UserIcon /></div>
+                    </div>
+                  </div>
+                  <div className="account-field">
+                    <label className="account-label">Teléfono</label>
+                    <div className="account-input-wrapper">
+                      <input
+                        className="account-input"
+                        value={registerForm.phone}
+                        onChange={(e) => setRegisterForm({ ...registerForm, phone: e.target.value })}
+                        placeholder="987 654 321"
+                        required
+                      />
+                      <div className="account-input-icon"><PhoneIcon /></div>
+                    </div>
+                  </div>
                 </>
-              ) : (
-                <>
-                  <input value={loginEmail} onChange={(event) => setLoginEmail(event.target.value)} placeholder="Correo" type="email" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-                  <input value={loginPassword} onChange={(event) => setLoginPassword(event.target.value)} placeholder="Contraseña" type="password" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-                </>
+              ) : null}
+
+              <div className="account-field">
+                <label className="account-label">Correo electrónico</label>
+                <div className="account-input-wrapper">
+                  <input
+                    className="account-input"
+                    type="email"
+                    value={authMode === 'register' ? registerForm.email : loginEmail}
+                    onChange={(e) => authMode === 'register' 
+                      ? setRegisterForm({ ...registerForm, email: e.target.value })
+                      : setLoginEmail(e.target.value)
+                    }
+                    placeholder="usuario@correo.com"
+                    required
+                  />
+                  <div className="account-input-icon"><MailIcon /></div>
+                </div>
+              </div>
+
+              <div className="account-field">
+                <label className="account-label">Contraseña</label>
+                <div className="account-input-wrapper">
+                  <input
+                    className="account-input"
+                    type="password"
+                    value={authMode === 'register' ? registerForm.password : loginPassword}
+                    onChange={(e) => authMode === 'register'
+                      ? setRegisterForm({ ...registerForm, password: e.target.value })
+                      : setLoginPassword(e.target.value)
+                    }
+                    placeholder="••••••••"
+                    required
+                  />
+                  <div className="account-input-icon"><LockIcon /></div>
+                </div>
+              </div>
+
+              {authError && (
+                <div className="account-alert account-alert--error">
+                  <ShieldAlertIcon />
+                  <span>{authError}</span>
+                </div>
               )}
-              {authError ? <div style={{ color: '#b91c1c', fontSize: '14px' }}>{authError}</div> : null}
-              <button type="submit" disabled={saving} style={{ border: 'none', borderRadius: '16px', padding: '14px 18px', background: '#4d148c', color: '#fff', fontWeight: 800 }}>
-                {saving ? 'Procesando...' : authMode === 'register' ? 'Crear cuenta' : 'Ingresar'}
+
+              <button type="submit" className="btn-primary" disabled={saving}>
+                {saving ? (
+                  <>
+                    <div className="spinner" style={{ width: '18px', height: '18px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                    <span>Procesando...</span>
+                  </>
+                ) : (
+                  <span>{authMode === 'register' ? 'Registrarme ahora' : 'Ingresar a mi cuenta'}</span>
+                )}
               </button>
             </form>
           </section>
         </div>
-      </section>
+      </main>
     );
   }
 
   return (
-    <section
-      style={{
-        minHeight: '100vh',
-        padding: '108px 24px 56px',
-        background:
-          'radial-gradient(900px 320px at -10% 0%, rgba(77,20,140,.10), transparent 55%), radial-gradient(820px 360px at 105% 10%, rgba(255,98,0,.10), transparent 55%), #f7f7fb',
-      }}
-    >
-      <div style={{ maxWidth: '1320px', margin: '0 auto', display: 'grid', gap: '24px' }}>
-        <section style={{ display: 'grid', gap: '8px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', color: '#ff6200' }}>Cuenta cliente</div>
-          <h1 style={{ margin: 0, fontFamily: "'Poppins', sans-serif", fontSize: 'clamp(2rem, 4vw, 3rem)', color: '#1d1630' }}>Perfil, direcciones e historial</h1>
-          <p style={{ margin: 0, color: '#6b7280', lineHeight: 1.7 }}>
-            Esta capa ya te deja registrarte, validar la cuenta por correo, guardar datos básicos y revisar el estado del pedido. El mapa en tiempo real quedará para la siguiente fase.
+    <main className="account-page">
+      <div className="account-container">
+        <header className="account-header">
+          <div className="account-header__eyebrow">Panel de Cliente</div>
+          <h1 className="account-header__title">Mi Cuenta</h1>
+          <p className="account-header__subtitle">
+            Gestiona tus datos personales, direcciones de entrega y revisa el historial de tus pedidos realizados.
           </p>
-        </section>
+        </header>
 
-        {!publicStore.sessionUser.email_confirmed_at ? (
-          <div style={{ padding: '18px 20px', borderRadius: '20px', background: '#fff7ed', border: '1px solid rgba(255,98,0,.18)', display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ color: '#9a3412' }}>
-              Tu cuenta aún no aparece confirmada. Revisa tu correo o reenvía el enlace de validación.
-            </span>
+        {!publicStore.sessionUser.email_confirmed_at && (
+          <div className="account-alert account-alert--warning" style={{ justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <LocationIcon />
+              <span>Tu cuenta aún no está confirmada. Revisa tu correo para validar el acceso.</span>
+            </div>
             <button
               type="button"
+              className="btn-primary"
+              style={{ padding: '8px 16px', fontSize: '13px' }}
               onClick={async () => {
                 if (publicStore.sessionUser?.email) {
                   await publicStore.resendVerification(publicStore.sessionUser.email);
                 }
               }}
-              style={{ border: 'none', borderRadius: '14px', padding: '12px 14px', background: '#ff6200', color: '#fff', fontWeight: 800 }}
             >
-              Reenviar verificación
+              Reenviar correo
             </button>
           </div>
-        ) : null}
+        )}
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          {[
-            { id: 'profile', label: 'Perfil' },
-            { id: 'addresses', label: 'Direcciones' },
-            { id: 'orders', label: 'Pedidos' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id as AccountTab)}
-              style={{
-                padding: '12px 14px',
-                borderRadius: '999px',
-                border: activeTab === tab.id ? '1px solid rgba(77,20,140,.28)' : '1px solid #e5e7eb',
-                background: activeTab === tab.id ? '#f4eeff' : '#fff',
-                color: activeTab === tab.id ? '#4d148c' : '#374151',
-                fontWeight: 700,
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <nav className="account-tabs">
+          <button
+            type="button"
+            className={`account-tab-btn ${activeTab === 'profile' ? 'account-tab-btn--active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            <UserIcon />
+            Perfil
+          </button>
+          <button
+            type="button"
+            className={`account-tab-btn ${activeTab === 'addresses' ? 'account-tab-btn--active' : ''}`}
+            onClick={() => setActiveTab('addresses')}
+          >
+            <MapPinIcon />
+            Direcciones
+          </button>
+          <button
+            type="button"
+            className={`account-tab-btn ${activeTab === 'orders' ? 'account-tab-btn--active' : ''}`}
+            onClick={() => setActiveTab('orders')}
+          >
+            <PackageIcon />
+            Pedidos
+          </button>
+        </nav>
 
-        {loading ? <div style={{ padding: '32px', borderRadius: '24px', background: '#fff' }}>Cargando tu cuenta...</div> : null}
-        {error ? <div style={{ padding: '18px 20px', borderRadius: '20px', background: '#fff', color: '#b91c1c' }}>{error}</div> : null}
+        {loading && (
+          <div className="account-card" style={{ textAlign: 'center' }}>
+            <div className="spinner" style={{ margin: '0 auto 10px', width: '24px', height: '24px', border: '3px solid rgba(77,20,140,0.1)', borderTopColor: 'var(--acme-purple)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <p style={{ margin: 0, fontWeight: 600, color: 'var(--acme-text-muted)' }}>Cargando información...</p>
+          </div>
+        )}
+        
+        {error && <div className="account-alert account-alert--error">{error}</div>}
 
-        {activeTab === 'profile' ? (
-          <section style={{ padding: '24px', borderRadius: '28px', background: '#fff', boxShadow: '0 16px 42px rgba(17,24,39,.06)', display: 'grid', gap: '18px' }}>
-            <strong style={{ fontSize: '1.15rem' }}>Perfil de cliente</strong>
-            <form onSubmit={saveProfile} style={{ display: 'grid', gap: '14px', maxWidth: '680px' }}>
-              <input value={profileForm.full_name} onChange={(event) => setProfileForm((current) => ({ ...current, full_name: event.target.value }))} placeholder="Nombre completo" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-              <input value={profileForm.email} readOnly placeholder="Correo" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px', background: '#f9fafb' }} />
-              <input value={profileForm.phone} onChange={(event) => setProfileForm((current) => ({ ...current, phone: event.target.value }))} placeholder="Teléfono" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
-                <span style={{ color: '#6b7280' }}>Rating actual: {snapshot?.profile.rating_avg ?? 0}</span>
-                <button type="submit" disabled={saving} style={{ border: 'none', borderRadius: '16px', padding: '14px 18px', background: '#4d148c', color: '#fff', fontWeight: 800 }}>
-                  {saving ? 'Guardando...' : 'Guardar perfil'}
+        {!loading && activeTab === 'profile' && (
+          <section className="account-card">
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.5rem' }}>Datos Personales</h2>
+            <form onSubmit={saveProfile} className="account-form" style={{ maxWidth: '600px' }}>
+              <div className="account-field">
+                <label className="account-label">Nombre Completo</label>
+                <div className="account-input-wrapper">
+                  <input
+                    className="account-input"
+                    value={profileForm.full_name}
+                    onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
+                    placeholder="Tu nombre"
+                    required
+                  />
+                  <div className="account-input-icon"><UserIcon /></div>
+                </div>
+              </div>
+              <div className="account-field">
+                <label className="account-label">Correo Electrónico (Solo lectura)</label>
+                <div className="account-input-wrapper">
+                  <input
+                    className="account-input"
+                    value={profileForm.email}
+                    readOnly
+                    placeholder="tu@correo.com"
+                  />
+                  <div className="account-input-icon"><MailIcon /></div>
+                </div>
+              </div>
+              <div className="account-field">
+                <label className="account-label">Teléfono de contacto</label>
+                <div className="account-input-wrapper">
+                  <input
+                    className="account-input"
+                    value={profileForm.phone}
+                    onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                    placeholder="987 654 321"
+                    required
+                  />
+                  <div className="account-input-icon"><PhoneIcon /></div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--acme-text-muted)', fontSize: '14px' }}>
+                  <span>⭐ Rating de cliente:</span>
+                  <strong style={{ color: 'var(--acme-text)' }}>{snapshot?.profile.rating_avg ?? 0} / 5</strong>
+                </div>
+                <button type="submit" className="btn-primary" disabled={saving}>
+                  {saving ? 'Guardando...' : 'Actualizar Perfil'}
                 </button>
               </div>
             </form>
           </section>
-        ) : null}
+        )}
 
-        {activeTab === 'addresses' ? (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'start' }}>
-            <section style={{ padding: '24px', borderRadius: '28px', background: '#fff', boxShadow: '0 16px 42px rgba(17,24,39,.06)', display: 'grid', gap: '16px' }}>
-              <strong style={{ fontSize: '1.15rem' }}>Direcciones guardadas</strong>
-              {snapshot?.addresses.length ? (
-                snapshot.addresses.map((address) => (
-                  <button
-                    key={address.relation_id}
-                    type="button"
-                    onClick={() => setAddressForm(address)}
-                    style={{ textAlign: 'left', borderRadius: '18px', border: '1px solid #ecebf5', background: '#fff', padding: '16px', display: 'grid', gap: '6px' }}
-                  >
-                    <strong>{address.label}{address.is_default ? ' · Predeterminada' : ''}</strong>
-                    <span style={{ color: '#6b7280' }}>{address.line1}</span>
-                    <span style={{ color: '#6b7280', fontSize: '13px' }}>{[address.district, address.city, address.region].filter(Boolean).join(' · ')}</span>
-                  </button>
-                ))
-              ) : (
-                <span style={{ color: '#6b7280' }}>Aún no has guardado direcciones.</span>
-              )}
+        {!loading && activeTab === 'addresses' && (
+          <div className="account-grid">
+            <section className="account-card">
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.5rem' }}>Mis Direcciones</h2>
+              <div className="card-list">
+                {snapshot?.addresses.length ? (
+                  snapshot.addresses.map((address) => (
+                    <button
+                      key={address.relation_id}
+                      type="button"
+                      className={`card-item ${addressForm.relation_id === address.relation_id ? 'card-item--active' : ''}`}
+                      onClick={() => setAddressForm(address)}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <strong style={{ fontSize: '15px' }}>{address.label}</strong>
+                        {address.is_default && <span className="status-badge" style={{ background: 'rgba(77,20,140,0.1)', color: 'var(--acme-purple)' }}>Principal</span>}
+                      </div>
+                      <span style={{ color: 'var(--acme-text-muted)', fontSize: '14px' }}>{address.line1}</span>
+                      <span style={{ color: 'var(--acme-text-muted)', fontSize: '12px', opacity: 0.8 }}>
+                        {[address.district, address.city, address.region].filter(Boolean).join(' · ')}
+                      </span>
+                    </button>
+                  ))
+                ) : (
+                  <p style={{ color: 'var(--acme-text-muted)', textAlign: 'center', padding: '2rem 0' }}>Aún no has registrado direcciones.</p>
+                )}
+              </div>
             </section>
 
-            <section style={{ padding: '24px', borderRadius: '28px', background: '#fff', boxShadow: '0 16px 42px rgba(17,24,39,.06)', display: 'grid', gap: '16px' }}>
-              <strong style={{ fontSize: '1.15rem' }}>{addressForm.relation_id ? 'Editar dirección' : 'Nueva dirección'}</strong>
-              <form onSubmit={saveAddress} style={{ display: 'grid', gap: '12px' }}>
-                <input value={addressForm.label} onChange={(event) => setAddressForm((current) => ({ ...current, label: event.target.value }))} placeholder="Etiqueta" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-                <input value={addressForm.line1} onChange={(event) => setAddressForm((current) => ({ ...current, line1: event.target.value }))} placeholder="Dirección" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-                <input value={addressForm.reference} onChange={(event) => setAddressForm((current) => ({ ...current, reference: event.target.value }))} placeholder="Referencia" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '12px' }}>
-                  <input value={addressForm.district} onChange={(event) => setAddressForm((current) => ({ ...current, district: event.target.value }))} placeholder="Distrito" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-                  <input value={addressForm.city} onChange={(event) => setAddressForm((current) => ({ ...current, city: event.target.value }))} placeholder="Ciudad" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
-                  <input value={addressForm.region} onChange={(event) => setAddressForm((current) => ({ ...current, region: event.target.value }))} placeholder="Región" style={{ border: '1px solid #e5e7eb', borderRadius: '14px', padding: '12px 14px' }} />
+            <section className="account-card">
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.5rem' }}>
+                {addressForm.relation_id ? 'Editar Dirección' : 'Nueva Dirección'}
+              </h2>
+              <form onSubmit={saveAddress} className="account-form">
+                <div className="account-field">
+                  <label className="account-label">Etiqueta (Ej. Casa, Oficina)</label>
+                  <input
+                    className="account-input"
+                    value={addressForm.label}
+                    onChange={(e) => setAddressForm({ ...addressForm, label: e.target.value })}
+                    placeholder="Nombre del lugar"
+                    required
+                    style={{ paddingLeft: '16px' }}
+                  />
                 </div>
-                <label style={{ display: 'inline-flex', gap: '10px', alignItems: 'center', color: '#374151' }}>
-                  <input type="checkbox" checked={addressForm.is_default} onChange={(event) => setAddressForm((current) => ({ ...current, is_default: event.target.checked }))} />
-                  Dejar como predeterminada
+                <div className="account-field">
+                  <label className="account-label">Dirección exacta</label>
+                  <input
+                    className="account-input"
+                    value={addressForm.line1}
+                    onChange={(e) => setAddressForm({ ...addressForm, line1: e.target.value })}
+                    placeholder="Calle, número, dpto"
+                    required
+                    style={{ paddingLeft: '16px' }}
+                  />
+                </div>
+                <div className="account-field">
+                  <label className="account-label">Referencia (Opcional)</label>
+                  <input
+                    className="account-input"
+                    value={addressForm.reference}
+                    onChange={(e) => setAddressForm({ ...addressForm, reference: e.target.value })}
+                    placeholder="Ej. Cerca al parque central"
+                    style={{ paddingLeft: '16px' }}
+                  />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="account-field">
+                    <label className="account-label">Distrito</label>
+                    <input
+                      className="account-input"
+                      value={addressForm.district}
+                      onChange={(e) => setAddressForm({ ...addressForm, district: e.target.value })}
+                      required
+                      style={{ paddingLeft: '16px' }}
+                    />
+                  </div>
+                  <div className="account-field">
+                    <label className="account-label">Ciudad</label>
+                    <input
+                      className="account-input"
+                      value={addressForm.city}
+                      onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
+                      required
+                      style={{ paddingLeft: '16px' }}
+                    />
+                  </div>
+                </div>
+                <label style={{ display: 'inline-flex', gap: '10px', alignItems: 'center', cursor: 'pointer', userSelect: 'none', color: 'var(--acme-text-muted)', fontSize: '14px' }}>
+                  <input type="checkbox" checked={addressForm.is_default} onChange={(e) => setAddressForm({ ...addressForm, is_default: e.target.checked })} />
+                  Establecer como dirección principal
                 </label>
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                  <button type="button" onClick={() => setAddressForm(emptyAddress())} style={{ border: '1px solid #e5e7eb', borderRadius: '16px', padding: '12px 16px', background: '#fff', fontWeight: 700 }}>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                  <button type="button" className="btn-secondary" onClick={() => setAddressForm(emptyAddress())}>
                     Limpiar
                   </button>
-                  <button type="submit" disabled={saving} style={{ border: 'none', borderRadius: '16px', padding: '12px 16px', background: '#ff6200', color: '#fff', fontWeight: 800 }}>
-                    {saving ? 'Guardando...' : 'Guardar dirección'}
+                  <button type="submit" className="btn-primary" disabled={saving}>
+                    {saving ? 'Guardando...' : 'Guardar Dirección'}
                   </button>
                 </div>
               </form>
             </section>
           </div>
-        ) : null}
+        )}
 
-        {activeTab === 'orders' ? (
-          <div style={{ display: 'grid', gridTemplateColumns: '.75fr 1.25fr', gap: '20px', alignItems: 'start' }}>
-            <section style={{ padding: '24px', borderRadius: '28px', background: '#fff', boxShadow: '0 16px 42px rgba(17,24,39,.06)', display: 'grid', gap: '14px' }}>
-              <strong style={{ fontSize: '1.15rem' }}>Historial</strong>
-              {snapshot?.orders.length ? (
-                snapshot.orders.map((order) => (
-                  <button
-                    key={order.id}
-                    type="button"
-                    onClick={() => setSelectedOrderId(order.id)}
-                    style={{
-                      textAlign: 'left',
-                      borderRadius: '20px',
-                      border: selectedOrderId === order.id ? '1px solid rgba(77,20,140,.28)' : '1px solid #ecebf5',
-                      background: selectedOrderId === order.id ? '#f4eeff' : '#fff',
-                      padding: '16px',
-                      display: 'grid',
-                      gap: '8px',
-                    }}
-                  >
-                    <strong>Pedido #{order.order_code}</strong>
-                    <span style={{ color: '#6b7280' }}>{order.merchant_label} · {order.branch_label}</span>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center' }}>
-                      <span style={{ color: statusTone(order.status), fontWeight: 800 }}>{order.status}</span>
-                      <strong>{formatMoney(order.total, order.currency)}</strong>
-                    </div>
-                  </button>
-                ))
-              ) : (
-                <span style={{ color: '#6b7280' }}>Todavía no tienes pedidos en historial.</span>
-              )}
+        {!loading && activeTab === 'orders' && (
+          <div className="account-grid" style={{ gridTemplateColumns: '400px 1fr' }}>
+            <section className="account-card">
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.5rem' }}>Historial</h2>
+              <div className="card-list">
+                {snapshot?.orders.length ? (
+                  snapshot.orders.map((order) => (
+                    <button
+                      key={order.id}
+                      type="button"
+                      className={`card-item ${selectedOrderId === order.id ? 'card-item--active' : ''}`}
+                      onClick={() => setSelectedOrderId(order.id)}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <strong style={{ color: 'var(--acme-purple)' }}>#{order.order_code}</strong>
+                        <span className="status-badge" style={{ background: statusTone(order.status) + '20', color: statusTone(order.status) }}>
+                          {order.status}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: 600 }}>{order.merchant_label}</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--acme-text-muted)' }}>
+                        <span>{formatDateTime(order.placed_at)}</span>
+                        <strong style={{ color: 'var(--acme-text)' }}>{formatMoney(order.total, order.currency)}</strong>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <p style={{ color: 'var(--acme-text-muted)', textAlign: 'center' }}>No tienes pedidos registrados.</p>
+                )}
+              </div>
             </section>
 
-            <section style={{ padding: '24px', borderRadius: '28px', background: '#fff', boxShadow: '0 16px 42px rgba(17,24,39,.06)', display: 'grid', gap: '18px' }}>
+            <section className="account-card">
               {selectedOrder ? (
-                <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', alignItems: 'start' }}>
-                    <div style={{ display: 'grid', gap: '8px' }}>
-                      <strong style={{ fontSize: '1.25rem' }}>Pedido #{selectedOrder.order_code}</strong>
-                      <span style={{ color: '#6b7280' }}>{selectedOrder.merchant_label} · {selectedOrder.branch_label}</span>
-                      <span style={{ color: '#6b7280' }}>{formatDateTime(selectedOrder.placed_at)}</span>
+                <div className="detail-view">
+                  <header className="detail-header">
+                    <div>
+                      <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>Pedido #{selectedOrder.order_code}</h2>
+                      <p style={{ margin: '4px 0', color: 'var(--acme-text-muted)' }}>{selectedOrder.merchant_label} · {selectedOrder.branch_label}</p>
                     </div>
-                    <div style={{ display: 'grid', gap: '8px', justifyItems: 'end' }}>
-                      <span style={{ color: statusTone(selectedOrder.status), fontWeight: 800 }}>{selectedOrder.status}</span>
-                      <strong>{formatMoney(selectedOrder.total, selectedOrder.currency)}</strong>
+                    <div style={{ textAlign: 'right' }}>
+                      <span className="status-badge" style={{ background: statusTone(selectedOrder.status) + '20', color: statusTone(selectedOrder.status), fontSize: '14px' }}>
+                        {selectedOrder.status}
+                      </span>
+                      <h3 style={{ margin: '8px 0 0', fontSize: '1.25rem' }}>{formatMoney(selectedOrder.total, selectedOrder.currency)}</h3>
                     </div>
-                  </div>
+                  </header>
 
-                  <div style={{ display: 'grid', gap: '10px' }}>
-                    {selectedOrder.items.map((item) => (
-                      <div key={item.id} style={{ borderRadius: '18px', border: '1px solid #ecebf5', padding: '16px', display: 'grid', gap: '6px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
-                          <strong>{item.product_name_snapshot}</strong>
+                  <div className="detail-section">
+                    <h3 style={{ fontSize: '1rem', fontWeight: 800, borderBottom: '1px solid var(--acme-border)', paddingBottom: '8px' }}>Resumen del pedido</h3>
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      {selectedOrder.items.map((item) => (
+                        <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
+                          <div style={{ display: 'grid', gap: '2px' }}>
+                            <strong style={{ fontSize: '14px' }}>{item.quantity}x {item.product_name_snapshot}</strong>
+                            {item.modifiers.length > 0 && (
+                              <span style={{ fontSize: '12px', color: 'var(--acme-text-muted)' }}>
+                                Extras: {item.modifiers.map(m => m.option_name_snapshot).join(', ')}
+                              </span>
+                            )}
+                            {item.notes && <span style={{ fontSize: '12px', color: 'var(--acme-orange)', fontStyle: 'italic' }}>Nota: {item.notes}</span>}
+                          </div>
                           <span>{formatMoney(item.line_total, selectedOrder.currency)}</span>
                         </div>
-                        <span style={{ color: '#6b7280' }}>Cantidad: {item.quantity}</span>
-                        {item.modifiers.length > 0 ? <span style={{ color: '#6b7280' }}>Extras: {item.modifiers.map((modifier) => modifier.option_name_snapshot).join(', ')}</span> : null}
-                        {item.notes ? <span style={{ color: '#6b7280' }}>Nota: {item.notes}</span> : null}
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
 
-                  <div style={{ padding: '18px', borderRadius: '20px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'grid', gap: '8px' }}>
-                    <strong>Entrega y seguimiento</strong>
-                    <span style={{ color: '#475569' }}>
-                      {selectedOrder.fulfillment_type === 'delivery'
-                        ? selectedOrder.address_snapshot || 'La dirección se registró sin snapshot detallado.'
-                        : 'Este pedido fue registrado para recojo en tienda.'}
-                    </span>
-                    <span style={{ color: '#64748b' }}>
-                      Seguimiento con mapa en tiempo real: próximamente. Esta caja queda libre para integrar Google Maps o tracking del repartidor más adelante.
-                    </span>
+                  <div className="detail-section" style={{ background: 'rgba(241, 245, 249, 0.5)', padding: '16px', borderRadius: '16px' }}>
+                    <h3 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 8px' }}>Información de Entrega</h3>
+                    <p style={{ margin: 0, fontSize: '14px', color: 'var(--acme-text-muted)' }}>
+                      {selectedOrder.fulfillment_type === 'delivery' 
+                        ? selectedOrder.address_snapshot || 'Entrega a domicilio'
+                        : 'Recojo en tienda local'}
+                    </p>
                   </div>
 
-                  <div style={{ display: 'grid', gap: '10px' }}>
-                    <strong>Historial de estado</strong>
-                    {selectedOrder.history.length ? (
-                      selectedOrder.history.map((entry) => (
-                        <div key={entry.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '12px 0', borderTop: '1px solid #f1f5f9' }}>
-                          <div>
-                            <strong>{entry.to_status}</strong>
-                            <div style={{ color: '#6b7280', fontSize: '13px' }}>{entry.note || 'Sin nota'}</div>
+                  <div className="detail-section">
+                    <h3 style={{ fontSize: '0.9rem', fontWeight: 800, margin: '0 0 12px' }}>Línea de tiempo</h3>
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      {selectedOrder.history.map((entry) => (
+                        <div key={entry.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--acme-purple)', marginTop: '5px' }} />
+                            <div style={{ display: 'grid' }}>
+                              <strong style={{ color: 'var(--acme-text)' }}>{entry.to_status}</strong>
+                              <span style={{ color: 'var(--acme-text-muted)' }}>{entry.note || 'Actualización de estado'}</span>
+                            </div>
                           </div>
-                          <span style={{ color: '#6b7280', fontSize: '13px' }}>{formatDateTime(entry.created_at)}</span>
+                          <span style={{ color: 'var(--acme-text-muted)' }}>{formatDateTime(entry.created_at)}</span>
                         </div>
-                      ))
-                    ) : (
-                      <span style={{ color: '#6b7280' }}>El pedido todavía no tiene más movimientos registrados.</span>
-                    )}
+                      ))}
+                    </div>
                   </div>
-                </>
+                </div>
               ) : (
-                <span style={{ color: '#6b7280' }}>Selecciona un pedido para revisar el detalle.</span>
+                <div style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--acme-text-muted)' }}>
+                  <PackageIcon />
+                  <p style={{ marginTop: '1rem', fontWeight: 600 }}>Selecciona un pedido para ver los detalles completos.</p>
+                </div>
               )}
             </section>
           </div>
-        ) : null}
+        )}
       </div>
-    </section>
+    </main>
   );
 }

@@ -1,5 +1,8 @@
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useEffect, useState, useContext, type ChangeEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { publicBusinessService } from '../../../core/services/publicBusinessService';
+import { PortalContext } from '../../auth/session/PortalContext';
+import { AppRoutes } from '../../../core/constants/routes';
 
 interface FormData {
   email: string;
@@ -162,8 +165,8 @@ function InputField({
   );
 }
 
-function Stepper({ step }: { step: number }) {
-  const labels = ['Cuenta', 'Negocio', 'Contacto'];
+function Stepper({ step, authMode }: { step: number; authMode?: boolean }) {
+  const labels = authMode ? ['Negocio', 'Contacto'] : ['Cuenta', 'Negocio', 'Contacto'];
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       {labels.map((label, index) => {
@@ -212,7 +215,9 @@ function FeatureCard({ icon: Icon, title, description, color = '#7c3aed' }: { ic
 }
 
 export function BusinessPage() {
-  const totalSteps = 3;
+  const navigate = useNavigate();
+  const portal = useContext(PortalContext);
+  const totalSteps = portal.sessionUserId ? 2 : 3;
   const [step, setStep] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -232,6 +237,31 @@ export function BusinessPage() {
   });
 
   useEffect(() => {
+    // Check if user is already a partner
+    if (portal.sessionUserId && !portal.isLoading) {
+      if (portal.hasBusinessAccess || portal.businessAssignments.length > 0) {
+        navigate(AppRoutes.portal.dashboard);
+        return;
+      }
+      
+      // If logged in but no business, pre-fill owner data and auto-open if intended
+      if (portal.profile && !formData.ownerName) {
+        setFormData(prev => ({
+          ...prev,
+          ownerName: portal.profile?.full_name || '',
+          email: portal.profile?.email || '',
+        }));
+      }
+
+      // Auto-open modal if the user was just redirected back from login
+      const wasRedirected = window.location.search.includes('redirect=');
+      if (wasRedirected && !modalOpen && !success) {
+        setModalOpen(true);
+      }
+    }
+  }, [portal.sessionUserId, portal.hasBusinessAccess, portal.businessAssignments, portal.isLoading, navigate, portal.profile]);
+
+  useEffect(() => {
     document.body.style.overflow = modalOpen ? 'hidden' : '';
     return () => {
       document.body.style.overflow = '';
@@ -249,6 +279,11 @@ export function BusinessPage() {
   };
 
   const canAdvance = () => {
+    if (portal.sessionUserId) {
+      if (step === 0) return Boolean(formData.businessName.trim() && formData.branchName.trim());
+      return Boolean(formData.address.trim() && formData.phone.trim());
+    }
+    
     if (step === 0) return Boolean(formData.ownerName.trim() && validateEmail(formData.email) && !emailError && formData.password.length >= 6);
     if (step === 1) return Boolean(formData.businessName.trim() && formData.branchName.trim());
     return Boolean(formData.address.trim() && formData.phone.trim());
@@ -271,6 +306,10 @@ export function BusinessPage() {
   };
 
   const openModal = () => {
+    if (!portal.sessionUserId) {
+      navigate(`${AppRoutes.public.portalLogin}?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
     resetModal();
     setModalOpen(true);
   };
@@ -281,6 +320,22 @@ export function BusinessPage() {
     setApiError('');
 
     try {
+      if (portal.sessionUserId) {
+        const result = await publicBusinessService.finalizeBusinessOnboarding(portal.sessionUserId, {
+          ownerName: formData.ownerName || portal.profile?.full_name || 'Owner',
+          email: portal.profile?.email || formData.email,
+          phone: formData.phone,
+          businessName: formData.businessName,
+          branchName: formData.branchName,
+          address: formData.address,
+        });
+
+        if (result.error) throw result.error;
+        await portal.reloadPortalContext();
+        setSuccess(true);
+        return;
+      }
+
       const result = await publicBusinessService.registerBusinessAccount({
         ownerName: formData.ownerName,
         email: formData.email,
@@ -317,7 +372,16 @@ export function BusinessPage() {
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const stepContent = [
+  const stepContent = portal.sessionUserId ? [
+    <div key="business" style={{ display: 'grid', gap: 14 }}>
+      <InputField label="Nombre del negocio" name="businessName" value={formData.businessName} onChange={handleChange} />
+      <InputField label="Sucursal principal" name="branchName" value={formData.branchName} onChange={handleChange} />
+    </div>,
+    <div key="contact" style={{ display: 'grid', gap: 14 }}>
+      <InputField label="Direccion" name="address" value={formData.address} onChange={handleChange} rows={2} />
+      <InputField label="Telefono" name="phone" value={formData.phone} onChange={handleChange} />
+    </div>,
+  ] : [
     <div key="account" style={{ display: 'grid', gap: 14 }}>
       <InputField label="Nombre completo" name="ownerName" value={formData.ownerName} onChange={handleChange} />
       <InputField label="Email" name="email" type="email" value={formData.email} onChange={handleChange} hint="Recibiras un enlace de confirmacion." error={emailError} />
@@ -441,7 +505,7 @@ export function BusinessPage() {
                 <button onClick={() => setModalOpen(false)} style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(255,255,255,.12)', border: 'none', borderRadius: 8, width: 30, height: 30, display: 'grid', placeItems: 'center', cursor: 'pointer', color: '#fff' }}>
                   <span style={{ fontSize: 16 }}>×</span>
                 </button>
-                {!success && !awaitingConfirmation ? <Stepper step={step} /> : null}
+                {!success && !awaitingConfirmation ? <Stepper step={step} authMode={Boolean(portal.sessionUserId)} /> : null}
               </div>
 
               <div style={{ padding: '22px 26px 26px' }}>
@@ -463,10 +527,16 @@ export function BusinessPage() {
                   <>
                     <div style={{ marginBottom: 18 }}>
                       <h3 style={{ margin: '0 0 4px', fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: '1.05rem', color: '#18181b' }}>
-                        {['Crea tu cuenta', 'Tu negocio', 'Donde encontrarte'][step]}
+                        {portal.sessionUserId 
+                          ? ['Tu negocio', 'Donde encontrarte'][step]
+                          : ['Crea tu cuenta', 'Tu negocio', 'Donde encontrarte'][step]
+                        }
                       </h3>
                       <p style={{ margin: 0, color: '#a1a1aa', fontSize: '0.82rem' }}>
-                        {['Datos de acceso al portal.', 'Cuéntanos sobre tu negocio y su sucursal principal.', 'Direccion y telefono de contacto.'][step]}
+                        {portal.sessionUserId
+                          ? ['Cuéntanos sobre tu negocio y su sucursal principal.', 'Direccion y telefono de contacto.'][step]
+                          : ['Datos de acceso al portal.', 'Cuéntanos sobre tu negocio y su sucursal principal.', 'Direccion y telefono de contacto.'][step]
+                        }
                       </p>
                     </div>
 

@@ -272,6 +272,17 @@ export const publicBusinessService = {
   readPendingBusinessRegistration,
   clearPendingBusinessRegistration,
 
+  finalizeBusinessOnboarding: async (userId: string, data: {
+    ownerName: string;
+    email: string;
+    phone: string;
+    businessName: string;
+    branchName: string;
+    address: string;
+  }) => {
+    return createBusinessStructure(userId, data);
+  },
+
   registerBusinessAccount: async (payload: BusinessRegistrationPayload) => {
     persistPendingBusinessRegistration(payload);
 

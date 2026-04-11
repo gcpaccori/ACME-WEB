@@ -318,10 +318,14 @@ export function PublicLayout() {
             {publicStore.cartCount > 0 ? <span className="acme-cart-badge">{publicStore.cartCount}</span> : null}
           </Link>
           <Link to={AppRoutes.public.account} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.account) ? ' active' : ''}`}>
-            {publicStore.sessionUser ? 'Mi cuenta' : 'Ingresar'}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            {publicStore.sessionUser ? 'Mi cuenta' : 'Ingreso'}
           </Link>
           <Link to={AppRoutes.public.portalLogin} className="acme-nav-link acme-nav-portal">
-            Portal
+            Portal para locales
           </Link>
         </div>
       </header>
@@ -369,7 +373,7 @@ export function PublicLayout() {
                 <Link to={AppRoutes.public.contact} className="acme-footer-link">Contacto</Link>
                 <Link to={AppRoutes.public.cart} className="acme-footer-link">Carrito</Link>
                 <Link to={AppRoutes.public.account} className="acme-footer-link">Mi cuenta</Link>
-                <Link to={AppRoutes.public.portalLogin} className="acme-footer-link">Portal</Link>
+                <Link to={AppRoutes.public.portalLogin} className="acme-footer-link">Portal para locales</Link>
               </div>
             </div>
           </div>

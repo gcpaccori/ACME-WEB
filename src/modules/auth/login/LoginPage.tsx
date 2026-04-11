@@ -1,11 +1,10 @@
 import { FormEvent, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppRoutes } from '../../../core/constants/routes';
 import { PortalContext } from '../session/PortalContext';
-import { Button } from '../../../components/ui/Button';
-import { TextField } from '../../../components/ui/TextField';
 import { authService } from '../../../core/services/authService';
 import { supabase } from '../../../integrations/supabase/client';
+import './LoginPage.css';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -18,19 +17,23 @@ export function LoginPage() {
   const [magicSent, setMagicSent] = useState(false);
   const [recoverySent, setRecoverySent] = useState(false);
 
+  const [searchParams] = useSearchParams();
+
   useEffect(() => {
+    const redirectTo = searchParams.get('redirect') || AppRoutes.portal.dashboard;
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) navigate(AppRoutes.portal.dashboard);
+      if (session) navigate(redirectTo);
     };
     checkSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) navigate(AppRoutes.portal.dashboard);
+      if (event === 'SIGNED_IN' && session) navigate(redirectTo);
     });
 
     return () => listener.subscription?.unsubscribe();
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -46,11 +49,17 @@ export function LoginPage() {
         return;
       }
 
-      navigate(AppRoutes.portal.dashboard);
+      const redirectTo = searchParams.get('redirect') || AppRoutes.portal.dashboard;
+      navigate(redirectTo);
       return;
     }
 
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    const { error } = await supabase.auth.signInWithOtp({ 
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}${searchParams.get('redirect') || AppRoutes.portal.dashboard}`
+      }
+    });
     setLoading(false);
     if (error) {
       setError(error.message ?? 'No se pudo enviar el correo de verificación');
@@ -62,7 +71,7 @@ export function LoginPage() {
 
   const handlePasswordRecovery = async () => {
     if (!email.trim()) {
-      setError('Ingresa el correo del usuario para enviar la recuperacion.');
+      setError('Ingresa el correo del usuario para enviar la recuperación.');
       return;
     }
 
@@ -77,293 +86,201 @@ export function LoginPage() {
 
     setLoading(false);
     if (result.error) {
-      setError(result.error.message ?? 'No se pudo enviar el correo de recuperacion');
+      setError(result.error.message ?? 'No se pudo enviar el correo de recuperación');
       return;
     }
 
     setRecoverySent(true);
   };
 
+  const StoreIcon = () => (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+  );
+
+  const MailIconLarge = () => (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+      <polyline points="22 6 12 13 2 6"></polyline>
+    </svg>
+  );
+
+  const MailIconSmall = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+      <polyline points="22 6 12 13 2 6"></polyline>
+    </svg>
+  );
+
+  const LockIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    </svg>
+  );
+
+  const AlertCircleIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+  );
+
   if (magicSent || recoverySent) {
     return (
-      <section style={{
-        minHeight: '100vh',
-        background: '#f9fafb',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2rem 1rem',
-      }}>
-        <div style={{
-          width: '100%',
-          maxWidth: '400px',
-          background: '#ffffff',
-          border: '1px solid #e5e7eb',
-          borderRadius: '16px',
-          padding: '2rem',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '1rem',
-          textAlign: 'center',
-        }}>
-          <div style={{
-            width: '44px',
-            height: '44px',
-            borderRadius: '50%',
-            background: '#f3f4f6',
-            border: '1px solid #e5e7eb',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '20px',
-          }}>📧</div>
+      <main className="login-page">
+        <div className="login-container">
+          <div className="login-card login-success">
+            <div className="login-success__icon">
+              <MailIconLarge />
+            </div>
+            <h2 className="login-success__title">Revisa tu correo</h2>
+            <p className="login-success__text">
+              Hemos enviado un enlace de verificación a{' '}
+              <span className="login-email-badge">{email}</span>.
+              Haz clic en él para acceder al portal de administración.
+            </p>
+            
+            <div className="login-info-box" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
+              <p style={{ margin: 0 }}>
+                ¿No lo recibiste? Revisa tu carpeta de spam o contacta al soporte técnico.
+              </p>
+            </div>
 
-          <div>
-            <p style={{ fontSize: '16px', fontWeight: 500, color: '#111827', margin: '0 0 4px' }}>
-              Revisa tu correo
-            </p>
-            <p style={{ fontSize: '13px', color: '#6b7280', margin: 0, lineHeight: '1.6' }}>
-              Enviamos un enlace de verificación a{' '}
-              <strong style={{ color: '#111827' }}>{email}</strong>.
-              Haz clic en él para acceder al panel.
-            </p>
+            <button
+              className="login-back-btn"
+              onClick={() => {
+                setMagicSent(false);
+                setRecoverySent(false);
+              }}
+            >
+              Volver al formulario
+            </button>
           </div>
-
-          <div style={{
-            background: '#f9fafb',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '12px 16px',
-            width: '100%',
-          }}>
-            <p style={{ fontSize: '12px', color: '#6b7280', margin: 0, lineHeight: '1.5' }}>
-              ¿No lo recibiste? Revisa tu carpeta de spam o contacta al soporte de ACME Pedidos.
-            </p>
-          </div>
-
-          <Button
-            onClick={() => {
-              setMagicSent(false);
-              setRecoverySent(false);
-            }}
-            style={{
-              marginTop: '4px',
-              background: 'transparent',
-              border: '1px solid #d1d5db',
-              color: '#374151',
-              padding: '8px 20px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '13px',
-            }}
-          >
-            Volver al formulario
-          </Button>
         </div>
-      </section>
+      </main>
     );
   }
 
   return (
-    <section style={{
-      minHeight: '100vh',
-      background: '#f9fafb',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem 1rem',
-    }}>
-      <div style={{ width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '12px',
-            background: '#ffffff',
-            border: '1px solid #e5e7eb',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 1rem',
-            fontSize: '22px',
-          }}>🏪</div>
-          <p style={{ fontSize: '18px', fontWeight: 500, color: '#111827', margin: '0 0 4px' }}>
-            Acceso al portal
+    <main className="login-page">
+      <div className="login-container">
+        <header className="login-header">
+          <div className="login-header__icon">
+            <StoreIcon />
+          </div>
+          <h1 className="login-header__title">Portal Administrativo</h1>
+          <p className="login-header__subtitle">
+            Acceso exclusivo para establecimientos y personal autorizado.
           </p>
-          <p style={{ fontSize: '13px', color: '#6b7280', margin: 0 }}>
-            Solo para socios y personal autorizado de ACME Pedidos
-          </p>
-        </div>
+        </header>
 
-        <div style={{
-          background: '#ffffff',
-          border: '1px solid #e5e7eb',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-        }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '8px',
-            background: '#f3f4f6',
-            border: '1px solid #e5e7eb',
-            borderRadius: '10px',
-            padding: '6px',
-          }}>
+        <div className="login-card">
+          <div className="login-mode-toggle">
             <button
               type="button"
+              className={`login-mode-btn ${mode === 'password' ? 'login-mode-btn--active' : ''}`}
               onClick={() => {
                 setMode('password');
                 setError(null);
                 setRecoverySent(false);
               }}
-              style={{
-                border: 'none',
-                borderRadius: '8px',
-                padding: '8px 10px',
-                background: mode === 'password' ? '#111827' : 'transparent',
-                color: mode === 'password' ? '#ffffff' : '#374151',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
             >
-              Con contraseña
+              Contraseña
             </button>
             <button
               type="button"
+              className={`login-mode-btn ${mode === 'magic' ? 'login-mode-btn--active' : ''}`}
               onClick={() => {
                 setMode('magic');
                 setError(null);
                 setRecoverySent(false);
-              }}
-              style={{
-                border: 'none',
-                borderRadius: '8px',
-                padding: '8px 10px',
-                background: mode === 'magic' ? '#111827' : 'transparent',
-                color: mode === 'magic' ? '#ffffff' : '#374151',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
               }}
             >
               Verificar correo
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>
-                Correo electrónico
-              </span>
-              <TextField
-                type="email"
-                placeholder="nombre@empresa.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
-              />
-            </label>
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="login-field">
+              <label className="login-field__label">Correo electrónico</label>
+              <div className="login-input-wrapper">
+                <input
+                  type="email"
+                  className="login-input"
+                  placeholder="socio@acmepedidos.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <div className="login-input-icon">
+                  <MailIconSmall />
+                </div>
+              </div>
+            </div>
 
             {mode === 'password' ? (
               <>
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>
-                  Contraseña
-                </span>
-                <TextField
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
-                />
-              </label>
-              <button
-                type="button"
-                onClick={handlePasswordRecovery}
-                disabled={loading}
-                style={{
-                  padding: 0,
-                  border: 'none',
-                  background: 'transparent',
-                  color: '#2563eb',
-                  fontWeight: 700,
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  opacity: loading ? 0.65 : 1,
-                  justifySelf: 'flex-start',
-                }}
-              >
-                Recuperar contraseña por correo
-              </button>
+                <div className="login-field">
+                  <label className="login-field__label">Contraseña</label>
+                  <div className="login-input-wrapper">
+                    <input
+                      type="password"
+                      className="login-input"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                    <div className="login-input-icon">
+                      <LockIcon />
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="login-recovery-link"
+                  onClick={handlePasswordRecovery}
+                  disabled={loading}
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
               </>
             ) : (
-              <p style={{
-                fontSize: '12px',
-                color: '#6b7280',
-                margin: 0,
-                lineHeight: '1.5',
-                background: '#f9fafb',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                padding: '10px 12px',
-              }}>
-                Te enviaremos un enlace seguro al correo para ingresar sin contraseña.
-              </p>
-            )}
-
-            {error && (
-              <div style={{
-                fontSize: '13px',
-                color: '#b91c1c',
-                background: '#fef2f2',
-                border: '1px solid #fecaca',
-                borderRadius: '8px',
-                padding: '10px 12px',
-              }}>
-                {error}
+              <div className="login-info-box">
+                Te enviaremos un correo con un acceso directo para que no tengas que recordar tu contraseña.
               </div>
             )}
 
-            <Button
+            {error && (
+              <div className="login-error">
+                <AlertCircleIcon />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <button
               type="submit"
+              className="login-submit-btn"
               disabled={loading}
-              style={{
-                padding: '10px',
-                borderRadius: '8px',
-                background: '#111827',
-                border: 'none',
-                color: '#ffffff',
-                fontWeight: 500,
-                fontSize: '14px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.6 : 1,
-                marginTop: '4px',
-              }}
             >
-              {loading
-                ? mode === 'password'
-                  ? 'Ingresando...'
-                  : 'Enviando verificación...'
-                : mode === 'password'
-                  ? 'Ingresar'
-                  : 'Verificar correo'}
-            </Button>
+              {loading && <div className="spinner" />}
+              <span>
+                {loading
+                  ? mode === 'password' ? 'Validando...' : 'Enviando...'
+                  : mode === 'password' ? 'Iniciar Sesión' : 'Enviar Link'}
+              </span>
+            </button>
           </form>
         </div>
 
-        <p style={{ fontSize: '12px', color: '#9ca3af', textAlign: 'center', margin: 0, lineHeight: '1.6' }}>
-          ¿Sin acceso autorizado? Contacta al equipo de soporte para solicitar credenciales.
+        <p className="login-footer-text">
+          ACME Pedidos &copy; {new Date().getFullYear()} &bull; Todos los derechos reservados.
         </p>
       </div>
-    </section>
+    </main>
   );
 }
