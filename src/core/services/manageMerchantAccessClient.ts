@@ -1,6 +1,5 @@
 import { supabase } from '../../integrations/supabase/client';
 
-const MANAGE_MERCHANT_ACCESS_FUNCTION = 'manage-merchant-access';
 const MANAGE_MERCHANT_ACCESS_API_PATH = '/api/manage-merchant-access';
 
 function normalizeError(error: unknown) {
@@ -10,28 +9,7 @@ function normalizeError(error: unknown) {
   return new Error(String(error ?? 'No se pudo completar la operacion de acceso'));
 }
 
-async function invokeViaEdgeFunction<T>(body: Record<string, unknown>) {
-  const result = await supabase.functions.invoke(MANAGE_MERCHANT_ACCESS_FUNCTION, { body });
-  if (result.error) {
-    return { data: null, error: normalizeError(result.error) };
-  }
-
-  const responseData = (result.data ?? null) as T | null;
-  if (responseData && typeof responseData === 'object' && 'error' in (responseData as Record<string, unknown>)) {
-    const responseError = (responseData as Record<string, unknown>).error;
-    if (typeof responseError === 'string' && responseError.trim()) {
-      return { data: null, error: new Error(responseError) };
-    }
-  }
-
-  return { data: responseData, error: null };
-}
-
 export async function invokeManageMerchantAccess<T>(body: Record<string, unknown>) {
-  if (import.meta.env.DEV) {
-    return invokeViaEdgeFunction<T>(body);
-  }
-
   const {
     data: { session },
   } = await supabase.auth.getSession();
