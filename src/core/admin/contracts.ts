@@ -37,6 +37,7 @@ export interface AdminModuleSpec {
   label: string;
   description: string;
   route: string;
+  icon?: string;
   entityRootIds: string[];
   enabled: boolean;
   scopeVisibility: PortalScopeType[];

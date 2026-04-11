@@ -82,11 +82,10 @@ export function ContextBar({ items }: { items: AdminContextItem[] }) {
         flexWrap: 'wrap',
         gap: '10px',
         padding: '14px',
-        borderRadius: '14px',
+        borderRadius: 'var(--acme-radius-lg)',
         border: '1px solid var(--acme-border)',
-        background: 'rgba(255, 255, 255, 0.86)',
+        background: 'var(--acme-surface)',
         boxShadow: 'var(--acme-shadow-sm)',
-        backdropFilter: 'blur(10px)',
       }}
     >
       {items.map((item) => (
@@ -96,13 +95,13 @@ export function ContextBar({ items }: { items: AdminContextItem[] }) {
             display: 'flex',
             gap: '8px',
             alignItems: 'center',
-            padding: '8px 10px',
-            borderRadius: '12px',
-            background: 'rgba(17, 24, 39, 0.03)',
-            border: '1px solid rgba(77, 20, 140, 0.10)',
+            padding: '8px 12px',
+            borderRadius: 'var(--acme-radius-md)',
+            background: 'var(--acme-surface-muted)',
+            border: '1px solid var(--acme-border)',
           }}
         >
-          <span style={{ color: 'var(--acme-text-muted)', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase' }}>{item.label}</span>
+          <span style={{ color: 'var(--acme-text-muted)', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</span>
           <StatusPill label={item.value} tone={item.tone} />
         </div>
       ))}
@@ -122,19 +121,18 @@ export function SectionCard({
   return (
     <section
       style={{
-        padding: '20px',
-        borderRadius: '18px',
-        background: 'rgba(255, 255, 255, 0.90)',
+        padding: '24px',
+        borderRadius: 'var(--acme-radius-lg)',
+        background: 'var(--acme-surface)',
         border: '1px solid var(--acme-border)',
         boxShadow: 'var(--acme-shadow-sm)',
-        backdropFilter: 'blur(10px)',
         display: 'grid',
-        gap: '18px',
+        gap: '20px',
       }}
     >
       <div>
-        <h2 style={{ margin: 0, fontSize: '18px' }}>{title}</h2>
-        {description ? <p style={{ margin: '6px 0 0', color: 'var(--acme-text-muted)' }}>{description}</p> : null}
+        <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>{title}</h2>
+        {description ? <p style={{ margin: '6px 0 0', color: 'var(--acme-text-muted)', fontSize: '14px' }}>{description}</p> : null}
       </div>
       <div style={{ display: 'grid', gap: '16px' }}>{children}</div>
     </section>
@@ -165,12 +163,13 @@ export function SaveActions({
           type="button"
           onClick={onCancel}
           style={{
-            padding: '12px 16px',
-            borderRadius: '10px',
+            padding: '12px 20px',
+            borderRadius: 'var(--acme-radius-md)',
             border: '1px solid var(--acme-border)',
-            background: 'var(--acme-white)',
+            background: 'var(--acme-surface)',
             color: 'var(--acme-text)',
-            fontWeight: 800,
+            fontWeight: 700,
+            fontSize: '14px',
           }}
         >
           Cancelar
@@ -182,13 +181,15 @@ export function SaveActions({
           onClick={onSecondarySave}
           disabled={disabled || isSaving}
           style={{
-            padding: '12px 16px',
-            borderRadius: '10px',
+            padding: '12px 20px',
+            borderRadius: 'var(--acme-radius-md)',
             border: '1px solid var(--acme-border)',
-            background: 'var(--acme-white)',
+            background: 'var(--acme-surface)',
             color: 'var(--acme-text)',
-            fontWeight: 800,
+            fontWeight: 700,
+            fontSize: '14px',
             opacity: disabled || isSaving ? 0.65 : 1,
+            cursor: disabled || isSaving ? 'not-allowed' : 'pointer',
           }}
         >
           {secondaryLabel}
@@ -250,17 +251,21 @@ export function AdminPageFrame({
   children: ReactNode;
 }) {
   return (
-    <div style={{ display: 'grid', gap: '18px' }}>
-      <BreadcrumbsBar items={breadcrumbs} />
-      <ContextBar items={contextItems} />
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: '28px', letterSpacing: '-0.02em' }}>{title}</h1>
-          {description ? <p style={{ margin: '8px 0 0', color: 'var(--acme-text-muted)' }}>{description}</p> : null}
-        </div>
-        {actions}
+    <div style={{ display: 'grid', gap: '24px' }}>
+      <div style={{ display: 'grid', gap: '16px' }}>
+        <BreadcrumbsBar items={breadcrumbs} />
+        <ContextBar items={contextItems} />
       </div>
-      <div style={{ display: 'grid', gap: '18px' }}>{children}</div>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <div style={{ display: 'grid', gap: '8px' }}>
+          <h1 style={{ margin: 0, fontSize: '30px', fontWeight: 800, letterSpacing: '-0.025em', color: 'var(--acme-text)' }}>{title}</h1>
+          {description ? <p style={{ margin: 0, color: 'var(--acme-text-muted)', fontSize: '15px', maxWidth: '800px', lineHeight: '1.5' }}>{description}</p> : null}
+        </div>
+        {actions && <div style={{ flexShrink: 0 }}>{actions}</div>}
+      </div>
+
+      <div style={{ display: 'grid', gap: '24px' }}>{children}</div>
     </div>
   );
 }
