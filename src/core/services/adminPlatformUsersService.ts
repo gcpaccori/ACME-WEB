@@ -113,6 +113,119 @@ async function syncUserRolesForUser(userId: string, selectedRoleIds: string[]) {
   return { data: normalizedRoleIds, error: null };
 }
 
+async function syncStaffBranches(staffId: string, branchIds: string[], primaryBranchId: string) {
+  const normalizedBranchIds = uniqueStrings(branchIds);
+  const deleteResult = await supabase.from('merchant_staff_branches').delete().eq('merchant_staff_id', staffId);
+
+  if (deleteResult.error) {
+    return { data: null, error: deleteResult.error };
+  }
+
+  if (normalizedBranchIds.length === 0) {
+    return { data: [], error: null };
+  }
+
+  const resolvedPrimaryBranchId = normalizedBranchIds.includes(primaryBranchId)
+    ? primaryBranchId
+    : normalizedBranchIds[0];
+
+  const insertResult = await supabase.from('merchant_staff_branches').insert(
+    normalizedBranchIds.map((branchId) => ({
+      merchant_staff_id: staffId,
+      branch_id: branchId,
+      is_primary: branchId === resolvedPrimaryBranchId,
+    }))
+  );
+
+  if (insertResult.error) {
+    return { data: null, error: insertResult.error };
+  }
+
+  return { data: normalizedBranchIds, error: null };
+}
+
+async function updatePlatformUserDirect(payload: PlatformUserUpdatePayload) {
+  const normalizedFullName = nullableString(payload.fullName);
+  const normalizedPhone = nullableString(payload.phone);
+  const normalizedStaffRole = stringOrEmpty(payload.staffRole).trim() || 'staff';
+  const normalizedBranchIds = uniqueStrings(payload.branchIds);
+  const resolvedPrimaryBranchId = normalizedBranchIds.includes(payload.primaryBranchId)
+    ? payload.primaryBranchId
+    : normalizedBranchIds[0] ?? '';
+
+  const updateStaffResult = await supabase
+    .from('merchant_staff')
+    .update({
+      staff_role: normalizedStaffRole,
+      is_active: payload.isActive,
+      branch_id: nullableString(resolvedPrimaryBranchId),
+    })
+    .eq('id', payload.staffId);
+
+  if (updateStaffResult.error) {
+    return { data: null, error: updateStaffResult.error };
+  }
+
+  const updateProfileResult = await supabase
+    .from('profiles')
+    .update({
+      full_name: normalizedFullName,
+      phone: normalizedPhone,
+      is_active: payload.isActive,
+    })
+    .eq('user_id', payload.userId);
+
+  if (updateProfileResult.error) {
+    return { data: null, error: updateProfileResult.error };
+  }
+
+  const updateAccessResult = await supabase
+    .from('merchant_access_accounts')
+    .update({
+      full_name: normalizedFullName,
+      is_active: payload.isActive,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', payload.userId);
+
+  if (updateAccessResult.error) {
+    return { data: null, error: updateAccessResult.error };
+  }
+
+  const branchSyncResult = await syncStaffBranches(payload.staffId, normalizedBranchIds, resolvedPrimaryBranchId);
+  if (branchSyncResult.error) {
+    return { data: null, error: branchSyncResult.error };
+  }
+
+  const roleSyncResult = await syncUserRolesForUser(payload.userId, payload.roleIds);
+  if (roleSyncResult.error) {
+    return { data: null, error: roleSyncResult.error };
+  }
+
+  return {
+    data: {
+      success: true,
+      staff_id: payload.staffId,
+      user_id: payload.userId,
+    },
+    error: null,
+  };
+}
+
+async function deletePlatformUserDirect(staffId: string) {
+  const deleteBranchesResult = await supabase.from('merchant_staff_branches').delete().eq('merchant_staff_id', staffId);
+  if (deleteBranchesResult.error) {
+    return { data: null, error: deleteBranchesResult.error };
+  }
+
+  const deleteStaffResult = await supabase.from('merchant_staff').delete().eq('id', staffId);
+  if (deleteStaffResult.error) {
+    return { data: null, error: deleteStaffResult.error };
+  }
+
+  return { data: { success: true }, error: null };
+}
+
 export const adminPlatformUsersService = {
   fetchRoles: async (): Promise<{ data: PlatformRoleOption[] | null; error: any }> => {
     const result = await supabase.from('roles').select('id, code, name').order('name', { ascending: true });
@@ -259,32 +372,10 @@ export const adminPlatformUsersService = {
   },
 
   updatePlatformUser: async (payload: PlatformUserUpdatePayload) => {
-    const result = await supabase.functions.invoke('manage-merchant-access', {
-      body: {
-        action: 'update_platform_user',
-        payload,
-      },
-    });
-
-    if (result.error) return { data: null, error: result.error };
-    const responseData = result.data as any;
-    if (responseData?.error) return { data: null, error: new Error(responseData.error) };
-
-    return { data: responseData, error: null };
+    return updatePlatformUserDirect(payload);
   },
 
   deletePlatformUser: async (staffId: string) => {
-    const result = await supabase.functions.invoke('manage-merchant-access', {
-      body: {
-        action: 'delete_platform_user',
-        payload: { staffId },
-      },
-    });
-
-    if (result.error) return { data: null, error: result.error };
-    const responseData = result.data as any;
-    if (responseData?.error) return { data: null, error: new Error(responseData.error) };
-
-    return { data: responseData, error: null };
+    return deletePlatformUserDirect(staffId);
   },
 };
