@@ -68,9 +68,17 @@ function manageMerchantAccessDevApi(): Plugin {
 }
 
 export default defineConfig(({ mode }) => {
-  Object.assign(process.env, loadEnv(mode, process.cwd(), ''));
+  const loadedEnv = loadEnv(mode, process.cwd(), '');
+  Object.assign(process.env, loadedEnv);
+
+  const publicSupabaseUrl = loadedEnv.VITE_SUPABASE_URL || loadedEnv.SUPABASE_URL || '';
+  const publicSupabaseAnonKey = loadedEnv.VITE_SUPABASE_ANON_KEY || loadedEnv.SUPABASE_ANON_KEY || '';
 
   return {
     plugins: [react(), manageMerchantAccessDevApi()],
+    define: {
+      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(publicSupabaseUrl),
+      'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(publicSupabaseAnonKey),
+    },
   };
 });

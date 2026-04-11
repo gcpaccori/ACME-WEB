@@ -28,8 +28,50 @@ const ACCESS_ORIGINS = new Set(['platform_created', 'public_signup', 'migration'
 const ACCESS_STATUSES = new Set(['pending_review', 'invited', 'active', 'suspended'])
 const USER_BAN_DURATION = '876000h'
 
-function getEnv(name: string) {
-  return process.env[name] ?? ''
+function getFirstEnv(...names: string[]) {
+  for (const name of names) {
+    const value = stringOrEmpty(process.env[name]).trim()
+    if (value) {
+      return value
+    }
+  }
+
+  return ''
+}
+
+function resolveSupabaseServerEnv() {
+  const supabaseUrl = getFirstEnv('SUPABASE_URL', 'VITE_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL')
+  const supabaseAnonKey = getFirstEnv('SUPABASE_ANON_KEY', 'VITE_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY')
+  const supabaseServiceRoleKey = getFirstEnv('SUPABASE_SERVICE_ROLE_KEY')
+
+  const missing: string[] = []
+  if (!supabaseUrl) {
+    missing.push('SUPABASE_URL (o VITE_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL)')
+  }
+  if (!supabaseAnonKey) {
+    missing.push('SUPABASE_ANON_KEY (o VITE_SUPABASE_ANON_KEY / NEXT_PUBLIC_SUPABASE_ANON_KEY)')
+  }
+  if (!supabaseServiceRoleKey) {
+    missing.push('SUPABASE_SERVICE_ROLE_KEY')
+  }
+
+  if (missing.length > 0) {
+    return {
+      data: null,
+      error: new Error(
+        `Faltan variables de entorno de Supabase para /api/manage-merchant-access: ${missing.join(', ')}.`
+      ),
+    }
+  }
+
+  return {
+    data: {
+      supabaseUrl,
+      supabaseAnonKey,
+      supabaseServiceRoleKey,
+    },
+    error: null,
+  }
 }
 
 function jsonResponse(body: Record<string, unknown>, status = 200, request?: Request) {
@@ -71,9 +113,12 @@ function isMissingRelationError(error: { message?: string } | null | undefined, 
 }
 
 function createClients(request: Request) {
-  const supabaseUrl = getEnv('SUPABASE_URL')
-  const supabaseAnonKey = getEnv('SUPABASE_ANON_KEY')
-  const supabaseServiceRoleKey = getEnv('SUPABASE_SERVICE_ROLE_KEY')
+  const envResult = resolveSupabaseServerEnv()
+  if (envResult.error || !envResult.data) {
+    throw envResult.error ?? new Error('No se pudieron resolver las variables de Supabase')
+  }
+
+  const { supabaseUrl, supabaseAnonKey, supabaseServiceRoleKey } = envResult.data
 
   const authHeader = request.headers.get('Authorization') ?? ''
   const userClient = createClient(supabaseUrl, supabaseAnonKey, {
