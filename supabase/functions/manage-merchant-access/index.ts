@@ -1,21 +1,34 @@
 // @ts-nocheck
 import { createClient } from 'npm:@supabase/supabase-js@2.101.1'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const DEFAULT_ALLOWED_HEADERS = 'authorization, x-client-info, apikey, content-type, x-supabase-api-version'
+const DEFAULT_ALLOWED_METHODS = 'POST, OPTIONS'
+
+function buildCorsHeaders(request?: Request) {
+  const origin = request?.headers.get('Origin')?.trim()
+  const requestedHeaders = request?.headers.get('Access-Control-Request-Headers')?.trim()
+
+  return {
+    'Access-Control-Allow-Origin': origin || '*',
+    'Access-Control-Allow-Headers': requestedHeaders || DEFAULT_ALLOWED_HEADERS,
+    'Access-Control-Allow-Methods': DEFAULT_ALLOWED_METHODS,
+    'Access-Control-Max-Age': '86400',
+    Vary: 'Origin, Access-Control-Request-Headers',
+  }
 }
+
+const corsHeaders = buildCorsHeaders()
 
 const PLATFORM_ROLE_CODES = new Set(['admin', 'super_admin'])
 const ACCESS_ORIGINS = new Set(['platform_created', 'public_signup', 'migration'])
 const ACCESS_STATUSES = new Set(['pending_review', 'invited', 'active', 'suspended'])
 const USER_BAN_DURATION = '876000h'
 
-function jsonResponse(body: Record<string, unknown>, status = 200) {
+function jsonResponse(body: Record<string, unknown>, status = 200, request?: Request) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
-      ...corsHeaders,
+      ...buildCorsHeaders(request),
       'Content-Type': 'application/json',
     },
   })
@@ -1271,11 +1284,14 @@ async function handleDeletePlatformUser(request: Request, body: Record<string, u
 
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, {
+      status: 204,
+      headers: buildCorsHeaders(request),
+    })
   }
 
   if (request.method !== 'POST') {
-    return jsonResponse({ error: 'Metodo no permitido' }, 405)
+    return jsonResponse({ error: 'Metodo no permitido' }, 405, request)
   }
 
   try {
@@ -1306,8 +1322,8 @@ Deno.serve(async (request) => {
       return await handleDeletePlatformUser(request, body)
     }
 
-    return jsonResponse({ error: 'Accion no soportada' }, 400)
+    return jsonResponse({ error: 'Accion no soportada' }, 400, request)
   } catch (error) {
-    return jsonResponse({ error: stringOrEmpty((error as Error)?.message) || 'Error inesperado en el acceso del negocio' }, 500)
+    return jsonResponse({ error: stringOrEmpty((error as Error)?.message) || 'Error inesperado en el acceso del negocio' }, 500, request)
   }
 })
