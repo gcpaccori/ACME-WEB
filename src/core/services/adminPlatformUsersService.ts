@@ -1,4 +1,5 @@
 import { supabase } from '../../integrations/supabase/client';
+import { invokeManageMerchantAccess } from './manageMerchantAccessClient';
 
 export interface PlatformUserRecord {
   staff_id: string;
@@ -340,22 +341,25 @@ export const adminPlatformUsersService = {
   },
 
   createPlatformUser: async (payload: PlatformUserCreatePayload) => {
-    const result = await supabase.functions.invoke('manage-merchant-access', {
-      body: {
-        action: 'create_platform_user',
-        payload: {
-          email: payload.email,
-          fullName: payload.fullName,
-          phone: payload.phone,
-          password: payload.password,
-          merchantId: payload.merchantId,
-          branchIds: payload.branchIds,
-          primaryBranchId: payload.primaryBranchId,
-          staffRole: payload.staffRole,
-          roleIds: payload.roleIds,
-          isActive: payload.isActive,
-          mustChangePassword: payload.mustChangePassword,
-        },
+    const result = await invokeManageMerchantAccess<{
+      success?: boolean;
+      staff_id?: string;
+      user_id?: string;
+      error?: string;
+    }>({
+      action: 'create_platform_user',
+      payload: {
+        email: payload.email,
+        fullName: payload.fullName,
+        phone: payload.phone,
+        password: payload.password,
+        merchantId: payload.merchantId,
+        branchIds: payload.branchIds,
+        primaryBranchId: payload.primaryBranchId,
+        staffRole: payload.staffRole,
+        roleIds: payload.roleIds,
+        isActive: payload.isActive,
+        mustChangePassword: payload.mustChangePassword,
       },
     });
 

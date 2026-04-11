@@ -1,6 +1,4 @@
-import { supabase } from '../../integrations/supabase/client';
-
-const MERCHANT_ACCESS_FUNCTION = 'manage-merchant-access';
+import { invokeManageMerchantAccess } from './manageMerchantAccessClient';
 
 export interface MerchantAccessSnapshot {
   id: string | null;
@@ -42,7 +40,7 @@ function normalizeFunctionError(error: unknown) {
 }
 
 async function invokeMerchantAccessFunction<T>(body: Record<string, unknown>) {
-  const result = await supabase.functions.invoke(MERCHANT_ACCESS_FUNCTION, { body });
+  const result = await invokeManageMerchantAccess<T>(body);
   if (result.error) {
     return { data: null, error: normalizeFunctionError(result.error) };
   }
