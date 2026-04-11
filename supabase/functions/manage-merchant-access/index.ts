@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createClient } from 'npm:@supabase/supabase-js@2.101.1'
 
 const corsHeaders = {
@@ -72,7 +73,7 @@ function createClients(request: Request) {
     },
   })
 
-  return { userClient, adminClient }
+  return { userClient: userClient as any, adminClient: adminClient as any }
 }
 
 async function resolveAuthenticatedUser(request: Request) {
@@ -89,7 +90,7 @@ async function resolveAuthenticatedUser(request: Request) {
   return { data: user, error: null, adminClient }
 }
 
-async function ensurePlatformOperator(adminClient: ReturnType<typeof createClient>, userId: string) {
+async function ensurePlatformOperator(adminClient: any, userId: string) {
   const [profileResult, roleResult] = await Promise.all([
     adminClient.from('profiles').select('default_role').eq('user_id', userId).maybeSingle(),
     adminClient.from('user_roles').select('role_id, roles:roles(code)').eq('user_id', userId),
@@ -881,6 +882,393 @@ async function handleCompleteFirstAccess(request: Request, body: Record<string, 
   return jsonResponse({ success: true })
 }
 
+async function handleCreatePlatformUser(request: Request, body: Record<string, unknown>) {
+  const userResult = await resolveAuthenticatedUser(request)
+  if (userResult.error || !userResult.data) {
+    return jsonResponse({ error: stringOrEmpty(userResult.error?.message) || 'No autenticado' }, 401)
+  }
+
+  const operatorResult = await ensurePlatformOperator(userResult.adminClient, userResult.data.id)
+  if (operatorResult.error) {
+    return jsonResponse({ error: operatorResult.error.message }, 403)
+  }
+
+  const payload = (body.payload ?? {}) as Record<string, unknown>
+  const email = stringOrEmpty(payload.email).trim().toLowerCase()
+  const fullName = stringOrEmpty(payload.fullName).trim()
+  const phone = nullableString(stringOrEmpty(payload.phone))
+  const password = stringOrEmpty(payload.password)
+  const merchantId = stringOrEmpty(payload.merchantId).trim()
+  const rawBranchIds = Array.isArray(payload.branchIds) ? (payload.branchIds as string[]).map((id) => stringOrEmpty(id)).filter(Boolean) : []
+  const branchIds = Array.from(new Set(rawBranchIds))
+  const primaryBranchId = stringOrEmpty(payload.primaryBranchId).trim()
+  const staffRole = stringOrEmpty(payload.staffRole).trim() || 'staff'
+  const roleIds = Array.isArray(payload.roleIds) ? Array.from(new Set((payload.roleIds as string[]).map((id) => stringOrEmpty(id)).filter(Boolean))) : []
+  const isActive = Boolean(payload.isActive ?? true)
+  const mustChangePassword = Boolean(payload.mustChangePassword ?? true)
+
+  if (!email || !isValidEmail(email)) {
+    return jsonResponse({ error: 'Debes indicar un correo valido' }, 400)
+  }
+
+  if (!password || password.length < 8) {
+    return jsonResponse({ error: 'La contraseña temporal debe tener al menos 8 caracteres' }, 400)
+  }
+
+  if (!merchantId) {
+    return jsonResponse({ error: 'Debes seleccionar un negocio' }, 400)
+  }
+
+  // Check if merchant exists
+  const merchantCheck = await userResult.adminClient
+    .from('merchants')
+    .select('id')
+    .eq('id', merchantId)
+    .maybeSingle()
+
+  if (merchantCheck.error || !merchantCheck.data) {
+    return jsonResponse({ error: 'No se encontro el negocio seleccionado' }, 400)
+  }
+
+  // Check if user already exists by email
+  const existingUsers = await userResult.adminClient.auth.admin.listUsers()
+  const existingUser = (existingUsers.data?.users ?? []).find(
+    (u) => u.email?.toLowerCase() === email
+  )
+
+  let userId: string
+
+  if (existingUser) {
+    userId = existingUser.id
+    // Update existing user if password is provided
+    const updateResult = await userResult.adminClient.auth.admin.updateUserById(userId, {
+      password,
+      ban_duration: isActive ? 'none' : USER_BAN_DURATION,
+      app_metadata: {
+        ...(existingUser.app_metadata ?? {}),
+        managed_platform_user: true,
+        account_active: isActive,
+        must_change_password: mustChangePassword,
+      },
+    })
+
+    if (updateResult.error) {
+      return jsonResponse({ error: stringOrEmpty(updateResult.error.message) }, 400)
+    }
+  } else {
+    // Create brand new auth user
+    const createResult = await userResult.adminClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      app_metadata: {
+        managed_platform_user: true,
+        account_active: isActive,
+        must_change_password: mustChangePassword,
+      },
+      user_metadata: {
+        full_name: fullName,
+      },
+    })
+
+    if (createResult.error) {
+      return jsonResponse({ error: stringOrEmpty(createResult.error.message) }, 400)
+    }
+
+    userId = stringOrEmpty(createResult.data.user?.id)
+    if (!userId) {
+      return jsonResponse({ error: 'No se pudo crear el usuario' }, 500)
+    }
+
+    if (!isActive) {
+      await userResult.adminClient.auth.admin.updateUserById(userId, { ban_duration: USER_BAN_DURATION })
+    }
+  }
+
+  // Ensure profile
+  const now = new Date().toISOString()
+  const profileUpsert = await userResult.adminClient
+    .from('profiles')
+    .upsert(
+      {
+        user_id: userId,
+        email,
+        full_name: nullableString(fullName),
+        phone,
+        default_role: 'customer',
+        is_active: isActive,
+        updated_at: now,
+      },
+      { onConflict: 'user_id' }
+    )
+    .select('user_id')
+    .maybeSingle()
+
+  if (profileUpsert.error) {
+    return jsonResponse({ error: stringOrEmpty(profileUpsert.error.message) }, 400)
+  }
+
+  // Check if already staff in this merchant
+  const existingStaff = await userResult.adminClient
+    .from('merchant_staff')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('merchant_id', merchantId)
+    .maybeSingle()
+
+  if (existingStaff.error) {
+    return jsonResponse({ error: stringOrEmpty(existingStaff.error.message) }, 400)
+  }
+
+  let staffId: string
+
+  if (existingStaff.data) {
+    staffId = stringOrEmpty(existingStaff.data.id)
+    const updateStaff = await userResult.adminClient
+      .from('merchant_staff')
+      .update({
+        staff_role: staffRole,
+        is_active: isActive,
+        branch_id: nullableString(primaryBranchId) || (branchIds[0] ?? null),
+      })
+      .eq('id', staffId)
+
+    if (updateStaff.error) {
+      return jsonResponse({ error: stringOrEmpty(updateStaff.error.message) }, 400)
+    }
+  } else {
+    const insertStaff = await userResult.adminClient
+      .from('merchant_staff')
+      .insert({
+        user_id: userId,
+        merchant_id: merchantId,
+        staff_role: staffRole,
+        is_active: isActive,
+        branch_id: nullableString(primaryBranchId) || (branchIds[0] ?? null),
+      })
+      .select('id')
+      .maybeSingle()
+
+    if (insertStaff.error) {
+      return jsonResponse({ error: stringOrEmpty(insertStaff.error.message) }, 400)
+    }
+
+    staffId = stringOrEmpty(insertStaff.data?.id)
+  }
+
+  if (!staffId) {
+    return jsonResponse({ error: 'No se pudo crear la asignacion de personal' }, 500)
+  }
+
+  // Sync branch assignments
+  await userResult.adminClient.from('merchant_staff_branches').delete().eq('merchant_staff_id', staffId)
+
+  if (branchIds.length > 0) {
+    const resolvedPrimary = branchIds.includes(primaryBranchId) ? primaryBranchId : branchIds[0]
+    const insertBranches = await userResult.adminClient.from('merchant_staff_branches').insert(
+      branchIds.map((branchId) => ({
+        merchant_staff_id: staffId,
+        branch_id: branchId,
+        is_primary: branchId === resolvedPrimary,
+      }))
+    )
+
+    if (insertBranches.error) {
+      return jsonResponse({ error: stringOrEmpty(insertBranches.error.message) }, 400)
+    }
+  }
+
+  // Sync user_roles
+  if (roleIds.length > 0) {
+    const existingRoles = await userResult.adminClient.from('user_roles').select('id, role_id').eq('user_id', userId)
+    if (!existingRoles.error) {
+      const existingRoleIdSet = new Set(((existingRoles.data ?? []) as any[]).map((row) => stringOrEmpty(row.role_id)))
+      const missingRoleIds = roleIds.filter((roleId) => !existingRoleIdSet.has(roleId))
+      if (missingRoleIds.length > 0) {
+        await userResult.adminClient.from('user_roles').insert(
+          missingRoleIds.map((roleId) => ({ user_id: userId, role_id: roleId }))
+        )
+      }
+    }
+  }
+
+  // Create merchant_access_accounts record for password change flow
+  if (mustChangePassword) {
+    const existingAccess = await userResult.adminClient
+      .from('merchant_access_accounts')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (!existingAccess.error) {
+      if (existingAccess.data) {
+        await userResult.adminClient
+          .from('merchant_access_accounts')
+          .update({
+            must_change_password: true,
+            is_active: isActive,
+            updated_at: now,
+          })
+          .eq('id', existingAccess.data.id)
+      } else {
+        await userResult.adminClient
+          .from('merchant_access_accounts')
+          .insert({
+            merchant_id: merchantId,
+            user_id: userId,
+            email,
+            full_name: nullableString(fullName),
+            access_origin: 'platform_created',
+            onboarding_status: 'active',
+            is_active: isActive,
+            must_change_password: true,
+            invited_by_user_id: userResult.data.id,
+            last_invited_at: now,
+            created_at: now,
+            updated_at: now,
+          })
+      }
+    }
+  }
+
+  return jsonResponse({ success: true, staff_id: staffId, user_id: userId })
+}
+
+async function handleUpdatePlatformUser(request: Request, body: Record<string, unknown>) {
+  const userResult = await resolveAuthenticatedUser(request)
+  if (userResult.error || !userResult.data) {
+    return jsonResponse({ error: stringOrEmpty(userResult.error?.message) || 'No autenticado' }, 401)
+  }
+
+  const operatorResult = await ensurePlatformOperator(userResult.adminClient, userResult.data.id)
+  if (operatorResult.error) {
+    return jsonResponse({ error: operatorResult.error.message }, 403)
+  }
+
+  const payload = (body.payload ?? {}) as Record<string, unknown>
+  const staffId = stringOrEmpty(payload.staffId)
+  const userId = stringOrEmpty(payload.userId)
+  const fullName = stringOrEmpty(payload.fullName).trim()
+  const phone = nullableString(stringOrEmpty(payload.phone))
+  const staffRole = stringOrEmpty(payload.staffRole).trim() || 'staff'
+  const isActive = Boolean(payload.isActive ?? true)
+
+  const rawBranchIds = Array.isArray(payload.branchIds) ? (payload.branchIds as string[]).map((id) => stringOrEmpty(id)).filter(Boolean) : []
+  const branchIds = Array.from(new Set(rawBranchIds))
+  const primaryBranchId = stringOrEmpty(payload.primaryBranchId).trim()
+  const roleIds = Array.isArray(payload.roleIds) ? Array.from(new Set((payload.roleIds as string[]).map((id) => stringOrEmpty(id)).filter(Boolean))) : []
+
+  if (!staffId || !userId) {
+    return jsonResponse({ error: 'Datos insuficientes para actualizar el usuario' }, 400)
+  }
+
+  // Handle staff updates
+  const updateStaff = await userResult.adminClient
+    .from('merchant_staff')
+    .update({
+      staff_role: staffRole,
+      is_active: isActive,
+      branch_id: nullableString(primaryBranchId) || (branchIds[0] ?? null),
+    })
+    .eq('id', staffId)
+
+  if (updateStaff.error) {
+    return jsonResponse({ error: stringOrEmpty(updateStaff.error.message) }, 400)
+  }
+
+  // Handle profile updates
+  const updateProfile = await userResult.adminClient
+    .from('profiles')
+    .update({
+      full_name: nullableString(fullName),
+      phone,
+      is_active: isActive,
+    })
+    .eq('user_id', userId)
+
+  if (updateProfile.error) {
+    return jsonResponse({ error: stringOrEmpty(updateProfile.error.message) }, 400)
+  }
+
+  // Auth user metadata activity update
+  await userResult.adminClient.auth.admin.updateUserById(userId, {
+    ban_duration: isActive ? 'none' : USER_BAN_DURATION,
+  })
+
+  // Sync branches
+  await userResult.adminClient.from('merchant_staff_branches').delete().eq('merchant_staff_id', staffId)
+
+  if (branchIds.length > 0) {
+    const resolvedPrimary = branchIds.includes(primaryBranchId) ? primaryBranchId : branchIds[0]
+    const insertBranches = await userResult.adminClient.from('merchant_staff_branches').insert(
+      branchIds.map((branchId) => ({
+        merchant_staff_id: staffId,
+        branch_id: branchId,
+        is_primary: branchId === resolvedPrimary,
+      }))
+    )
+
+    if (insertBranches.error) {
+      return jsonResponse({ error: stringOrEmpty(insertBranches.error.message) }, 400)
+    }
+  }
+
+  // Sync roles
+  const existingRoles = await userResult.adminClient.from('user_roles').select('id, role_id').eq('user_id', userId)
+  if (!existingRoles.error) {
+    const existingRows = (existingRoles.data ?? []) as any[]
+    const existingRoleIdSet = new Set(existingRows.map((row) => stringOrEmpty(row.role_id)))
+    const selectedRoleIdSet = new Set(roleIds)
+
+    const relationIdsToDelete = existingRows
+      .filter((row) => !selectedRoleIdSet.has(stringOrEmpty(row.role_id)))
+      .map((row) => stringOrEmpty(row.id))
+
+    if (relationIdsToDelete.length > 0) {
+      await userResult.adminClient.from('user_roles').delete().in('id', relationIdsToDelete)
+    }
+
+    const missingRoleIds = roleIds.filter((roleId) => !existingRoleIdSet.has(roleId))
+    if (missingRoleIds.length > 0) {
+      await userResult.adminClient.from('user_roles').insert(
+        missingRoleIds.map((roleId) => ({ user_id: userId, role_id: roleId }))
+      )
+    }
+  }
+
+  return jsonResponse({ success: true, staff_id: staffId })
+}
+
+async function handleDeletePlatformUser(request: Request, body: Record<string, unknown>) {
+  const userResult = await resolveAuthenticatedUser(request)
+  if (userResult.error || !userResult.data) {
+    return jsonResponse({ error: stringOrEmpty(userResult.error?.message) || 'No autenticado' }, 401)
+  }
+
+  const operatorResult = await ensurePlatformOperator(userResult.adminClient, userResult.data.id)
+  if (operatorResult.error) {
+    return jsonResponse({ error: operatorResult.error.message }, 403)
+  }
+
+  const payload = (body.payload ?? {}) as Record<string, unknown>
+  const staffId = stringOrEmpty(payload.staffId)
+
+  if (!staffId) {
+    return jsonResponse({ error: 'Falta el identificador del staff' }, 400)
+  }
+
+  // Delete branches first
+  await userResult.adminClient.from('merchant_staff_branches').delete().eq('merchant_staff_id', staffId)
+
+  // Delete staff
+  const deleteStaff = await userResult.adminClient.from('merchant_staff').delete().eq('id', staffId)
+  if (deleteStaff.error) {
+    return jsonResponse({ error: stringOrEmpty(deleteStaff.error.message) }, 400)
+  }
+
+  return jsonResponse({ success: true })
+}
+
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -904,6 +1292,18 @@ Deno.serve(async (request) => {
 
     if (action === 'complete_first_access') {
       return await handleCompleteFirstAccess(request, body)
+    }
+
+    if (action === 'create_platform_user') {
+      return await handleCreatePlatformUser(request, body)
+    }
+
+    if (action === 'update_platform_user') {
+      return await handleUpdatePlatformUser(request, body)
+    }
+
+    if (action === 'delete_platform_user') {
+      return await handleDeletePlatformUser(request, body)
     }
 
     return jsonResponse({ error: 'Accion no soportada' }, 400)

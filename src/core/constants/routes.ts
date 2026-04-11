@@ -27,6 +27,7 @@ export const AppRoutes = {
       platformBusinesses: '/portal/admin/platform/businesses',
       platformBusinessDetail: '/portal/admin/platform/businesses/:merchantId',
       security: '/portal/admin/platform/security',
+      platformUsers: '/portal/admin/platform/users',
       payments: '/portal/admin/payments',
       turn: '/portal/admin/turn',
       commerce: '/portal/admin/commerce',

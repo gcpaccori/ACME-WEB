@@ -190,6 +190,16 @@ export const adminModules: AdminModuleSpec[] = [
     scopeVisibility: ['platform'],
   },
   {
+    id: 'platform_users',
+    label: 'Usuarios',
+    description: 'Gestion de usuarios asignados a negocios y sucursales desde plataforma.',
+    route: AppRoutes.portal.admin.platformUsers,
+    icon: 'user-plus',
+    entityRootIds: [],
+    enabled: true,
+    scopeVisibility: ['platform'],
+  },
+  {
     id: 'system',
     label: 'Sistema',
     description: 'Roles, permisos, auditoria, metricas y configuracion.',

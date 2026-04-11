@@ -17,16 +17,6 @@ import {
 } from '../../../../core/services/adminService';
 import { PortalContext } from '../../../auth/session/PortalContext';
 
-const staffRoleOptions = [
-  { value: 'owner', label: 'Owner' },
-  { value: 'manager', label: 'Manager' },
-  { value: 'cashier', label: 'Caja' },
-  { value: 'kitchen', label: 'Cocina' },
-  { value: 'operator', label: 'Operador' },
-  { value: 'support', label: 'Soporte' },
-  { value: 'staff', label: 'Staff' },
-];
-
 function getRoleIdByCode(roles: RoleAdminRecord[], code: string) {
   return roles.find((role) => role.code === code)?.id ?? '';
 }
@@ -183,6 +173,13 @@ export function StaffAdminPage() {
 
   const dirty = useMemo(() => (form ? hasDirtyState(form, initialState) : false), [form, initialState]);
   const createDirty = useMemo(() => hasDirtyState(createForm, createInitialState), [createForm, createInitialState]);
+
+  const staffRoleOptions = useMemo(() => {
+    if (roles.length === 0) {
+      return [{ value: 'staff', label: 'Staff' }];
+    }
+    return roles.map((role) => ({ value: role.code, label: role.name || role.code }));
+  }, [roles]);
 
   const availablePrimaryBranchOptions = useMemo(() => {
     if (!form) {

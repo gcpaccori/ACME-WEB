@@ -267,6 +267,8 @@ export function canAccessAdminModule(moduleId: AdminModuleId, permissions: Porta
       return permissions.canManageMessages;
     case 'security':
       return permissions.canManageSecurity;
+    case 'platform_users':
+      return permissions.canAccessPlatform;
     case 'system':
       return permissions.canManageSystem;
     default:

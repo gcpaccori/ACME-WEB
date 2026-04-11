@@ -53,8 +53,8 @@ select
   nullif(profiles.full_name, '') as full_name,
   'migration' as access_origin,
   case
-    when lower(coalesce(merchants.status, 'active')) in ('pending_review', 'invited', 'draft', 'onboarding_pending') then 'pending_review'
-    when lower(coalesce(merchants.status, 'active')) in ('inactive', 'disabled', 'suspended') then 'suspended'
+    when lower(coalesce(merchants.status::text, 'active')) in ('pending_review', 'invited', 'draft', 'onboarding_pending') then 'pending_review'
+    when lower(coalesce(merchants.status::text, 'active')) in ('inactive', 'disabled', 'suspended') then 'suspended'
     else 'active'
   end as onboarding_status,
   coalesce(profiles.is_active, true) as is_active,

@@ -18,6 +18,7 @@ export type AdminModuleId =
   | 'settlements'
   | 'messages'
   | 'security'
+  | 'platform_users'
   | 'system';
 
 export type AdminExposureMode =

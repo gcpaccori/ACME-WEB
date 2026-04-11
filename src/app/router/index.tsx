@@ -45,6 +45,7 @@ import { SystemAdminPage } from '../../modules/portal/admin/system/SystemAdminPa
 import { PlatformBusinessesPage } from '../../modules/portal/admin/platform/businesses/PlatformBusinessesPage';
 import { PlatformBusinessDetailPage } from '../../modules/portal/admin/platform/businesses/PlatformBusinessDetailPage';
 import { SecurityAdminPage } from '../../modules/portal/admin/platform/security/SecurityAdminPage';
+import { PlatformUsersPage } from '../../modules/portal/admin/platform/users/PlatformUsersPage';
 import { PaymentsAdminPage } from '../../modules/portal/admin/payments/PaymentsAdminPage';
 import { BranchTurnPage } from '../../modules/portal/admin/branch/BranchTurnPage';
 import { BranchLocalStatusPage } from '../../modules/portal/admin/branch/BranchLocalStatusPage';
@@ -73,6 +74,7 @@ export function AppRouter() {
           <Route path="admin/platform/businesses" element={<PlatformBusinessesPage />} />
           <Route path="admin/platform/businesses/:merchantId" element={<PlatformBusinessDetailPage />} />
           <Route path="admin/platform/security" element={<SecurityAdminPage />} />
+          <Route path="admin/platform/users" element={<PlatformUsersPage />} />
           <Route path="admin/payments" element={<PaymentsAdminPage />} />
           <Route path="admin/turn" element={<BranchTurnPage />} />
           <Route path="admin/commerce" element={<CommercePage />} />
