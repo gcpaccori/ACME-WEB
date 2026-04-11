@@ -9,6 +9,7 @@ export const AppRoutes = {
     hazteDriver: '/hazte-driver',
     contact: '/contacto',
     portalLogin: '/portal/login',
+    portalPasswordRecovery: '/portal/recover-password',
   },
   portal: {
     root: '/portal',

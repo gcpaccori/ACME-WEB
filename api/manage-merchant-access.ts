@@ -26,6 +26,7 @@ const corsHeaders = buildCorsHeaders()
 const PLATFORM_ROLE_CODES = new Set(['admin', 'super_admin'])
 const ACCESS_ORIGINS = new Set(['platform_created', 'public_signup', 'migration'])
 const ACCESS_STATUSES = new Set(['pending_review', 'invited', 'active', 'suspended'])
+const PLATFORM_ASSIGNMENT_SCOPES = new Set(['merchant', 'branches'])
 const USER_BAN_DURATION = '876000h'
 
 function getFirstEnv(...names: string[]) {
@@ -725,6 +726,133 @@ async function upsertAccessRecord(
   return { data: true, error: null }
 }
 
+function normalizePlatformAssignmentScope(value: unknown, branchIds: string[]) {
+  const normalized = stringOrEmpty(value).trim().toLowerCase()
+  if (PLATFORM_ASSIGNMENT_SCOPES.has(normalized)) {
+    return normalized
+  }
+
+  return branchIds.length > 0 ? 'branches' : 'merchant'
+}
+
+async function resolvePlatformUserAssignment(
+  adminClient: ReturnType<typeof createClient>,
+  params: {
+    merchantId: string
+    branchIds: string[]
+    primaryBranchId: string
+    assignmentScope: unknown
+  }
+) {
+  const merchantResult = await adminClient
+    .from('merchants')
+    .select('id')
+    .eq('id', params.merchantId)
+    .maybeSingle()
+
+  if (merchantResult.error) {
+    return { data: null, error: merchantResult.error }
+  }
+
+  if (!merchantResult.data) {
+    return { data: null, error: new Error('No se encontro el negocio seleccionado') }
+  }
+
+  const merchantBranchesResult = await adminClient
+    .from('merchant_branches')
+    .select('id, name')
+    .eq('merchant_id', params.merchantId)
+
+  if (merchantBranchesResult.error) {
+    return { data: null, error: merchantBranchesResult.error }
+  }
+
+  const merchantBranchRows = (merchantBranchesResult.data ?? []) as any[]
+  const merchantBranchIdSet = new Set(merchantBranchRows.map((row) => stringOrEmpty(row.id)).filter(Boolean))
+  const normalizedBranchIds = Array.from(new Set(params.branchIds.map((id) => stringOrEmpty(id)).filter(Boolean)))
+  const assignmentScope = normalizePlatformAssignmentScope(params.assignmentScope, normalizedBranchIds)
+
+  const invalidBranchId = normalizedBranchIds.find((branchId) => !merchantBranchIdSet.has(branchId))
+  if (invalidBranchId) {
+    return { data: null, error: new Error('Una o mas sucursales no pertenecen al negocio seleccionado') }
+  }
+
+  if (assignmentScope === 'merchant') {
+    return {
+      data: {
+        assignmentScope,
+        branchIds: [],
+        primaryBranchId: null,
+      },
+      error: null,
+    }
+  }
+
+  if (merchantBranchRows.length === 0) {
+    return { data: null, error: new Error('El negocio seleccionado no tiene sucursales disponibles para una asignacion por sucursal') }
+  }
+
+  if (normalizedBranchIds.length === 0) {
+    return { data: null, error: new Error('Debes seleccionar al menos una sucursal o cambiar el alcance a negocio completo') }
+  }
+
+  const requestedPrimaryBranchId = stringOrEmpty(params.primaryBranchId).trim()
+  const resolvedPrimaryBranchId = normalizedBranchIds.includes(requestedPrimaryBranchId)
+    ? requestedPrimaryBranchId
+    : normalizedBranchIds[0]
+
+  return {
+    data: {
+      assignmentScope,
+      branchIds: normalizedBranchIds,
+      primaryBranchId: resolvedPrimaryBranchId,
+    },
+    error: null,
+  }
+}
+
+async function syncPlatformAccessRecord(
+  adminClient: ReturnType<typeof createClient>,
+  params: {
+    merchantId: string
+    userId: string
+    email: string
+    fullName: string
+    isActive: boolean
+    mustChangePassword: boolean
+    invitedByUserId: string
+    shouldStampInvitation: boolean
+  }
+) {
+  const existingAccessResult = await adminClient
+    .from('merchant_access_accounts')
+    .select('id')
+    .eq('user_id', params.userId)
+    .maybeSingle()
+
+  if (existingAccessResult.error) {
+    if (isMissingRelationError(existingAccessResult.error, 'merchant_access_accounts')) {
+      return { data: null, error: new Error('Falta ejecutar la migracion 2026-04-10-merchant-access-controls.sql antes de usar esta funcionalidad.') }
+    }
+
+    return { data: null, error: existingAccessResult.error }
+  }
+
+  return upsertAccessRecord(adminClient, {
+    currentRecordId: stringOrEmpty(existingAccessResult.data?.id) || null,
+    merchantId: params.merchantId,
+    userId: params.userId,
+    email: params.email,
+    fullName: params.fullName,
+    accessOrigin: 'platform_created',
+    onboardingStatus: 'active',
+    isActive: params.isActive,
+    mustChangePassword: params.mustChangePassword,
+    invitedByUserId: params.invitedByUserId,
+    shouldStampInvitation: params.shouldStampInvitation,
+  })
+}
+
 async function handleGetMerchantAccess(request: Request, body: Record<string, unknown>) {
   const userResult = await resolveAuthenticatedUser(request)
   if (userResult.error || !userResult.data) {
@@ -891,18 +1019,11 @@ async function handleCompleteFirstAccess(request: Request, body: Record<string, 
     .eq('user_id', userResult.data.id)
     .maybeSingle()
 
-  if (accessResult.error) {
-    if (isMissingRelationError(accessResult.error, 'merchant_access_accounts')) {
-      return jsonResponse({ error: 'Falta ejecutar la migracion 2026-04-10-merchant-access-controls.sql antes de usar esta funcionalidad.' }, 400)
-    }
+  if (accessResult.error && !isMissingRelationError(accessResult.error, 'merchant_access_accounts')) {
     return jsonResponse({ error: accessResult.error.message }, 400)
   }
 
-  if (!accessResult.data) {
-    return jsonResponse({ error: 'Tu cuenta no esta vinculada a un acceso administrado por plataforma.' }, 403)
-  }
-
-  if (!Boolean(accessResult.data.is_active ?? true)) {
+  if (accessResult.data && !Boolean(accessResult.data.is_active ?? true)) {
     return jsonResponse({ error: 'La cuenta del negocio esta desactivada y no puede completar el primer acceso.' }, 403)
   }
 
@@ -913,11 +1034,15 @@ async function handleCompleteFirstAccess(request: Request, body: Record<string, 
 
   const nextAppMetadata = {
     ...(authUserResult.data?.app_metadata ?? {}),
-    merchant_id: stringOrEmpty(accessResult.data.merchant_id),
-    access_origin: stringOrEmpty(accessResult.data.access_origin),
-    onboarding_status: stringOrEmpty(accessResult.data.onboarding_status) || 'active',
-    account_active: true,
-    managed_merchant_access: true,
+    ...(accessResult.data
+      ? {
+          merchant_id: stringOrEmpty(accessResult.data.merchant_id),
+          access_origin: stringOrEmpty(accessResult.data.access_origin),
+          onboarding_status: stringOrEmpty(accessResult.data.onboarding_status) || 'active',
+          account_active: true,
+          managed_merchant_access: true,
+        }
+      : {}),
     must_change_password: false,
   }
 
@@ -932,17 +1057,19 @@ async function handleCompleteFirstAccess(request: Request, body: Record<string, 
   }
 
   const now = new Date().toISOString()
-  const updateAccessResult = await userResult.adminClient
-    .from('merchant_access_accounts')
-    .update({
-      must_change_password: false,
-      password_changed_at: now,
-      updated_at: now,
-    })
-    .eq('id', accessResult.data.id)
+  if (accessResult.data?.id) {
+    const updateAccessResult = await userResult.adminClient
+      .from('merchant_access_accounts')
+      .update({
+        must_change_password: false,
+        password_changed_at: now,
+        updated_at: now,
+      })
+      .eq('id', accessResult.data.id)
 
-  if (updateAccessResult.error) {
-    return jsonResponse({ error: updateAccessResult.error.message }, 400)
+    if (updateAccessResult.error) {
+      return jsonResponse({ error: updateAccessResult.error.message }, 400)
+    }
   }
 
   return jsonResponse({ success: true })
@@ -966,8 +1093,8 @@ async function handleCreatePlatformUser(request: Request, body: Record<string, u
   const password = stringOrEmpty(payload.password)
   const merchantId = stringOrEmpty(payload.merchantId).trim()
   const rawBranchIds = Array.isArray(payload.branchIds) ? (payload.branchIds as string[]).map((id) => stringOrEmpty(id)).filter(Boolean) : []
-  const branchIds = Array.from(new Set(rawBranchIds))
   const primaryBranchId = stringOrEmpty(payload.primaryBranchId).trim()
+  const assignmentScope = payload.assignmentScope
   const staffRole = stringOrEmpty(payload.staffRole).trim() || 'staff'
   const roleIds = Array.isArray(payload.roleIds) ? Array.from(new Set((payload.roleIds as string[]).map((id) => stringOrEmpty(id)).filter(Boolean))) : []
   const isActive = Boolean(payload.isActive ?? true)
@@ -985,16 +1112,17 @@ async function handleCreatePlatformUser(request: Request, body: Record<string, u
     return jsonResponse({ error: 'Debes seleccionar un negocio' }, 400)
   }
 
-  // Check if merchant exists
-  const merchantCheck = await userResult.adminClient
-    .from('merchants')
-    .select('id')
-    .eq('id', merchantId)
-    .maybeSingle()
-
-  if (merchantCheck.error || !merchantCheck.data) {
-    return jsonResponse({ error: 'No se encontro el negocio seleccionado' }, 400)
+  const resolvedAssignmentResult = await resolvePlatformUserAssignment(userResult.adminClient, {
+    merchantId,
+    branchIds: rawBranchIds,
+    primaryBranchId,
+    assignmentScope,
+  })
+  if (resolvedAssignmentResult.error || !resolvedAssignmentResult.data) {
+    return jsonResponse({ error: stringOrEmpty(resolvedAssignmentResult.error?.message) || 'No se pudo resolver la asignacion del usuario' }, 400)
   }
+  const resolvedBranchIds = resolvedAssignmentResult.data.branchIds
+  const resolvedPrimaryBranchId = resolvedAssignmentResult.data.primaryBranchId
 
   // Check if user already exists by email
   const existingUsers = await userResult.adminClient.auth.admin.listUsers()
@@ -1013,6 +1141,8 @@ async function handleCreatePlatformUser(request: Request, body: Record<string, u
       app_metadata: {
         ...(existingUser.app_metadata ?? {}),
         managed_platform_user: true,
+        merchant_id: merchantId,
+        assignment_scope: resolvedAssignmentResult.data.assignmentScope,
         account_active: isActive,
         must_change_password: mustChangePassword,
       },
@@ -1029,6 +1159,8 @@ async function handleCreatePlatformUser(request: Request, body: Record<string, u
       email_confirm: true,
       app_metadata: {
         managed_platform_user: true,
+        merchant_id: merchantId,
+        assignment_scope: resolvedAssignmentResult.data.assignmentScope,
         account_active: isActive,
         must_change_password: mustChangePassword,
       },
@@ -1095,7 +1227,7 @@ async function handleCreatePlatformUser(request: Request, body: Record<string, u
       .update({
         staff_role: staffRole,
         is_active: isActive,
-        branch_id: nullableString(primaryBranchId) || (branchIds[0] ?? null),
+        branch_id: resolvedPrimaryBranchId,
       })
       .eq('id', staffId)
 
@@ -1110,7 +1242,7 @@ async function handleCreatePlatformUser(request: Request, body: Record<string, u
         merchant_id: merchantId,
         staff_role: staffRole,
         is_active: isActive,
-        branch_id: nullableString(primaryBranchId) || (branchIds[0] ?? null),
+        branch_id: resolvedPrimaryBranchId,
       })
       .select('id')
       .maybeSingle()
@@ -1129,13 +1261,12 @@ async function handleCreatePlatformUser(request: Request, body: Record<string, u
   // Sync branch assignments
   await userResult.adminClient.from('merchant_staff_branches').delete().eq('merchant_staff_id', staffId)
 
-  if (branchIds.length > 0) {
-    const resolvedPrimary = branchIds.includes(primaryBranchId) ? primaryBranchId : branchIds[0]
+  if (resolvedBranchIds.length > 0) {
     const insertBranches = await userResult.adminClient.from('merchant_staff_branches').insert(
-      branchIds.map((branchId) => ({
+      resolvedBranchIds.map((branchId) => ({
         merchant_staff_id: staffId,
         branch_id: branchId,
-        is_primary: branchId === resolvedPrimary,
+        is_primary: branchId === resolvedPrimaryBranchId,
       }))
     )
 
@@ -1158,43 +1289,18 @@ async function handleCreatePlatformUser(request: Request, body: Record<string, u
     }
   }
 
-  // Create merchant_access_accounts record for password change flow
-  if (mustChangePassword) {
-    const existingAccess = await userResult.adminClient
-      .from('merchant_access_accounts')
-      .select('id')
-      .eq('user_id', userId)
-      .maybeSingle()
-
-    if (!existingAccess.error) {
-      if (existingAccess.data) {
-        await userResult.adminClient
-          .from('merchant_access_accounts')
-          .update({
-            must_change_password: true,
-            is_active: isActive,
-            updated_at: now,
-          })
-          .eq('id', existingAccess.data.id)
-      } else {
-        await userResult.adminClient
-          .from('merchant_access_accounts')
-          .insert({
-            merchant_id: merchantId,
-            user_id: userId,
-            email,
-            full_name: nullableString(fullName),
-            access_origin: 'platform_created',
-            onboarding_status: 'active',
-            is_active: isActive,
-            must_change_password: true,
-            invited_by_user_id: userResult.data.id,
-            last_invited_at: now,
-            created_at: now,
-            updated_at: now,
-          })
-      }
-    }
+  const syncAccessResult = await syncPlatformAccessRecord(userResult.adminClient, {
+    merchantId,
+    userId,
+    email,
+    fullName,
+    isActive,
+    mustChangePassword,
+    invitedByUserId: userResult.data.id,
+    shouldStampInvitation: true,
+  })
+  if (syncAccessResult.error) {
+    return jsonResponse({ error: stringOrEmpty(syncAccessResult.error.message) }, 400)
   }
 
   return jsonResponse({ success: true, staff_id: staffId, user_id: userId })
@@ -1216,25 +1322,53 @@ async function handleUpdatePlatformUser(request: Request, body: Record<string, u
   const userId = stringOrEmpty(payload.userId)
   const fullName = stringOrEmpty(payload.fullName).trim()
   const phone = nullableString(stringOrEmpty(payload.phone))
+  const merchantId = stringOrEmpty(payload.merchantId).trim()
   const staffRole = stringOrEmpty(payload.staffRole).trim() || 'staff'
   const isActive = Boolean(payload.isActive ?? true)
+  const password = nullableString(stringOrEmpty(payload.password))
+  const mustChangePassword = password ? Boolean(payload.mustChangePassword ?? true) : null
 
   const rawBranchIds = Array.isArray(payload.branchIds) ? (payload.branchIds as string[]).map((id) => stringOrEmpty(id)).filter(Boolean) : []
-  const branchIds = Array.from(new Set(rawBranchIds))
   const primaryBranchId = stringOrEmpty(payload.primaryBranchId).trim()
+  const assignmentScope = payload.assignmentScope
   const roleIds = Array.isArray(payload.roleIds) ? Array.from(new Set((payload.roleIds as string[]).map((id) => stringOrEmpty(id)).filter(Boolean))) : []
 
-  if (!staffId || !userId) {
+  if (!staffId || !userId || !merchantId) {
     return jsonResponse({ error: 'Datos insuficientes para actualizar el usuario' }, 400)
   }
+
+  if (password && password.length < 8) {
+    return jsonResponse({ error: 'La nueva contraseña temporal debe tener al menos 8 caracteres' }, 400)
+  }
+
+  const resolvedAssignmentResult = await resolvePlatformUserAssignment(userResult.adminClient, {
+    merchantId,
+    branchIds: rawBranchIds,
+    primaryBranchId,
+    assignmentScope,
+  })
+  if (resolvedAssignmentResult.error || !resolvedAssignmentResult.data) {
+    return jsonResponse({ error: stringOrEmpty(resolvedAssignmentResult.error?.message) || 'No se pudo resolver la asignacion del usuario' }, 400)
+  }
+  const resolvedBranchIds = resolvedAssignmentResult.data.branchIds
+  const resolvedPrimaryBranchId = resolvedAssignmentResult.data.primaryBranchId
+
+  const authUserResult = await getAuthUser(userResult.adminClient, userId)
+  if (authUserResult.error) {
+    return jsonResponse({ error: stringOrEmpty(authUserResult.error.message) }, 400)
+  }
+
+  const userEmail = stringOrEmpty(authUserResult.data?.email).trim().toLowerCase()
+  const nextMustChangePassword = password ? Boolean(mustChangePassword) : Boolean(authUserResult.data?.app_metadata?.must_change_password ?? false)
 
   // Handle staff updates
   const updateStaff = await userResult.adminClient
     .from('merchant_staff')
     .update({
+      merchant_id: merchantId,
       staff_role: staffRole,
       is_active: isActive,
-      branch_id: nullableString(primaryBranchId) || (branchIds[0] ?? null),
+      branch_id: resolvedPrimaryBranchId,
     })
     .eq('id', staffId)
 
@@ -1257,20 +1391,40 @@ async function handleUpdatePlatformUser(request: Request, body: Record<string, u
   }
 
   // Auth user metadata activity update
-  await userResult.adminClient.auth.admin.updateUserById(userId, {
+  const authUpdatePayload: Record<string, unknown> = {
     ban_duration: isActive ? 'none' : USER_BAN_DURATION,
-  })
+    app_metadata: {
+      ...(authUserResult.data?.app_metadata ?? {}),
+      managed_platform_user: true,
+      merchant_id: merchantId,
+      assignment_scope: resolvedAssignmentResult.data.assignmentScope,
+      account_active: isActive,
+      must_change_password: nextMustChangePassword,
+    },
+    user_metadata: {
+      ...(authUserResult.data?.user_metadata ?? {}),
+      full_name: fullName,
+    },
+  }
+
+  if (password) {
+    authUpdatePayload.password = password
+  }
+
+  const authUpdateResult = await userResult.adminClient.auth.admin.updateUserById(userId, authUpdatePayload)
+  if (authUpdateResult.error) {
+    return jsonResponse({ error: stringOrEmpty(authUpdateResult.error.message) }, 400)
+  }
 
   // Sync branches
   await userResult.adminClient.from('merchant_staff_branches').delete().eq('merchant_staff_id', staffId)
 
-  if (branchIds.length > 0) {
-    const resolvedPrimary = branchIds.includes(primaryBranchId) ? primaryBranchId : branchIds[0]
+  if (resolvedBranchIds.length > 0) {
     const insertBranches = await userResult.adminClient.from('merchant_staff_branches').insert(
-      branchIds.map((branchId) => ({
+      resolvedBranchIds.map((branchId) => ({
         merchant_staff_id: staffId,
         branch_id: branchId,
-        is_primary: branchId === resolvedPrimary,
+        is_primary: branchId === resolvedPrimaryBranchId,
       }))
     )
 
@@ -1300,6 +1454,20 @@ async function handleUpdatePlatformUser(request: Request, body: Record<string, u
         missingRoleIds.map((roleId) => ({ user_id: userId, role_id: roleId }))
       )
     }
+  }
+
+  const syncAccessResult = await syncPlatformAccessRecord(userResult.adminClient, {
+    merchantId,
+    userId,
+    email: userEmail,
+    fullName,
+    isActive,
+    mustChangePassword: nextMustChangePassword,
+    invitedByUserId: userResult.data.id,
+    shouldStampInvitation: Boolean(password),
+  })
+  if (syncAccessResult.error) {
+    return jsonResponse({ error: stringOrEmpty(syncAccessResult.error.message) }, 400)
   }
 
   return jsonResponse({ success: true, staff_id: staffId })

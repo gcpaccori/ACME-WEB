@@ -13,6 +13,11 @@ function stringOrEmpty(value: unknown) {
   return typeof value === 'string' ? value : value == null ? '' : String(value);
 }
 
+function nullableString(value: string | null | undefined) {
+  const normalized = stringOrEmpty(value).trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
 function isMissingRelationError(error: { message?: string } | null | undefined, relationName: string) {
   const message = String(error?.message ?? '').toLowerCase();
   return message.includes(relationName.toLowerCase()) && (message.includes('does not exist') || message.includes('relation') || message.includes('schema cache'));
@@ -22,6 +27,88 @@ export const authService = {
   signIn: async (email: string, password: string) => {
     const result = await supabase.auth.signInWithPassword({ email, password });
     return result;
+  },
+
+  updateOwnPortalProfile: async (payload: { userId: string; full_name: string; phone?: string | null }) => {
+    const userId = stringOrEmpty(payload.userId);
+    const fullName = stringOrEmpty(payload.full_name).trim();
+    const phone = stringOrEmpty(payload.phone).trim();
+
+    if (!userId) {
+      return { data: null, error: new Error('No se encontro la sesion del usuario actual.') };
+    }
+
+    if (!fullName) {
+      return { data: null, error: new Error('El nombre es obligatorio.') };
+    }
+
+    const now = new Date().toISOString();
+    const [authUserResult, profileLookupResult] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase.from('profiles').select('user_id, email').eq('user_id', userId).maybeSingle(),
+    ]);
+
+    if (authUserResult.error) {
+      return { data: null, error: authUserResult.error };
+    }
+
+    if (profileLookupResult.error) {
+      return { data: null, error: profileLookupResult.error };
+    }
+
+    const email = stringOrEmpty(profileLookupResult.data?.email) || stringOrEmpty(authUserResult.data.user?.email);
+    const profilePayload = {
+      full_name: fullName,
+      phone: nullableString(phone),
+      email: email || null,
+      updated_at: now,
+    };
+
+    const profileWriteResult = profileLookupResult.data
+      ? await supabase
+          .from('profiles')
+          .update(profilePayload)
+          .eq('user_id', userId)
+          .select('user_id, full_name, email, phone')
+          .single()
+      : await supabase
+          .from('profiles')
+          .insert({
+            user_id: userId,
+            full_name: fullName,
+            phone: nullableString(phone),
+            email: email || null,
+            default_role: 'customer',
+            is_active: true,
+            created_at: now,
+            updated_at: now,
+          })
+          .select('user_id, full_name, email, phone')
+          .single();
+
+    if (profileWriteResult.error) {
+      return { data: null, error: profileWriteResult.error };
+    }
+
+    const accessUpdateResult = await supabase.from('merchant_access_accounts').update({ full_name: fullName }).eq('user_id', userId);
+
+    if (accessUpdateResult.error && !isMissingRelationError(accessUpdateResult.error, 'merchant_access_accounts')) {
+      return { data: null, error: accessUpdateResult.error };
+    }
+
+    return {
+      data: {
+        user_id: stringOrEmpty(profileWriteResult.data?.user_id) || userId,
+        full_name: stringOrEmpty(profileWriteResult.data?.full_name) || fullName,
+        email: stringOrEmpty(profileWriteResult.data?.email) || email,
+        phone: stringOrEmpty(profileWriteResult.data?.phone) || phone,
+      },
+      error: null,
+    };
+  },
+
+  requestPasswordRecovery: async (email: string, redirectTo: string) => {
+    return supabase.auth.resetPasswordForEmail(email, { redirectTo });
   },
 
   signOut: async () => {

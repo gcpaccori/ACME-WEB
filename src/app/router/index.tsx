@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { PublicLayout, PortalLayout } from '../layouts';
 import { LoginPage } from '../../modules/auth/login/LoginPage';
 import { FirstAccessPasswordPage } from '../../modules/auth/first-access/FirstAccessPasswordPage';
+import { PasswordRecoveryPage } from '../../modules/auth/recovery/PasswordRecoveryPage';
 import { HomePage } from '../../modules/public/home/HomePage';
 import { AboutPage } from '../../modules/public/about/AboutPage';
 import { MarketplacePage } from '../../modules/public/marketplace/MarketplacePage';
@@ -64,6 +65,7 @@ export function AppRouter() {
         <Route path="hazte-driver" element={<HazteDriverPage />} />
         <Route path="contacto" element={<ContactPage />} />
         <Route path="portal/login" element={<LoginPage />} />
+        <Route path="portal/recover-password" element={<PasswordRecoveryPage />} />
       </Route>
 
       <Route path="portal" element={<PortalLayout />}>

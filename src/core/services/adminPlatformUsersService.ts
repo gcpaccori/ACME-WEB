@@ -12,6 +12,7 @@ export interface PlatformUserRecord {
   is_active: boolean;
   merchant_id: string;
   merchant_label: string;
+  assignment_scope: 'merchant' | 'branches';
   branch_ids: string[];
   branch_labels: string[];
   primary_branch_id: string;
@@ -28,6 +29,7 @@ export interface PlatformUserCreatePayload {
   phone: string;
   password: string;
   merchantId: string;
+  assignmentScope: 'merchant' | 'branches';
   branchIds: string[];
   primaryBranchId: string;
   staffRole: string;
@@ -42,11 +44,14 @@ export interface PlatformUserUpdatePayload {
   fullName: string;
   phone: string;
   merchantId: string;
+  assignmentScope: 'merchant' | 'branches';
   branchIds: string[];
   primaryBranchId: string;
   staffRole: string;
   roleIds: string[];
   isActive: boolean;
+  password?: string;
+  mustChangePassword?: boolean;
 }
 
 export interface PlatformMerchantOption {
@@ -142,7 +147,10 @@ export const adminPlatformUsersService = {
       const profile = profileMap.get(userId);
       const merchant = merchantMap.get(stringOrEmpty(row.merchant_id));
       const relations = staffBranchRows.filter((item) => stringOrEmpty(item.merchant_staff_id) === stringOrEmpty(row.id));
-      const branchIds = uniqueStrings(relations.map((item) => stringOrEmpty(item.branch_id)));
+      const branchIds = uniqueStrings([
+        ...relations.map((item) => stringOrEmpty(item.branch_id)),
+        stringOrEmpty(row.branch_id),
+      ].filter(Boolean));
       const branchLabels = branchIds.map((id) => stringOrEmpty(branchMap.get(id)?.name)).filter(Boolean);
       const primaryRelation = relations.find((item) => Boolean(item.is_primary));
       const primaryBranchId = stringOrEmpty(primaryRelation?.branch_id || row.branch_id || branchIds[0]);
@@ -162,6 +170,7 @@ export const adminPlatformUsersService = {
         is_active: Boolean(row.is_active ?? true) && Boolean(profile?.is_active ?? true),
         merchant_id: stringOrEmpty(row.merchant_id),
         merchant_label: stringOrEmpty(merchant?.trade_name) || stringOrEmpty(merchant?.legal_name) || 'Sin negocio',
+        assignment_scope: branchIds.length > 0 ? 'branches' : 'merchant',
         branch_ids: branchIds,
         branch_labels: branchLabels,
         primary_branch_id: primaryBranchId,
@@ -196,6 +205,7 @@ export const adminPlatformUsersService = {
         phone: payload.phone,
         password: payload.password,
         merchantId: payload.merchantId,
+        assignmentScope: payload.assignmentScope,
         branchIds: payload.branchIds,
         primaryBranchId: payload.primaryBranchId,
         staffRole: payload.staffRole,
@@ -225,7 +235,10 @@ export const adminPlatformUsersService = {
       error?: string;
     }>({
       action: 'update_platform_user',
-      payload,
+      payload: {
+        ...payload,
+        password: payload.password?.trim() ? payload.password : undefined,
+      },
     });
     return result.error ? { data: null, error: result.error } : { data: result.data, error: null };
   },

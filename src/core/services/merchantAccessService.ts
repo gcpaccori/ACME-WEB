@@ -69,4 +69,11 @@ export const merchantAccessService = {
       payload: { password },
     });
   },
+
+  updateOwnPassword: async (password: string) => {
+    return invokeMerchantAccessFunction<{ success: true }>({
+      action: 'complete_first_access',
+      payload: { password },
+    });
+  },
 };

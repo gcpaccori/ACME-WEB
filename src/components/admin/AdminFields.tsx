@@ -75,14 +75,16 @@ export function CheckboxField({
   label,
   checked,
   onChange,
+  disabled,
 }: {
   label: string;
   checked: boolean;
   onChange: ChangeEventHandler<HTMLInputElement>;
+  disabled?: boolean;
 }) {
   return (
-    <label style={{ display: 'inline-flex', gap: '10px', alignItems: 'center', color: '#111827' }}>
-      <input type="checkbox" checked={checked} onChange={onChange} />
+    <label style={{ display: 'inline-flex', gap: '10px', alignItems: 'center', color: disabled ? '#9ca3af' : '#111827' }}>
+      <input type="checkbox" checked={checked} onChange={onChange} disabled={disabled} />
       <span>{label}</span>
     </label>
   );

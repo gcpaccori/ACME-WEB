@@ -115,8 +115,11 @@ export function getPortalActorLabel(params: {
   staffAssignment: MerchantStaff | null;
 }) {
   const platformRole = params.roleAssignments.find((assignment) => PLATFORM_ROLE_CODES.has(normalizeCode(assignment.code)));
-  if (platformRole?.name) {
-    return platformRole.name;
+  if (platformRole) {
+    return 'Admin de plataforma';
+  }
+  if (PLATFORM_ROLE_CODES.has(normalizeCode(params.profile?.default_role))) {
+    return 'Admin de plataforma';
   }
   if (params.staffAssignment?.role) {
     return params.staffAssignment.role;

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { type CSSProperties, useContext, useEffect, useMemo, useState } from 'react';
 import { AdminDataTable } from '../../../../../components/admin/AdminDataTable';
 import { AdminDrawer } from '../../../../../components/admin/AdminDrawer';
 import { CheckboxField, FieldGroup, SelectField } from '../../../../../components/admin/AdminFields';
@@ -19,12 +19,15 @@ import {
 } from '../../../../../core/services/adminPlatformUsersService';
 import { PortalContext } from '../../../../auth/session/PortalContext';
 
+type AssignmentScope = 'merchant' | 'branches';
+
 interface CreateFormState {
   email: string;
   fullName: string;
   phone: string;
   password: string;
   merchantId: string;
+  assignmentScope: AssignmentScope;
   branchIds: string[];
   primaryBranchId: string;
   staffRole: string;
@@ -39,11 +42,28 @@ interface EditFormState {
   fullName: string;
   phone: string;
   merchantId: string;
+  assignmentScope: AssignmentScope;
   branchIds: string[];
   primaryBranchId: string;
   staffRole: string;
   roleIds: string[];
   isActive: boolean;
+  password: string;
+  mustChangePassword: boolean;
+}
+
+const MERCHANT_SCOPE_ROLE_VALUES = new Set(['owner', 'manager']);
+
+function getInitialStaffRole(scope: AssignmentScope) {
+  return scope === 'merchant' ? 'manager' : 'staff';
+}
+
+function adaptStaffRoleToScope(scope: AssignmentScope, currentRole: string) {
+  const normalizedRole = currentRole.trim() || getInitialStaffRole(scope);
+  if (scope === 'merchant' && !MERCHANT_SCOPE_ROLE_VALUES.has(normalizedRole)) {
+    return 'manager';
+  }
+  return normalizedRole;
 }
 
 function createEmptyForm(): CreateFormState {
@@ -53,9 +73,10 @@ function createEmptyForm(): CreateFormState {
     phone: '',
     password: '',
     merchantId: '',
+    assignmentScope: 'merchant',
     branchIds: [],
     primaryBranchId: '',
-    staffRole: 'staff',
+    staffRole: 'manager',
     roleIds: [],
     isActive: true,
     mustChangePassword: true,
@@ -63,17 +84,21 @@ function createEmptyForm(): CreateFormState {
 }
 
 function createEditForm(record: PlatformUserRecord): EditFormState {
+  const assignmentScope = record.assignment_scope || (record.branch_ids.length > 0 ? 'branches' : 'merchant');
   return {
     staffId: record.staff_id,
     userId: record.user_id,
     fullName: record.full_name,
     phone: record.phone,
     merchantId: record.merchant_id,
-    branchIds: record.branch_ids,
-    primaryBranchId: record.primary_branch_id,
-    staffRole: record.staff_role,
+    assignmentScope,
+    branchIds: assignmentScope === 'branches' ? record.branch_ids : [],
+    primaryBranchId: assignmentScope === 'branches' ? record.primary_branch_id : '',
+    staffRole: adaptStaffRoleToScope(assignmentScope, record.staff_role),
     roleIds: record.role_ids,
     isActive: record.is_active,
+    password: '',
+    mustChangePassword: true,
   };
 }
 
@@ -95,6 +120,32 @@ function patchBranchSelection(current: string[], branchId: string, checked: bool
   return checked
     ? Array.from(new Set([...current, branchId]))
     : current.filter((item) => item !== branchId);
+}
+
+function renderAssignmentScopeButtons(params: {
+  value: AssignmentScope;
+  onChange: (scope: AssignmentScope) => void;
+}) {
+  const buttonStyle = (active: boolean): CSSProperties => ({
+    padding: '10px 12px',
+    borderRadius: '10px',
+    border: `1px solid ${active ? '#111827' : '#d1d5db'}`,
+    background: active ? '#111827' : '#ffffff',
+    color: active ? '#ffffff' : '#374151',
+    fontWeight: 700,
+    cursor: 'pointer',
+  });
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px' }}>
+      <button type="button" onClick={() => params.onChange('merchant')} style={buttonStyle(params.value === 'merchant')}>
+        Negocio completo
+      </button>
+      <button type="button" onClick={() => params.onChange('branches')} style={buttonStyle(params.value === 'branches')}>
+        Sucursales
+      </button>
+    </div>
+  );
 }
 
 export function PlatformUsersPage() {
@@ -156,6 +207,7 @@ export function PlatformUsersPage() {
         record.phone,
         record.merchant_label,
         record.staff_role,
+        record.assignment_scope === 'merchant' ? 'negocio completo' : 'sucursales',
         record.branch_labels.join(' '),
         record.role_labels.join(' '),
       ]
@@ -178,6 +230,16 @@ export function PlatformUsersPage() {
     { value: 'support', label: 'Soporte' },
     { value: 'staff', label: 'Staff' },
   ], []);
+
+  const createStaffRoleOptions = useMemo(
+    () => staffRoleOptions.filter((option) => createForm.assignmentScope === 'branches' || MERCHANT_SCOPE_ROLE_VALUES.has(option.value)),
+    [createForm.assignmentScope, staffRoleOptions]
+  );
+
+  const editStaffRoleOptions = useMemo(() => {
+    if (!editForm) return staffRoleOptions;
+    return staffRoleOptions.filter((option) => editForm.assignmentScope === 'branches' || MERCHANT_SCOPE_ROLE_VALUES.has(option.value));
+  }, [editForm, staffRoleOptions]);
 
   // Merchant options for the <SelectField>
   const merchantOptions = useMemo(() => {
@@ -246,8 +308,9 @@ export function PlatformUsersPage() {
       phone: createForm.phone,
       password: createForm.password,
       merchantId: createForm.merchantId,
-      branchIds: createForm.branchIds,
-      primaryBranchId: createForm.primaryBranchId,
+      assignmentScope: createForm.assignmentScope,
+      branchIds: createForm.assignmentScope === 'branches' ? createForm.branchIds : [],
+      primaryBranchId: createForm.assignmentScope === 'branches' ? createForm.primaryBranchId : '',
       staffRole: createForm.staffRole,
       roleIds: createForm.roleIds,
       isActive: createForm.isActive,
@@ -288,11 +351,14 @@ export function PlatformUsersPage() {
       fullName: editForm.fullName,
       phone: editForm.phone,
       merchantId: editForm.merchantId,
-      branchIds: editForm.branchIds,
-      primaryBranchId: editForm.primaryBranchId,
+      assignmentScope: editForm.assignmentScope,
+      branchIds: editForm.assignmentScope === 'branches' ? editForm.branchIds : [],
+      primaryBranchId: editForm.assignmentScope === 'branches' ? editForm.primaryBranchId : '',
       staffRole: editForm.staffRole,
       roleIds: editForm.roleIds,
       isActive: editForm.isActive,
+      password: editForm.password,
+      mustChangePassword: editForm.password.trim() ? editForm.mustChangePassword : undefined,
     };
 
     const result = await adminPlatformUsersService.updatePlatformUser(payload);
@@ -303,7 +369,7 @@ export function PlatformUsersPage() {
       return;
     }
 
-    setSuccessMessage('Usuario actualizado');
+    setSuccessMessage(editForm.password.trim() ? 'Usuario actualizado y contraseña temporal reiniciada' : 'Usuario actualizado');
     setDrawerOpen(false);
     await loadData();
   };
@@ -337,6 +403,43 @@ export function PlatformUsersPage() {
     }));
   };
 
+  const handleCreateScopeChange = (assignmentScope: AssignmentScope) => {
+    setCreateForm((current) => ({
+      ...current,
+      assignmentScope,
+      branchIds: assignmentScope === 'merchant' ? [] : current.branchIds,
+      primaryBranchId: assignmentScope === 'merchant' ? '' : current.primaryBranchId,
+      staffRole: adaptStaffRoleToScope(assignmentScope, current.staffRole),
+    }));
+  };
+
+  const handleEditMerchantChange = (merchantId: string) => {
+    setEditForm((current) => (
+      current
+        ? {
+            ...current,
+            merchantId,
+            branchIds: [],
+            primaryBranchId: '',
+          }
+        : current
+    ));
+  };
+
+  const handleEditScopeChange = (assignmentScope: AssignmentScope) => {
+    setEditForm((current) => (
+      current
+        ? {
+            ...current,
+            assignmentScope,
+            branchIds: assignmentScope === 'merchant' ? [] : current.branchIds,
+            primaryBranchId: assignmentScope === 'merchant' ? '' : current.primaryBranchId,
+            staffRole: adaptStaffRoleToScope(assignmentScope, current.staffRole),
+          }
+        : current
+    ));
+  };
+
   if (portal.currentScopeType !== 'platform') {
     return <div>Esta vista pertenece a la capa plataforma.</div>;
   }
@@ -344,7 +447,7 @@ export function PlatformUsersPage() {
   return (
     <AdminPageFrame
       title="Usuarios"
-      description="Gestion centralizada de usuarios asignados a negocios y sucursales desde la capa de plataforma."
+      description="Gestion centralizada de usuarios asignados al negocio completo o a sucursales puntuales desde la capa de plataforma."
       breadcrumbs={[
         { label: 'Admin', to: AppRoutes.portal.admin.root },
         { label: 'Usuarios' },
@@ -365,13 +468,13 @@ export function PlatformUsersPage() {
         </button>
       }
     >
-      <SectionCard title="Buscar" description="Filtra por nombre, email, negocio, rol o sucursal.">
+      <SectionCard title="Buscar" description="Filtra por nombre, email, negocio, alcance, rol o sucursal.">
         <TextField value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar usuario..." />
       </SectionCard>
 
       <FormStatusBar dirty={editDirty || createDirty} saving={saving} error={error} successMessage={successMessage} />
 
-      <SectionCard title="Usuarios asignados" description="Todos los usuarios con asignacion a un negocio. Desde aqui puedes crear, editar o desvincular usuarios.">
+      <SectionCard title="Usuarios asignados" description="Cada usuario puede quedar asignado al negocio completo o a sucursales especificas, con contraseña temporal y recuperacion por correo.">
         {loading ? (
           <LoadingScreen />
         ) : (
@@ -392,13 +495,20 @@ export function PlatformUsersPage() {
               },
               {
                 id: 'merchant',
-                header: 'Negocio',
+                header: 'Asignacion',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '4px' }}>
+                  <div style={{ display: 'grid', gap: '6px' }}>
                     <span>{record.merchant_label}</span>
-                    <span style={{ color: '#6b7280', fontSize: '13px' }}>
-                      {record.branch_labels.length > 0 ? record.branch_labels.join(', ') : 'Sin sucursal'}
-                    </span>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <StatusPill label={record.assignment_scope === 'merchant' ? 'Negocio completo' : 'Sucursales'} tone="neutral" />
+                      <span style={{ color: '#6b7280', fontSize: '13px' }}>
+                        {record.assignment_scope === 'merchant'
+                          ? 'Acceso a todo el negocio'
+                          : record.branch_labels.length > 0
+                            ? record.branch_labels.join(', ')
+                            : 'Sin sucursal'}
+                      </span>
+                    </div>
                   </div>
                 ),
               },
@@ -488,7 +598,7 @@ export function PlatformUsersPage() {
         }
       >
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-          <FieldGroup label="Email" hint="El correo con el que el usuario ingresara al portal.">
+          <FieldGroup label="Email" hint="El correo con el que el usuario ingresara y recuperara su contraseña.">
             <TextField
               value={createForm.email}
               onChange={(event) => setCreateForm((c) => ({ ...c, email: event.target.value }))}
@@ -524,23 +634,35 @@ export function PlatformUsersPage() {
               options={merchantOptions}
             />
           </FieldGroup>
+          <FieldGroup label="Alcance de trabajo" hint="Negocio completo para owner/manager; sucursales para equipos operativos.">
+            {renderAssignmentScopeButtons({
+              value: createForm.assignmentScope,
+              onChange: handleCreateScopeChange,
+            })}
+          </FieldGroup>
           <FieldGroup label="Rol operativo">
             <SelectField
               value={createForm.staffRole}
               onChange={(event) => setCreateForm((c) => ({ ...c, staffRole: event.target.value }))}
-              options={staffRoleOptions}
+              options={createStaffRoleOptions}
             />
           </FieldGroup>
-          <FieldGroup label="Sucursal principal">
-            <SelectField
-              value={createForm.primaryBranchId}
-              onChange={(event) => setCreateForm((c) => ({ ...c, primaryBranchId: event.target.value }))}
-              options={createPrimaryBranchOptions}
-            />
-          </FieldGroup>
+          {createForm.assignmentScope === 'branches' ? (
+            <FieldGroup label="Sucursal principal">
+              <SelectField
+                value={createForm.primaryBranchId}
+                onChange={(event) => setCreateForm((c) => ({ ...c, primaryBranchId: event.target.value }))}
+                options={createPrimaryBranchOptions}
+              />
+            </FieldGroup>
+          ) : null}
         </div>
 
-        {createBranches.length > 0 ? (
+        {createForm.assignmentScope === 'merchant' ? (
+          <div style={{ padding: '12px 14px', borderRadius: '12px', background: '#f9fafb', border: '1px solid #e5e7eb', color: '#4b5563', fontSize: '13px' }}>
+            Este usuario quedara asignado al negocio completo. No necesita sucursales marcadas para operar en ese alcance.
+          </div>
+        ) : createBranches.length > 0 ? (
           <div style={{ display: 'grid', gap: '10px' }}>
             <strong style={{ fontSize: '13px' }}>Sucursales asignadas</strong>
             <div style={{ display: 'grid', gap: '8px' }}>
@@ -607,11 +729,14 @@ export function PlatformUsersPage() {
       <AdminDrawer
         open={drawerOpen && !!editForm}
         title={selectedRecord ? `Editar: ${getUserLabel(selectedRecord)}` : 'Editar usuario'}
-        description="Modifica rol operativo, sucursales y roles de plataforma del usuario."
+        description="Modifica negocio, alcance, sucursales, roles y reinicia una contraseña temporal si hace falta."
         onClose={() => setDrawerOpen(false)}
       >
         {editForm ? (
           <>
+            <FieldGroup label="Correo">
+              <TextField value={selectedRecord?.email ?? ''} readOnly />
+            </FieldGroup>
             <FieldGroup label="Nombre completo">
               <TextField
                 value={editForm.fullName}
@@ -624,48 +749,71 @@ export function PlatformUsersPage() {
                 onChange={(event) => setEditForm((c) => (c ? { ...c, phone: event.target.value } : c))}
               />
             </FieldGroup>
+            <FieldGroup label="Negocio">
+              <SelectField
+                value={editForm.merchantId}
+                onChange={(event) => handleEditMerchantChange(event.target.value)}
+                options={merchantOptions}
+              />
+            </FieldGroup>
+            <FieldGroup label="Alcance de trabajo">
+              {renderAssignmentScopeButtons({
+                value: editForm.assignmentScope,
+                onChange: handleEditScopeChange,
+              })}
+            </FieldGroup>
             <FieldGroup label="Rol operativo">
               <SelectField
                 value={editForm.staffRole}
                 onChange={(event) => setEditForm((c) => (c ? { ...c, staffRole: event.target.value } : c))}
-                options={staffRoleOptions}
+                options={editStaffRoleOptions}
               />
             </FieldGroup>
-            <FieldGroup label="Sucursal principal">
-              <SelectField
-                value={editForm.primaryBranchId}
-                onChange={(event) => setEditForm((c) => (c ? { ...c, primaryBranchId: event.target.value } : c))}
-                options={editPrimaryBranchOptions}
-              />
-            </FieldGroup>
+            {editForm.assignmentScope === 'branches' ? (
+              <>
+                <FieldGroup label="Sucursal principal">
+                  <SelectField
+                    value={editForm.primaryBranchId}
+                    onChange={(event) => setEditForm((c) => (c ? { ...c, primaryBranchId: event.target.value } : c))}
+                    options={editPrimaryBranchOptions}
+                  />
+                </FieldGroup>
 
-            {editBranches.length > 0 ? (
-              <div style={{ display: 'grid', gap: '10px' }}>
-                <strong style={{ fontSize: '13px' }}>Sucursales asignadas</strong>
-                <div style={{ display: 'grid', gap: '8px' }}>
-                  {editBranches.map((branch) => (
-                    <CheckboxField
-                      key={branch.id}
-                      label={branch.name}
-                      checked={editForm.branchIds.includes(branch.id)}
-                      onChange={(event) =>
-                        setEditForm((c) =>
-                          c
-                            ? {
-                                ...c,
-                                branchIds: patchBranchSelection(c.branchIds, branch.id, event.target.checked),
-                                primaryBranchId: !event.target.checked && c.primaryBranchId === branch.id
-                                  ? c.branchIds.filter((id) => id !== branch.id)[0] ?? ''
-                                  : c.primaryBranchId,
-                              }
-                            : c
-                        )
-                      }
-                    />
-                  ))}
-                </div>
+                {editBranches.length > 0 ? (
+                  <div style={{ display: 'grid', gap: '10px' }}>
+                    <strong style={{ fontSize: '13px' }}>Sucursales asignadas</strong>
+                    <div style={{ display: 'grid', gap: '8px' }}>
+                      {editBranches.map((branch) => (
+                        <CheckboxField
+                          key={branch.id}
+                          label={branch.name}
+                          checked={editForm.branchIds.includes(branch.id)}
+                          onChange={(event) =>
+                            setEditForm((c) =>
+                              c
+                                ? {
+                                    ...c,
+                                    branchIds: patchBranchSelection(c.branchIds, branch.id, event.target.checked),
+                                    primaryBranchId: !event.target.checked && c.primaryBranchId === branch.id
+                                      ? c.branchIds.filter((id) => id !== branch.id)[0] ?? ''
+                                      : c.primaryBranchId,
+                                  }
+                                : c
+                            )
+                          }
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ color: '#6b7280', fontSize: '13px' }}>Este negocio no tiene sucursales registradas.</div>
+                )}
+              </>
+            ) : (
+              <div style={{ padding: '12px 14px', borderRadius: '12px', background: '#f9fafb', border: '1px solid #e5e7eb', color: '#4b5563', fontSize: '13px' }}>
+                El usuario quedara amarrado al negocio completo, sin limitarse a sucursales puntuales.
               </div>
-            ) : null}
+            )}
 
             <div style={{ display: 'grid', gap: '10px' }}>
               <strong style={{ fontSize: '13px' }}>Permisos globales de plataforma (Opcional)</strong>
@@ -693,6 +841,32 @@ export function PlatformUsersPage() {
                 ))}
               </div>
             </div>
+
+            <SectionCard title="Acceso y contraseña" description="Puedes dejar la contraseña actual intacta o definir una nueva temporal para el usuario.">
+              <div style={{ display: 'grid', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <StatusPill label={selectedRecord?.must_change_password ? 'Cambio pendiente' : 'Sin cambio forzado'} tone={selectedRecord?.must_change_password ? 'warning' : 'neutral'} />
+                  <StatusPill label="Recuperable por correo" tone="info" />
+                </div>
+                <FieldGroup label="Nueva contraseña temporal" hint="Solo completa este campo si quieres resetear la contraseña actual.">
+                  <TextField
+                    type="password"
+                    value={editForm.password}
+                    onChange={(event) => setEditForm((c) => (c ? { ...c, password: event.target.value } : c))}
+                    placeholder="Minimo 8 caracteres"
+                  />
+                </FieldGroup>
+                <CheckboxField
+                  label="Exigir cambio en el siguiente ingreso"
+                  checked={editForm.mustChangePassword}
+                  onChange={(event) => setEditForm((c) => (c ? { ...c, mustChangePassword: event.target.checked } : c))}
+                  disabled={!editForm.password.trim()}
+                />
+                <div style={{ color: '#6b7280', fontSize: '13px' }}>
+                  Si el usuario olvida su acceso, tambien podra usar la opcion de recuperacion desde la pantalla de login con su correo.
+                </div>
+              </div>
+            </SectionCard>
 
             <CheckboxField
               label="Usuario activo"

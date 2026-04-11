@@ -4,6 +4,7 @@ import { AppRoutes } from '../../../core/constants/routes';
 import { PortalContext } from '../session/PortalContext';
 import { Button } from '../../../components/ui/Button';
 import { TextField } from '../../../components/ui/TextField';
+import { authService } from '../../../core/services/authService';
 import { supabase } from '../../../integrations/supabase/client';
 
 export function LoginPage() {
@@ -15,6 +16,7 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'password' | 'magic'>('password');
   const [magicSent, setMagicSent] = useState(false);
+  const [recoverySent, setRecoverySent] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -33,6 +35,7 @@ export function LoginPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    setRecoverySent(false);
     setLoading(true);
 
     if (mode === 'password') {
@@ -57,7 +60,31 @@ export function LoginPage() {
     setMagicSent(true);
   };
 
-  if (magicSent) {
+  const handlePasswordRecovery = async () => {
+    if (!email.trim()) {
+      setError('Ingresa el correo del usuario para enviar la recuperacion.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setMagicSent(false);
+
+    const result = await authService.requestPasswordRecovery(
+      email.trim(),
+      `${window.location.origin}${AppRoutes.public.portalPasswordRecovery}`
+    );
+
+    setLoading(false);
+    if (result.error) {
+      setError(result.error.message ?? 'No se pudo enviar el correo de recuperacion');
+      return;
+    }
+
+    setRecoverySent(true);
+  };
+
+  if (magicSent || recoverySent) {
     return (
       <section style={{
         minHeight: '100vh',
@@ -116,7 +143,10 @@ export function LoginPage() {
           </div>
 
           <Button
-            onClick={() => setMagicSent(false)}
+            onClick={() => {
+              setMagicSent(false);
+              setRecoverySent(false);
+            }}
             style={{
               marginTop: '4px',
               background: 'transparent',
@@ -190,6 +220,7 @@ export function LoginPage() {
               onClick={() => {
                 setMode('password');
                 setError(null);
+                setRecoverySent(false);
               }}
               style={{
                 border: 'none',
@@ -209,6 +240,7 @@ export function LoginPage() {
               onClick={() => {
                 setMode('magic');
                 setError(null);
+                setRecoverySent(false);
               }}
               style={{
                 border: 'none',
@@ -241,6 +273,7 @@ export function LoginPage() {
             </label>
 
             {mode === 'password' ? (
+              <>
               <label style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>
                   Contraseña
@@ -254,6 +287,24 @@ export function LoginPage() {
                   style={{ padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px' }}
                 />
               </label>
+              <button
+                type="button"
+                onClick={handlePasswordRecovery}
+                disabled={loading}
+                style={{
+                  padding: 0,
+                  border: 'none',
+                  background: 'transparent',
+                  color: '#2563eb',
+                  fontWeight: 700,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.65 : 1,
+                  justifySelf: 'flex-start',
+                }}
+              >
+                Recuperar contraseña por correo
+              </button>
+              </>
             ) : (
               <p style={{
                 fontSize: '12px',
