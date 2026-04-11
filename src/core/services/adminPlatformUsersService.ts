@@ -376,10 +376,41 @@ export const adminPlatformUsersService = {
   },
 
   updatePlatformUser: async (payload: PlatformUserUpdatePayload) => {
+    const result = await invokeManageMerchantAccess<{
+      success?: boolean;
+      staff_id?: string;
+      user_id?: string;
+      error?: string;
+    }>({
+      action: 'update_platform_user',
+      payload,
+    });
+
+    if (!result.error) {
+      return { data: result.data, error: null };
+    }
+
+    if (!import.meta.env.DEV) {
+      return { data: null, error: result.error };
+    }
+
     return updatePlatformUserDirect(payload);
   },
 
   deletePlatformUser: async (staffId: string) => {
+    const result = await invokeManageMerchantAccess<{ success?: boolean; error?: string }>({
+      action: 'delete_platform_user',
+      payload: { staffId },
+    });
+
+    if (!result.error) {
+      return { data: result.data, error: null };
+    }
+
+    if (!import.meta.env.DEV) {
+      return { data: null, error: result.error };
+    }
+
     return deletePlatformUserDirect(staffId);
   },
 };
