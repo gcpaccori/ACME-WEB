@@ -153,6 +153,7 @@ export interface ProductAdminSummary {
   base_price: number;
   is_active: boolean;
   category_name: string;
+  image_url: string;
 }
 
 export interface ProductAdminForm {
@@ -911,12 +912,13 @@ export const adminService = {
     const result = await supabase
       .from('products')
       .select(`
-        id,
-        name,
-        sku,
-        base_price,
-        is_active,
-        category:categories(id, name)
+      id,
+      name,
+      sku,
+      base_price,
+      image_url,
+      is_active,
+      category:categories(id, name)
       `)
       .eq('merchant_id', merchantId)
       .order('sort_order', { ascending: true })
@@ -929,6 +931,7 @@ export const adminService = {
       name: stringOrEmpty(row.name),
       sku: stringOrEmpty(row.sku),
       base_price: Number(row.base_price ?? 0),
+      image_url: stringOrEmpty(row.image_url),
       is_active: Boolean(row.is_active ?? true),
       category_name: stringOrEmpty(row.category?.name) || 'Sin categoria',
     }));

@@ -151,6 +151,7 @@ export interface Product {
   category_id?: string;
   active: boolean;
   merchant_id?: string;
+  image_url?: string;
 }
 
 export interface ProductBranchSettings {

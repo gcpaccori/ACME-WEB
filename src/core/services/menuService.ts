@@ -36,6 +36,7 @@ export const menuService = {
       category_id: row.category_id ?? undefined,
       active: Boolean(row.active ?? row.is_active ?? true),
       merchant_id: row.merchant_id ?? undefined,
+      image_url: row.image_url ?? undefined,
     }));
 
     mapped.sort((a, b) => a.name.localeCompare(b.name));

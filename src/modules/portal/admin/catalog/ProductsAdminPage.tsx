@@ -1,11 +1,32 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import type { CSSProperties } from 'react';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminService, ProductAdminSummary } from '../../../../core/services/adminService';
 import { PortalContext } from '../../../auth/session/PortalContext';
+
+function productThumbStyle(imageUrl: string | null | undefined): CSSProperties {
+  return imageUrl
+    ? {
+        width: '52px',
+        height: '52px',
+        borderRadius: '14px',
+        background: `center / cover no-repeat url(${imageUrl})`,
+        border: '1px solid #e5e7eb',
+        flex: '0 0 auto',
+      }
+    : {
+        width: '52px',
+        height: '52px',
+        borderRadius: '14px',
+        background: 'linear-gradient(135deg, rgba(255,98,0,.18), rgba(255,177,122,.28))',
+        border: '1px solid #e5e7eb',
+        flex: '0 0 auto',
+      };
+}
 
 export function ProductsAdminPage() {
   const portal = useContext(PortalContext);
@@ -74,9 +95,12 @@ export function ProductsAdminPage() {
                 id: 'name',
                 header: 'Producto',
                 render: (product) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <strong>{product.name}</strong>
-                    <span style={{ color: '#6b7280' }}>{product.category_name}</span>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={productThumbStyle(product.image_url)} />
+                    <div style={{ display: 'grid', gap: '6px' }}>
+                      <strong>{product.name}</strong>
+                      <span style={{ color: '#6b7280' }}>{product.category_name}</span>
+                    </div>
                   </div>
                 ),
               },

@@ -1,4 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { CheckboxField, FieldGroup, NumberField, TextAreaField } from '../../../../components/admin/AdminFields';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
 import { AdminModalForm } from '../../../../components/admin/AdminModalForm';
@@ -20,6 +21,26 @@ function formatMoney(value: number) {
     currency: 'PEN',
     minimumFractionDigits: 2,
   }).format(value);
+}
+
+function productThumbStyle(imageUrl: string | null | undefined): CSSProperties {
+  return imageUrl
+    ? {
+        width: '56px',
+        height: '56px',
+        borderRadius: '14px',
+        background: `center / cover no-repeat url(${imageUrl})`,
+        border: '1px solid #e5e7eb',
+        flex: '0 0 auto',
+      }
+    : {
+        width: '56px',
+        height: '56px',
+        borderRadius: '14px',
+        background: 'linear-gradient(135deg, rgba(255,98,0,.18), rgba(255,177,122,.28))',
+        border: '1px solid #e5e7eb',
+        flex: '0 0 auto',
+      };
 }
 
 export function BranchOperationalMenuPage() {
@@ -171,9 +192,12 @@ export function BranchOperationalMenuPage() {
                 id: 'product',
                 header: 'Producto',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <strong>{record.name}</strong>
-                    <span style={{ color: '#6b7280' }}>{record.category_name}</span>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={productThumbStyle(record.image_url)} />
+                    <div style={{ display: 'grid', gap: '6px' }}>
+                      <strong>{record.name}</strong>
+                      <span style={{ color: '#6b7280' }}>{record.category_name}</span>
+                    </div>
                   </div>
                 ),
               },
@@ -243,15 +267,24 @@ export function BranchOperationalMenuPage() {
         {selectedRecord ? (
           <>
             <FormStatusBar dirty={dirty} saving={saving} error={error} successMessage={null} />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Producto</div>
-                <strong>{selectedRecord.name}</strong>
-                <div style={{ color: '#6b7280', marginTop: '8px' }}>{selectedRecord.category_name}</div>
-              </div>
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Precio base</div>
-                <strong>{formatMoney(selectedRecord.base_price)}</strong>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+                <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                  <div style={{ color: '#6b7280', fontSize: '13px' }}>Producto</div>
+                  <strong>{selectedRecord.name}</strong>
+                  <div style={{ color: '#6b7280', marginTop: '8px' }}>{selectedRecord.category_name}</div>
+                </div>
+                <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                  <div style={{ color: '#6b7280', fontSize: '13px' }}>Imagen</div>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '10px' }}>
+                    <div style={productThumbStyle(selectedRecord.image_url)} />
+                    <div style={{ color: '#6b7280', fontSize: '13px' }}>
+                      {selectedRecord.image_url ? 'Este plato ya tiene imagen asociada.' : 'Este plato no tiene imagen cargada.'}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
+                  <div style={{ color: '#6b7280', fontSize: '13px' }}>Precio base</div>
+                  <strong>{formatMoney(selectedRecord.base_price)}</strong>
                 <div style={{ color: '#6b7280', marginTop: '8px' }}>Puedes dejar el override vacio para usar el precio global.</div>
               </div>
             </div>

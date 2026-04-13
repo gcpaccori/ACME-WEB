@@ -48,6 +48,7 @@ export interface OperationalMenuRecord {
   is_paused: boolean;
   pause_reason: string;
   branch_setting_id: string;
+  image_url: string;
 }
 
 export interface OperationalMenuForm {
@@ -191,6 +192,7 @@ export const adminBranchOperationsService = {
         is_paused: Boolean(setting?.is_paused ?? false),
         pause_reason: stringOrEmpty(setting?.pause_reason),
         branch_setting_id: stringOrEmpty(setting?.id),
+        image_url: stringOrEmpty((product as any).image_url),
       } satisfies OperationalMenuRecord;
     });
 
