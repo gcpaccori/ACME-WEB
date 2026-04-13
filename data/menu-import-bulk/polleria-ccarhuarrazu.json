@@ -1,0 +1,382 @@
+{
+  "slug": "polleria-ccarhuarrazu",
+  "source_pdf": "data/POLLERIA CCARHUARRAZU 12.00 PM A 10.30 PM.pdf",
+  "source_hours_label": "1.00 PM A 10.30 PM",
+  "merchant": {
+    "trade_name": "Polleria Ccarhuarrazu"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "assumptions": [
+      "Se cargaron solo los productos con nombre y precio suficientemente legibles."
+    ]
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Caldos",
+      "products": [
+        {
+          "name": "Caldo de Gallina",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Chicken_soup_with_kreplach.jpg/960px-Chicken_soup_with_kreplach.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Parrillas de Pollo",
+      "products": [
+        {
+          "name": "Filete de Pollo a la Parrilla",
+          "base_price": 19,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Filete a la Ccarhuarrazu",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Filete a la Parrilla Picante",
+          "base_price": 23,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Pollo al Ajo",
+          "base_price": 19,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pechuga Rellena",
+          "base_price": 26,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Grilled_chicken_breast%2C_Santo_Domingo%2C_La_Palma.jpg/960px-Grilled_chicken_breast%2C_Santo_Domingo%2C_La_Palma.jpg"
+        },
+        {
+          "name": "Pollo en Salsa de Champinones",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Milanesa de Pollo",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo a la Pizzarola",
+          "base_price": 23,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Alitas",
+      "products": [
+        {
+          "name": "Alitas 6 piezas",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Alitas 8 piezas",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Alitas 10 piezas",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "name": "Broaster",
+      "products": [
+        {
+          "name": "1/4 de Pollo Broaster",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Swiss_Chalet_Festive_Meal_-_Quarter_Chicken%2C_French_Fries%2C_Dinner_Roll%2C_Butter%2C_Cranberry_Sauce%2C_Stuffing%2C_Dipping_Sauce_-_December_2022.jpg/960px-Swiss_Chalet_Festive_Meal_-_Quarter_Chicken%2C_French_Fries%2C_Dinner_Roll%2C_Butter%2C_Cranberry_Sauce%2C_Stuffing%2C_Dipping_Sauce_-_December_2022.jpg"
+        },
+        {
+          "name": "Pollo Broaster a lo Ccarhuarrazu",
+          "base_price": 23,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "name": "Pollo a la Lena",
+      "products": [
+        {
+          "name": "1/4 de Pollo a la Lena",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "1/2 Pollo a la Lena",
+          "base_price": 24,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo Entero a la Lena",
+          "base_price": 48,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "1/4 Pollo a lo Ccarhuarrazu",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "1/4 de Pollo con Chorizo",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "1/4 de Pollo con Arroz Chaufa",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "1/4 de Pollo a lo Pobre",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "name": "Truchas y Parrillas",
+      "products": [
+        {
+          "name": "Trucha a la Parrilla",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Grilled_meat_and_fish.jpg/960px-Grilled_meat_and_fish.jpg"
+        },
+        {
+          "name": "Trucha Frita",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        },
+        {
+          "name": "Trucha al Ajo",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        },
+        {
+          "name": "Trucha al Limon",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        },
+        {
+          "name": "Anticuchos de Corazon",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Anticucho_del_Per%C3%BA.JPG/960px-Anticucho_del_Per%C3%BA.JPG"
+        },
+        {
+          "name": "Brocheta de Lomo Fino",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Tenderloin_hot_plate%2C_Steak_Moen-Moen%2C_Lt_2%2C_BG_Junction%2C_2025_%2801%29.jpg/960px-Tenderloin_hot_plate%2C_Steak_Moen-Moen%2C_Lt_2%2C_BG_Junction%2C_2025_%2801%29.jpg"
+        },
+        {
+          "name": "Brocheta de Pollo",
+          "base_price": 23,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "name": "Salchipapas",
+      "products": [
+        {
+          "name": "Choripapa",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Alan_Moore_%282%29.jpg/960px-Alan_Moore_%282%29.jpg"
+        },
+        {
+          "name": "Salchipapa Clasica",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg/960px-Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg"
+        },
+        {
+          "name": "Salchipapa Montada",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        }
+      ],
+      "sort_order": 6
+    },
+    {
+      "name": "Saltados y Chaufas",
+      "products": [
+        {
+          "name": "Saltado Especial",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Meat_stir-fry_dish_at_a_Tibetan_restaurant.jpg/960px-Meat_stir-fry_dish_at_a_Tibetan_restaurant.jpg"
+        },
+        {
+          "name": "Saltado de Pollo",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Tallarin Saltado de Pollo",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Tallarin Saltado de Lomo Fino",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Tenderloin_hot_plate%2C_Steak_Moen-Moen%2C_Lt_2%2C_BG_Junction%2C_2025_%2801%29.jpg/960px-Tenderloin_hot_plate%2C_Steak_Moen-Moen%2C_Lt_2%2C_BG_Junction%2C_2025_%2801%29.jpg"
+        },
+        {
+          "name": "Arroz Chaufa de Pollo",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Arroz Chaufa con Alitas",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Arroz Chaufa Especial",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        }
+      ],
+      "sort_order": 7
+    }
+  ]
+}

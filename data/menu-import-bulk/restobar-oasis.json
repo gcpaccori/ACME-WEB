@@ -1,0 +1,926 @@
+{
+  "slug": "restobar-oasis",
+  "source_pdf": "data/RESTOBAR OASIS 5.00 PM A 11.50 PM.pdf",
+  "source_hours_label": "5.00 PM A 11.50 PM",
+  "merchant": {
+    "trade_name": "Restobar Oasis"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "assumptions": [
+      "Algunas bebidas se cargaron como version copa y jarra separadas."
+    ]
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Salchipapas",
+      "products": [
+        {
+          "name": "Salchipapa Clasica",
+          "base_price": 14.9,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg/960px-Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg"
+        },
+        {
+          "name": "Salchipapa BBQ",
+          "base_price": 15.9,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg/960px-Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg"
+        },
+        {
+          "name": "Salchipapa Montada",
+          "base_price": 17.9,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        },
+        {
+          "name": "Salchibroaster",
+          "base_price": 17.9,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/HK_food_Crispy_Deep_Fried_Chicken.JPG/960px-HK_food_Crispy_Deep_Fried_Chicken.JPG"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Hamburguesas",
+      "products": [
+        {
+          "name": "Hamburguesa Clasica",
+          "base_price": 13.9,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa Hawaiana",
+          "base_price": 14.9,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa Campesina",
+          "base_price": 16.9,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Salchipollo",
+      "products": [
+        {
+          "name": "Salchipollo Simple",
+          "base_price": 16.9,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Salchipollo Montada",
+          "base_price": 18.9,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "name": "Pollos",
+      "products": [
+        {
+          "name": "Nuggets de Pollo",
+          "base_price": 17.9,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo a la Pizzarola",
+          "base_price": 19.9,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Broaster de Piernitas",
+          "base_price": 16.9,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Crispy_Fried_Chicken_Drumsticks_Leg_Piece.jpg/960px-Crispy_Fried_Chicken_Drumsticks_Leg_Piece.jpg"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "name": "Alitas",
+      "products": [
+        {
+          "name": "Acevichadas",
+          "base_price": 17.9,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Buffalo_Burgers_Buffalo_Chicken_Wings_%2836082467922%29.jpg/960px-Buffalo_Burgers_Buffalo_Chicken_Wings_%2836082467922%29.jpg"
+        },
+        {
+          "name": "En Salsa BBQ",
+          "base_price": 17.9,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Buffalo_Burgers_Buffalo_Chicken_Wings_%2836082467922%29.jpg/960px-Buffalo_Burgers_Buffalo_Chicken_Wings_%2836082467922%29.jpg"
+        },
+        {
+          "name": "En Salsa Picante",
+          "base_price": 17.9,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Buffalo_Burgers_Buffalo_Chicken_Wings_%2836082467922%29.jpg/960px-Buffalo_Burgers_Buffalo_Chicken_Wings_%2836082467922%29.jpg"
+        },
+        {
+          "name": "En Salsa de Maracuya",
+          "base_price": 17.9,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Buffalo_Burgers_Buffalo_Chicken_Wings_%2836082467922%29.jpg/960px-Buffalo_Burgers_Buffalo_Chicken_Wings_%2836082467922%29.jpg"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "name": "Piernitas",
+      "products": [
+        {
+          "name": "Piernitas en Salsa BBQ",
+          "base_price": 16.9,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Piernitas en Salsa Picante",
+          "base_price": 16.9,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Piernitas en Salsa Maracuya",
+          "base_price": 16.9,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Piernitas en Salsa Oriental",
+          "base_price": 16.9,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "name": "Piqueos",
+      "products": [
+        {
+          "name": "Piqueo Oasis",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Sendvi%C4%8Dov%C3%BD_party_platter_SUBWAY%C2%AE.jpg/960px-Sendvi%C4%8Dov%C3%BD_party_platter_SUBWAY%C2%AE.jpg"
+        },
+        {
+          "name": "Lluvia de Alitas x16",
+          "base_price": 45,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 6
+    },
+    {
+      "name": "Anticuchos",
+      "products": [
+        {
+          "name": "Anticucho x2 palitos",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Anticucho_del_Per%C3%BA.JPG/960px-Anticucho_del_Per%C3%BA.JPG"
+        },
+        {
+          "name": "Anticucho x1 y alitas x3",
+          "base_price": 17.9,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 7
+    },
+    {
+      "name": "Bebidas",
+      "products": [
+        {
+          "name": "Mate Oasis",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Infusiones jarrita",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Cafe",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        },
+        {
+          "name": "Limonada",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Common_alcoholic_beverages.jpg/960px-Common_alcoholic_beverages.jpg"
+        },
+        {
+          "name": "Naranjada",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Common_alcoholic_beverages.jpg/960px-Common_alcoholic_beverages.jpg"
+        },
+        {
+          "name": "Maracuya",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Common_alcoholic_beverages.jpg/960px-Common_alcoholic_beverages.jpg"
+        },
+        {
+          "name": "Coca Cola o Inka Cola",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Coca_Cola_-_Mexican_death_sentence.jpg/960px-Coca_Cola_-_Mexican_death_sentence.jpg"
+        },
+        {
+          "name": "Agua Mineral",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Home_water_filters%2C_water_purifiers%2C_and_bottled_water_in_India.jpg/960px-Home_water_filters%2C_water_purifiers%2C_and_bottled_water_in_India.jpg"
+        }
+      ],
+      "sort_order": 8
+    },
+    {
+      "name": "Naranjitas",
+      "products": [
+        {
+          "name": "Naranjita especial con miel y polen Copa",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/MargaritaReal.jpg/960px-MargaritaReal.jpg"
+        },
+        {
+          "name": "Naranjita especial con miel y polen Jarra",
+          "base_price": 38,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/MargaritaReal.jpg/960px-MargaritaReal.jpg"
+        },
+        {
+          "name": "Naranjita de Pisco 4 Gallos Copa",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/MargaritaReal.jpg/960px-MargaritaReal.jpg"
+        },
+        {
+          "name": "Naranjita de Pisco 4 Gallos Jarra",
+          "base_price": 48,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/MargaritaReal.jpg/960px-MargaritaReal.jpg"
+        },
+        {
+          "name": "Naranjita de whiskey Jack Daniels Honey Copa",
+          "base_price": 21,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/MargaritaReal.jpg/960px-MargaritaReal.jpg"
+        },
+        {
+          "name": "Naranjita de whiskey Jack Daniels Honey Jarra",
+          "base_price": 65,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/MargaritaReal.jpg/960px-MargaritaReal.jpg"
+        }
+      ],
+      "sort_order": 9
+    },
+    {
+      "name": "Abrigadores",
+      "products": [
+        {
+          "name": "Menta Copa",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Menta Jarra",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Manzana Copa",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Manzana Jarra",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Maracuya Copa",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Maracuya Jarra",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Cielo Azul Copa",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Cielo Azul Jarra",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Cafe Copa",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        },
+        {
+          "name": "Cafe Jarra",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        },
+        {
+          "name": "Almendras Copa",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 10,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Almendras Jarra",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 11,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Anis Najar Copa",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 12,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Anis Najar Jarra",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 13,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Cartavio Black Copa",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 14,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Cartavio Black Jarra",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 15,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Whisky Old Times Copa",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 16,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Whisky Old Times Jarra",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 17,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Sol de Ica Copa",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 18,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Sol de Ica Jarra",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 19,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Vodka Copa",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 20,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Vodka Jarra",
+          "base_price": 32,
+          "description": "",
+          "sort_order": 21,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "4 Gallos Copa",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 22,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "4 Gallos Jarra",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 23,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Flor de Cana Copa",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 24,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Flor de Cana Jarra",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 25,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Tequila Jose Cuervo Copa",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 26,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Tequila Jose Cuervo Jarra",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 27,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Jagermeister Copa",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 28,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Jagermeister Jarra",
+          "base_price": 38,
+          "description": "",
+          "sort_order": 29,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Whiskey Jack Daniels Copa",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 30,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        },
+        {
+          "name": "Whiskey Jack Daniels Jarra",
+          "base_price": 50,
+          "description": "",
+          "sort_order": 31,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Chartreuse_Elixir_vegetal1_08.jpg/960px-Chartreuse_Elixir_vegetal1_08.jpg"
+        }
+      ],
+      "sort_order": 10
+    },
+    {
+      "name": "Cervezas",
+      "products": [
+        {
+          "name": "Corona",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/04/Corona_Extra_beer_bottle_%282019%29.png"
+        },
+        {
+          "name": "Heineken",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/CreativeTools.se_-_PackshotCreator_-_Heineken_beer_bottle_v01_%284290167332%29.jpg/960px-CreativeTools.se_-_PackshotCreator_-_Heineken_beer_bottle_v01_%284290167332%29.jpg"
+        },
+        {
+          "name": "Pilsen 630ml",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Beer_bottles_2018_G1.jpg/960px-Beer_bottles_2018_G1.jpg"
+        },
+        {
+          "name": "Cusquena 620ml",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Beer_bottles_2018_G1.jpg/960px-Beer_bottles_2018_G1.jpg"
+        }
+      ],
+      "sort_order": 11
+    },
+    {
+      "name": "Cocteles",
+      "products": [
+        {
+          "name": "Mojito Copa",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Mojito_Cocktail_Drawing_Icon.svg/960px-Mojito_Cocktail_Drawing_Icon.svg.png"
+        },
+        {
+          "name": "Mojito Jarra",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Mojito_Cocktail_Drawing_Icon.svg/960px-Mojito_Cocktail_Drawing_Icon.svg.png"
+        },
+        {
+          "name": "Destornillador Copa",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Screwdriver%2C_Birmingham-Shuttlesworth_International_Airport%2C_Birmingham_AL.jpg/960px-Screwdriver%2C_Birmingham-Shuttlesworth_International_Airport%2C_Birmingham_AL.jpg"
+        },
+        {
+          "name": "Destornillador Jarra",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Screwdriver%2C_Birmingham-Shuttlesworth_International_Airport%2C_Birmingham_AL.jpg/960px-Screwdriver%2C_Birmingham-Shuttlesworth_International_Airport%2C_Birmingham_AL.jpg"
+        },
+        {
+          "name": "Cuba Libre Copa",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Cuba_Libre.jpg/960px-Cuba_Libre.jpg"
+        },
+        {
+          "name": "Cuba Libre Jarra",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Cuba_Libre.jpg/960px-Cuba_Libre.jpg"
+        },
+        {
+          "name": "Chilcano Clasico Copa",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/15-09-26-RalfR-WLC-0059.jpg/960px-15-09-26-RalfR-WLC-0059.jpg"
+        },
+        {
+          "name": "Chilcano Clasico Jarra",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/15-09-26-RalfR-WLC-0059.jpg/960px-15-09-26-RalfR-WLC-0059.jpg"
+        },
+        {
+          "name": "Laguna Azul Copa",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/China_Blue_cocktail.jpg"
+        },
+        {
+          "name": "Laguna Azul Jarra",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/China_Blue_cocktail.jpg"
+        },
+        {
+          "name": "Apple Martini Copa",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 10,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Martini_on_tree%2C_National_Fruit_Collection_%28acc._1951-193%29.jpg"
+        },
+        {
+          "name": "Apple Martini Jarra",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 11,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Martini_on_tree%2C_National_Fruit_Collection_%28acc._1951-193%29.jpg"
+        },
+        {
+          "name": "Daiquiri",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 12,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/57/Daiquiri%2C_Floridita_bar%2C_Havana%2C_Cuba.jpg"
+        },
+        {
+          "name": "Machu Picchu",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 13,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/15-09-26-RalfR-WLC-0059.jpg/960px-15-09-26-RalfR-WLC-0059.jpg"
+        },
+        {
+          "name": "Pisco Sour",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 14,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Pisco_sour_20100613b.JPG/960px-Pisco_sour_20100613b.JPG"
+        },
+        {
+          "name": "Whisky Sour",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 15,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Free_whisky_sour_at_Dubrovnik.jpg/960px-Free_whisky_sour_at_Dubrovnik.jpg"
+        },
+        {
+          "name": "Pina Colada Copa",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 16,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Pi%C3%B1a_Colada.jpg"
+        },
+        {
+          "name": "Pina Colada Jarra",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 17,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Pi%C3%B1a_Colada.jpg"
+        },
+        {
+          "name": "Tequila Sunrise",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 18,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/97/Tequila_Sunrise_%285084102035%29.jpg"
+        }
+      ],
+      "sort_order": 12
+    },
+    {
+      "name": "Combos",
+      "products": [
+        {
+          "name": "Old Times Black + Guarana Litro",
+          "base_price": 90,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/The_Amazon_and_Madeira_Rivers_-_sketches_and_descriptions_from_the_note-book_of_an_explorer.pdf/page1-960px-The_Amazon_and_Madeira_Rivers_-_sketches_and_descriptions_from_the_note-book_of_an_explorer.pdf.jpg"
+        },
+        {
+          "name": "Red Label + Guarana Litro",
+          "base_price": 120,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Consumo_de_suplementos_proteicos_e_express%C3%A3o_da_raiva_em_praticantes_de_muscula%C3%A7%C3%A3o%2C_Journal_of_Physical_Education_%2813166%29.pdf/page1-960px-Consumo_de_suplementos_proteicos_e_express%C3%A3o_da_raiva_em_praticantes_de_muscula%C3%A7%C3%A3o%2C_Journal_of_Physical_Education_%2813166%29.pdf.jpg"
+        },
+        {
+          "name": "Tequila Jose Cuervo + Limon y Sal",
+          "base_price": 130,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Egyptian_food_Koshary.jpg/960px-Egyptian_food_Koshary.jpg"
+        },
+        {
+          "name": "Flor de Cana 5 Anos + Coca Cola",
+          "base_price": 130,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Coca_Cola_-_Mexican_death_sentence.jpg/960px-Coca_Cola_-_Mexican_death_sentence.jpg"
+        },
+        {
+          "name": "Jagermeister + Hielo",
+          "base_price": 140,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Egyptian_food_Koshary.jpg/960px-Egyptian_food_Koshary.jpg"
+        },
+        {
+          "name": "Whisky Jack Daniels + Hielo",
+          "base_price": 180,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Egyptian_food_Koshary.jpg/960px-Egyptian_food_Koshary.jpg"
+        }
+      ],
+      "sort_order": 13
+    },
+    {
+      "name": "Vinos",
+      "products": [
+        {
+          "name": "Queirolo Rose",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Wine_glass5275.jpg/960px-Wine_glass5275.jpg"
+        },
+        {
+          "name": "Tacama",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Wine_glass5275.jpg/960px-Wine_glass5275.jpg"
+        }
+      ],
+      "sort_order": 14
+    }
+  ]
+}

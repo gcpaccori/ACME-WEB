@@ -18,6 +18,22 @@ function nullableString(value: string | null | undefined) {
   return normalized.length > 0 ? normalized : null;
 }
 
+function uniqueStrings(values: string[]) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function normalizeCode(value: unknown) {
+  return stringOrEmpty(value).trim().toLowerCase();
+}
+
+function hasPlatformOperatorRole(params: { roleAssignments: PortalRoleAssignment[]; profile: UserProfile | null }) {
+  if (['admin', 'super_admin'].includes(normalizeCode(params.profile?.default_role))) {
+    return true;
+  }
+
+  return params.roleAssignments.some((assignment) => ['admin', 'super_admin'].includes(normalizeCode(assignment.code)));
+}
+
 function isMissingRelationError(error: { message?: string } | null | undefined, relationName: string) {
   const message = String(error?.message ?? '').toLowerCase();
   return message.includes(relationName.toLowerCase()) && (message.includes('does not exist') || message.includes('relation') || message.includes('schema cache'));
@@ -178,10 +194,11 @@ export const authService = {
     const isOnboardingBlocked = ['pending_review', 'suspended'].includes(stringOrEmpty(accessControl?.onboarding_status).toLowerCase());
     const isAccountActive = Boolean(profile?.is_active ?? true) && Boolean(accessControl?.is_active ?? true) && !isOnboardingBlocked;
     const mustChangePassword = Boolean(accessControl?.must_change_password ?? false);
+    const platformOperator = hasPlatformOperatorRole({ roleAssignments, profile });
 
     const staffRows = Array.isArray(staffAssignmentsResult.data) ? (staffAssignmentsResult.data as any[]) : [];
 
-    if (staffRows.length === 0) {
+    if (staffRows.length === 0 && !platformOperator) {
       return {
         profile,
         roleAssignments,
@@ -196,15 +213,32 @@ export const authService = {
         mustChangePassword,
       };
     }
-    const merchantIds = Array.from(new Set(staffRows.map((row) => stringOrEmpty(row?.merchant_id)).filter(Boolean)));
+    const staffMerchantIds = Array.from(new Set(staffRows.map((row) => stringOrEmpty(row?.merchant_id)).filter(Boolean)));
     const staffIds = Array.from(new Set(staffRows.map((row) => stringOrEmpty(row?.id)).filter(Boolean)));
 
-    const [merchantsResult, branchRelationsResult] = await Promise.all([
+    const allMerchantsResult = platformOperator
+      ? await supabase.from('merchants').select('*').order('trade_name', { ascending: true })
+      : ({ data: [], error: null } as any);
+
+    if (allMerchantsResult.error) {
+      return { error: allMerchantsResult.error };
+    }
+
+    const allMerchantRows = Array.isArray(allMerchantsResult.data) ? (allMerchantsResult.data as any[]) : [];
+    const merchantIds = uniqueStrings([
+      ...staffMerchantIds,
+      ...(platformOperator ? allMerchantRows.map((row) => stringOrEmpty(row?.id)) : []),
+    ]);
+
+    const [merchantsResult, branchRelationsResult, branchesResult] = await Promise.all([
       merchantIds.length > 0
         ? supabase.from('merchants').select('*').in('id', merchantIds)
         : Promise.resolve({ data: [], error: null } as any),
       staffIds.length > 0
         ? supabase.from('merchant_staff_branches').select('*').in('merchant_staff_id', staffIds)
+        : Promise.resolve({ data: [], error: null } as any),
+      merchantIds.length > 0
+        ? supabase.from('merchant_branches').select('*').in('merchant_id', merchantIds)
         : Promise.resolve({ data: [], error: null } as any),
     ]);
 
@@ -213,6 +247,9 @@ export const authService = {
     }
     if (branchRelationsResult.error) {
       return { error: branchRelationsResult.error };
+    }
+    if (branchesResult.error) {
+      return { error: branchesResult.error };
     }
 
     const merchantMap = new Map<string, Merchant>(
@@ -228,18 +265,10 @@ export const authService = {
     );
 
     const branchRelationRows = Array.isArray(branchRelationsResult.data) ? (branchRelationsResult.data as any[]) : [];
-    const branchIds = Array.from(new Set(branchRelationRows.map((row) => stringOrEmpty(row?.branch_id)).filter(Boolean)));
-    const branchesResult =
-      branchIds.length > 0
-        ? await supabase.from('merchant_branches').select('*').in('id', branchIds)
-        : ({ data: [], error: null } as any);
-
-    if (branchesResult.error) {
-      return { error: branchesResult.error };
-    }
+    const merchantBranchRows = Array.isArray(branchesResult.data) ? (branchesResult.data as any[]) : [];
 
     const branchMap = new Map<string, MerchantBranch>(
-      ((branchesResult.data ?? []) as any[]).map((row) => [
+      merchantBranchRows.map((row) => [
         stringOrEmpty(row.id),
         {
           id: row.id,
@@ -252,6 +281,15 @@ export const authService = {
         } satisfies MerchantBranch,
       ])
     );
+    const merchantBranchesMap = new Map<string, MerchantBranch[]>();
+    merchantBranchRows.forEach((row) => {
+      const merchantId = stringOrEmpty(row.merchant_id);
+      const branch = branchMap.get(stringOrEmpty(row.id));
+      if (!merchantId || !branch) return;
+      const current = merchantBranchesMap.get(merchantId) ?? [];
+      current.push(branch);
+      merchantBranchesMap.set(merchantId, current);
+    });
 
     const businessAssignments: PortalBusinessAssignment[] = staffRows
       .map((staffRow: any) => {
@@ -269,11 +307,26 @@ export const authService = {
         };
 
         const relations = branchRelationRows.filter((row) => stringOrEmpty(row.merchant_staff_id) === staffAssignment.id);
-        const primaryBranchId = relations.find((row) => Boolean(row.is_primary))?.branch_id
-          ? stringOrEmpty(relations.find((row) => Boolean(row.is_primary))?.branch_id)
-          : null;
-        const branches = relations
-          .map((row) => branchMap.get(stringOrEmpty(row.branch_id)))
+        const merchantBranches = merchantBranchesMap.get(staffAssignment.merchant_id) ?? [];
+        const staffRoleCode = stringOrEmpty(staffRow.role ?? staffRow.staff_role).trim().toLowerCase();
+        const relationBranchIds = uniqueStrings([
+          ...relations.map((row) => stringOrEmpty(row.branch_id)),
+          stringOrEmpty(staffRow.branch_id),
+        ]).filter((branchId) => merchantBranches.some((branch) => branch.id === branchId));
+        const resolvedBranchIds =
+          relationBranchIds.length > 0
+            ? relationBranchIds
+            : staffRoleCode === 'owner' || staffRoleCode === 'manager'
+              ? merchantBranches.map((branch) => branch.id)
+              : [];
+        const requestedPrimaryBranchId =
+          stringOrEmpty(relations.find((row) => Boolean(row.is_primary))?.branch_id) ||
+          stringOrEmpty(staffRow.branch_id);
+        const primaryBranchId = resolvedBranchIds.includes(requestedPrimaryBranchId)
+          ? requestedPrimaryBranchId
+          : resolvedBranchIds[0] ?? null;
+        const branches = resolvedBranchIds
+          .map((branchId) => branchMap.get(branchId))
           .filter(Boolean) as MerchantBranch[];
 
         return {
@@ -284,6 +337,38 @@ export const authService = {
         } satisfies PortalBusinessAssignment;
       })
       .filter(Boolean) as PortalBusinessAssignment[];
+
+    if (platformOperator) {
+      const existingMerchantIds = new Set(businessAssignments.map((assignment) => assignment.merchant.id));
+
+      allMerchantRows.forEach((merchantRow) => {
+        const merchantId = stringOrEmpty(merchantRow?.id);
+        if (!merchantId || existingMerchantIds.has(merchantId)) {
+          return;
+        }
+
+        const merchant = merchantMap.get(merchantId);
+        if (!merchant) {
+          return;
+        }
+
+        const branches = merchantBranchesMap.get(merchantId) ?? [];
+        businessAssignments.push({
+          merchant,
+          staffAssignment: {
+            id: `platform:${merchantId}`,
+            user_id: userId,
+            merchant_id: merchantId,
+            role: 'manager',
+            merchant,
+          },
+          branches,
+          primaryBranchId: branches[0]?.id ?? null,
+        });
+      });
+    }
+
+    businessAssignments.sort((left, right) => left.merchant.name.localeCompare(right.merchant.name));
 
     const currentAssignment = businessAssignments[0] ?? null;
     const currentBranch =

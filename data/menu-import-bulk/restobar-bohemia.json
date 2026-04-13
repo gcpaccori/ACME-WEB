@@ -1,0 +1,769 @@
+{
+  "slug": "restobar-bohemia",
+  "source_pdf": "data/RESTOBAR BOHEMIA 6.00 PM A 11.50 PM.pdf",
+  "source_hours_label": "5.00 PM A 12.00 AM",
+  "merchant": {
+    "trade_name": "Restobar Bohemia"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3,
+      4
+    ],
+    "assumptions": [
+      "Las variantes natural/frozen/tiempo se redujeron a una sola linea por bebida cuando el OCR no fue consistente."
+    ]
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Broastery y Otros",
+      "products": [
+        {
+          "name": "1/4 de Pollo Broaster",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Large_Trop_Box%2C_Red_Rooster_Carousel_FC%2C_2025_%2802%29.jpg/960px-Large_Trop_Box%2C_Red_Rooster_Carousel_FC%2C_2025_%2802%29.jpg"
+        },
+        {
+          "name": "Piernitas Broaster 2 unidades",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/HK_food_Crispy_Deep_Fried_Chicken.JPG/960px-HK_food_Crispy_Deep_Fried_Chicken.JPG"
+        },
+        {
+          "name": "Piernitas Broaster 4 unidades",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/HK_food_Crispy_Deep_Fried_Chicken.JPG/960px-HK_food_Crispy_Deep_Fried_Chicken.JPG"
+        },
+        {
+          "name": "Alitas Broaster 4 unidades",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/French_fries_and_fried_chicken_wings%2C_Everything_with_Fries%2C_Holland_Village%2C_Singapore_-_20121021.jpg/960px-French_fries_and_fried_chicken_wings%2C_Everything_with_Fries%2C_Holland_Village%2C_Singapore_-_20121021.jpg"
+        },
+        {
+          "name": "Alitas Broaster 6 unidades",
+          "base_price": 21,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Home-Made-Fried-Chicken-Wings-2008.jpg/960px-Home-Made-Fried-Chicken-Wings-2008.jpg"
+        },
+        {
+          "name": "Chicharron de Pollo",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Salchibroaster",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/HK_food_Crispy_Deep_Fried_Chicken.JPG/960px-HK_food_Crispy_Deep_Fried_Chicken.JPG"
+        },
+        {
+          "name": "Pollo a la Plancha",
+          "base_price": 19,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo a la Pizzarola",
+          "base_price": 24,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Alitas",
+      "products": [
+        {
+          "name": "Alitas Acevichadas",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Alitas BBQ",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Alitas Picantes",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Alitas de Maracuya",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Alitas de Aguaymanto",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Alitas a la Pizzarola",
+          "base_price": 24,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Alitas Moradas",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Salchipapas",
+      "products": [
+        {
+          "name": "Salchipapa Clasica",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg/960px-Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg"
+        },
+        {
+          "name": "Salchihuevo",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        },
+        {
+          "name": "Salchichorizo",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Salchimix",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Salchipapa a lo Pobre",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        },
+        {
+          "name": "Salchipapa Bohemia",
+          "base_price": 24,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg/960px-Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "name": "Hamburguesas",
+      "products": [
+        {
+          "name": "Hamburguesa Bohemia",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa Clasica",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa Choriburguer",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa Royal",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa a lo Pobre",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa Royal Doble",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa Chorihuevo",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa Doble",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa Hawaiana",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "name": "Shawarma",
+      "products": [
+        {
+          "name": "Shawarma Simple",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Shawarma_closeup.png"
+        },
+        {
+          "name": "Shawarma Tartaros",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Shawarma_closeup.png"
+        },
+        {
+          "name": "Shawarma Bohemia",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Shawarma_closeup.png"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "name": "Pizzas",
+      "products": [
+        {
+          "name": "Suprema Personal",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Suprema Mediana",
+          "base_price": 39,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Suprema Familiar",
+          "base_price": 49,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Hawaiana Personal",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Hawaiana Mediana",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Hawaiana Familiar",
+          "base_price": 45,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Margarita Personal",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Margarita Mediana",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Margarita Familiar",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Criolla Personal",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Criolla Mediana",
+          "base_price": 39,
+          "description": "",
+          "sort_order": 10,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Criolla Familiar",
+          "base_price": 49,
+          "description": "",
+          "sort_order": 11,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Vegetariana Personal",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 12,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Vegetariana Mediana",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 13,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Vegetariana Familiar",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 14,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "4 Quesos Personal",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 15,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "4 Quesos Mediana",
+          "base_price": 39,
+          "description": "",
+          "sort_order": 16,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "4 Quesos Familiar",
+          "base_price": 49,
+          "description": "",
+          "sort_order": 17,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Italiana Personal",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 18,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Italiana Mediana",
+          "base_price": 29,
+          "description": "",
+          "sort_order": 19,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Italiana Familiar",
+          "base_price": 39,
+          "description": "",
+          "sort_order": 20,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Carnivora Personal",
+          "base_price": 24,
+          "description": "",
+          "sort_order": 21,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Carnivora Mediana",
+          "base_price": 38,
+          "description": "",
+          "sort_order": 22,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Carnivora Familiar",
+          "base_price": 48,
+          "description": "",
+          "sort_order": 23,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Pepperoni Personal",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 24,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Pepperoni Mediana",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 25,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Pepperoni Familiar",
+          "base_price": 45,
+          "description": "",
+          "sort_order": 26,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Tartaros Personal",
+          "base_price": 24,
+          "description": "",
+          "sort_order": 27,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Tartaros Mediana",
+          "base_price": 38,
+          "description": "",
+          "sort_order": 28,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Tartaros Familiar",
+          "base_price": 48,
+          "description": "",
+          "sort_order": 29,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Bohemia Personal",
+          "base_price": 24,
+          "description": "",
+          "sort_order": 30,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Bohemia Mediana",
+          "base_price": 38,
+          "description": "",
+          "sort_order": 31,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Bohemia Familiar",
+          "base_price": 48,
+          "description": "",
+          "sort_order": 32,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Americana Personal",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 33,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Americana Mediana",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 34,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Americana Familiar",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 35,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "name": "Pan al Ajo",
+      "products": [
+        {
+          "name": "Pan al Ajo",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Pan_al_ajo..jpg/960px-Pan_al_ajo..jpg"
+        },
+        {
+          "name": "Pan al Ajo con Queso Mozzarella",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Pizza_de_anan%C3%A1%2C_r%C3%BAcula_%28ar%C3%BAgula%29%2C_jam%C3%B3n%2C_queso_mozzarella_y_huevos_hervidos%2C_con_salsa_de_tomate%2C_ajo_y_cebolla_%28al_horno%29.jpg/960px-Pizza_de_anan%C3%A1%2C_r%C3%BAcula_%28ar%C3%BAgula%29%2C_jam%C3%B3n%2C_queso_mozzarella_y_huevos_hervidos%2C_con_salsa_de_tomate%2C_ajo_y_cebolla_%28al_horno%29.jpg"
+        },
+        {
+          "name": "Pan al Ajo con Queso Mozzarella y Salsa de Tomate",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Pizza_de_anan%C3%A1%2C_r%C3%BAcula_%28ar%C3%BAgula%29%2C_jam%C3%B3n%2C_queso_mozzarella_y_huevos_hervidos%2C_con_salsa_de_tomate%2C_ajo_y_cebolla_%28al_horno%29.jpg/960px-Pizza_de_anan%C3%A1%2C_r%C3%BAcula_%28ar%C3%BAgula%29%2C_jam%C3%B3n%2C_queso_mozzarella_y_huevos_hervidos%2C_con_salsa_de_tomate%2C_ajo_y_cebolla_%28al_horno%29.jpg"
+        },
+        {
+          "name": "Pan al Ajo con Queso Mozzarella y Tocino",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Consuma_una_alimentaci%C3%B3n_saludable%2C_mant%C3%A9ngase_activo_talleres_comunitarios_%28IA_CAT31323090%29.pdf/page1-960px-Consuma_una_alimentaci%C3%B3n_saludable%2C_mant%C3%A9ngase_activo_talleres_comunitarios_%28IA_CAT31323090%29.pdf.jpg"
+        },
+        {
+          "name": "Pan al Ajo Tartaros",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        }
+      ],
+      "sort_order": 6
+    },
+    {
+      "name": "Gaseosas",
+      "products": [
+        {
+          "name": "Coca Cola 1.5L",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Coca_Cola_-_Mexican_death_sentence.jpg/960px-Coca_Cola_-_Mexican_death_sentence.jpg"
+        },
+        {
+          "name": "Inca Cola 1.5L",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/IncaKolaBottleGlass.jpg/960px-IncaKolaBottleGlass.jpg"
+        },
+        {
+          "name": "Coca Cola 600ml",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Coca_Cola_-_Mexican_death_sentence.jpg/960px-Coca_Cola_-_Mexican_death_sentence.jpg"
+        },
+        {
+          "name": "Inca Cola 600ml",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/IncaKolaBottleGlass.jpg/960px-IncaKolaBottleGlass.jpg"
+        },
+        {
+          "name": "Ginger Evervess 1.5L",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Blenheim_Logo.jpg"
+        }
+      ],
+      "sort_order": 7
+    },
+    {
+      "name": "Bebidas Naturales",
+      "products": [
+        {
+          "name": "Limonada",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flaming_cocktails.jpg/960px-Flaming_cocktails.jpg"
+        },
+        {
+          "name": "Maracuya",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flaming_cocktails.jpg/960px-Flaming_cocktails.jpg"
+        },
+        {
+          "name": "Guindon",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flaming_cocktails.jpg/960px-Flaming_cocktails.jpg"
+        },
+        {
+          "name": "Naranjada",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flaming_cocktails.jpg/960px-Flaming_cocktails.jpg"
+        },
+        {
+          "name": "Jamaica",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flaming_cocktails.jpg/960px-Flaming_cocktails.jpg"
+        },
+        {
+          "name": "Aguaymanto",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flaming_cocktails.jpg/960px-Flaming_cocktails.jpg"
+        }
+      ],
+      "sort_order": 8
+    }
+  ]
+}

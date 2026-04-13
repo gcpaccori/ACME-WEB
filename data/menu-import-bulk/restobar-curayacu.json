@@ -1,0 +1,279 @@
+{
+  "slug": "restobar-curayacu",
+  "source_pdf": "data/RESTOBAR CURAYACU 6.00 PM A 11.50 PM.pdf",
+  "source_hours_label": "6.00 PM A 11.50 PM",
+  "merchant": {
+    "trade_name": "Restobar Curayacu"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "assumptions": []
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Pollos",
+      "products": [
+        {
+          "name": "Pollo a la Plancha",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo a la Pizzarolla",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Salchipapas",
+      "products": [
+        {
+          "name": "Clasica",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Alan_Moore_%282%29.jpg/960px-Alan_Moore_%282%29.jpg"
+        },
+        {
+          "name": "Choripapa",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Alan_Moore_%282%29.jpg/960px-Alan_Moore_%282%29.jpg"
+        },
+        {
+          "name": "Salchihuevo",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        },
+        {
+          "name": "Salchimix",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Salchipobre",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        },
+        {
+          "name": "Salchitiki",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Especiales",
+      "products": [
+        {
+          "name": "Salchihamburguesa",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Salchiron",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Combo Coctelero",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Succulent_Beef_Slices_with_Creamy_Mustard_Sauce.jpg/960px-Succulent_Beef_Slices_with_Creamy_Mustard_Sauce.jpg"
+        },
+        {
+          "name": "Salchialitas",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "name": "Alitas",
+      "products": [
+        {
+          "name": "Alitas a la Pizzarola",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Alitas Broaster",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Chicken_wings_meal_at_Siipiweikot.jpg/960px-Chicken_wings_meal_at_Siipiweikot.jpg"
+        },
+        {
+          "name": "Alitas sabor a eleccion",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "name": "Chicharrones",
+      "products": [
+        {
+          "name": "Chicharron de Pollo",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "name": "Broaster",
+      "products": [
+        {
+          "name": "1/4 de Pollo Broaster",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Large_Trop_Box%2C_Red_Rooster_Carousel_FC%2C_2025_%2802%29.jpg/960px-Large_Trop_Box%2C_Red_Rooster_Carousel_FC%2C_2025_%2802%29.jpg"
+        },
+        {
+          "name": "1/8 de Pollo Broaster",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Fried_Crispy_chicken.jpg/960px-Fried_Crispy_chicken.jpg"
+        },
+        {
+          "name": "Piernitas Broaster",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Crispy_Fried_Chicken_Drumsticks_Leg_Piece.jpg/960px-Crispy_Fried_Chicken_Drumsticks_Leg_Piece.jpg"
+        },
+        {
+          "name": "Salchibroaster",
+          "base_price": 19,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/HK_food_Crispy_Deep_Fried_Chicken.JPG/960px-HK_food_Crispy_Deep_Fried_Chicken.JPG"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "name": "Hamburguesas",
+      "products": [
+        {
+          "name": "La Jefa",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Big_Mac_hamburger.jpg/960px-Big_Mac_hamburger.jpg"
+        },
+        {
+          "name": "Houston",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Big_Mac_hamburger.jpg/960px-Big_Mac_hamburger.jpg"
+        },
+        {
+          "name": "Tiki",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "La Clasica",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Big_Mac_hamburger.jpg/960px-Big_Mac_hamburger.jpg"
+        },
+        {
+          "name": "Hawaiana Burger",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Big_Mac_hamburger.jpg/960px-Big_Mac_hamburger.jpg"
+        },
+        {
+          "name": "Gringo",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Big_Mac_hamburger.jpg/960px-Big_Mac_hamburger.jpg"
+        }
+      ],
+      "sort_order": 6
+    }
+  ]
+}

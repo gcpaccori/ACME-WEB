@@ -1,0 +1,656 @@
+{
+  "slug": "chifa-trencito-macho",
+  "source_pdf": "data/CHIFA TRENCITO MACHO 4.00 PM A 11.00 PM.pdf",
+  "source_hours_label": "4.00 PM A 11.00 PM",
+  "merchant": {
+    "trade_name": "Chifa Trencito Macho"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "assumptions": []
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Sopas",
+      "products": [
+        {
+          "name": "Sopa de Kion",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Asparagus_soup_%28spargelsuppe%29.jpg/960px-Asparagus_soup_%28spargelsuppe%29.jpg"
+        },
+        {
+          "name": "Sopa de Pollo",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Sopa Wantan",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Asparagus_soup_%28spargelsuppe%29.jpg/960px-Asparagus_soup_%28spargelsuppe%29.jpg"
+        },
+        {
+          "name": "Sopa Wantan especial",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Asparagus_soup_%28spargelsuppe%29.jpg/960px-Asparagus_soup_%28spargelsuppe%29.jpg"
+        },
+        {
+          "name": "Caldo de Gallina",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Asparagus_soup_%28spargelsuppe%29.jpg/960px-Asparagus_soup_%28spargelsuppe%29.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Chaufas",
+      "products": [
+        {
+          "name": "Chaufa de Pollo",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Chaufa de Res",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa de Chancho",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa de Langostino",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa de Champinones",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa 3 Sabores",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa de Cecina",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa de Chorizo",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Chaufa a lo tren macho",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Especiales",
+      "products": [
+        {
+          "name": "Chaufa con bisteck de pollo",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Chaufa con chicharron de pollo",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo con verduras",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo enrollado con champinones",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo Chi Jau Kay",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo enrollado con esparragos",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "name": "Agridulces",
+      "products": [
+        {
+          "name": "Pollo con pina",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo con durazno",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo con frutas",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo Limon Kay",
+          "base_price": 24,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo Ti Pa Kay",
+          "base_price": 26,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo Kam Lu Wantan",
+          "base_price": 26,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Chancho con frutas",
+          "base_price": 27,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Sweet_and_Sour_Chicken.JPG/960px-Sweet_and_Sour_Chicken.JPG"
+        },
+        {
+          "name": "Chancho con durazno",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Sweet_and_Sour_Chicken.JPG/960px-Sweet_and_Sour_Chicken.JPG"
+        },
+        {
+          "name": "Chancho con pina",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Sweet_and_Sour_Chicken.JPG/960px-Sweet_and_Sour_Chicken.JPG"
+        },
+        {
+          "name": "Pollo enrollado con frutas",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "name": "Guarniciones",
+      "products": [
+        {
+          "name": "Porcion de chaufa",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Arroz blanco",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Wantan frito 6 unidades",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Wantan frito 12 unidades",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Porcion de alitas 4 unidades",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "name": "Tortillas",
+      "products": [
+        {
+          "name": "Tortilla de verduras",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/FoodOmelete.jpg/960px-FoodOmelete.jpg"
+        },
+        {
+          "name": "Tortilla de pollo",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Tortilla de champinones",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/FoodOmelete.jpg/960px-FoodOmelete.jpg"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "name": "Aeropuerto",
+      "products": [
+        {
+          "name": "Aeropuerto",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Aeropuerto de Pollo",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Aeropuerto de Res",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Aeropuerto de Chancho",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Aeropuerto de Champinones",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Aeropuerto de Langostino",
+          "base_price": 28,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Aeropuerto 3 Sabores",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        }
+      ],
+      "sort_order": 6
+    },
+    {
+      "name": "Otros",
+      "products": [
+        {
+          "name": "Combinado",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa con Alitas",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Chaufa con Piernitas",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Lomo de Pollo con Chaufa de Pollo",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Lomo de Res con Chaufa de Pollo",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 7
+    },
+    {
+      "name": "Tallarines",
+      "products": [
+        {
+          "name": "Tallarin con Chancho",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/MIE_KERING_MAKASSAR.jpg/960px-MIE_KERING_MAKASSAR.jpg"
+        },
+        {
+          "name": "Tallarin con Pollo",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Tallarin con Res",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/MIE_KERING_MAKASSAR.jpg/960px-MIE_KERING_MAKASSAR.jpg"
+        },
+        {
+          "name": "Tallarin con Champinones",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/MIE_KERING_MAKASSAR.jpg/960px-MIE_KERING_MAKASSAR.jpg"
+        }
+      ],
+      "sort_order": 8
+    },
+    {
+      "name": "Bebidas Calientes",
+      "products": [
+        {
+          "name": "Te Rojo",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Verde",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Jazmin",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Coca",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Durazno",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Naranja",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Muna",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Boldo",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Anis",
+          "base_price": 2.5,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Manzanilla",
+          "base_price": 2.5,
+          "description": "",
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Canela y Clavo",
+          "base_price": 2.5,
+          "description": "",
+          "sort_order": 10,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Puro",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 11,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Digestivo",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 12,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Valeriana",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 13,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Relax",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 14,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Manzana",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 15,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Antigripal",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 16,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        }
+      ],
+      "sort_order": 9
+    }
+  ]
+}

@@ -1,0 +1,486 @@
+{
+  "slug": "los-fogones",
+  "source_pdf": "data/LOS FOGONES 12.00 PM A 11.50 PM (1).pdf",
+  "source_hours_label": "4.00 PM A 11.50 PM",
+  "merchant": {
+    "trade_name": "Los Fogones"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3
+    ],
+    "assumptions": [
+      "Se tomaron los precios mas legibles del OCR cuando el texto tenia ruido visual."
+    ]
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Pollo a la Lena",
+      "products": [
+        {
+          "name": "1/4 pollo a la lena",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "1/8 pollo a la lena",
+          "base_price": 7,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Chaufa Brasa",
+      "products": [
+        {
+          "name": "Chaufa Brasa",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Chaufa Brasita",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Salchipapas",
+      "products": [
+        {
+          "name": "Salchipapa Clasica",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg/960px-Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg"
+        },
+        {
+          "name": "Salchipapa Mixta",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Salchibrasa",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "name": "Parrillas",
+      "products": [
+        {
+          "name": "Pollo a la Parrilla",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Bisteck a la Parrilla",
+          "base_price": 19,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Grilled_meat_and_fish.jpg/960px-Grilled_meat_and_fish.jpg"
+        },
+        {
+          "name": "Parrilla Mixta",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Pollo al Ajo",
+          "base_price": 21,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Chuleta a la Parrilla",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Grilled_meat_and_fish.jpg/960px-Grilled_meat_and_fish.jpg"
+        },
+        {
+          "name": "Pollo a la Pizzarola",
+          "base_price": 24,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pollo Crocante",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Parrilla Mixta Fogones",
+          "base_price": 36,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Bisteck a lo Pobre",
+          "base_price": 26,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        },
+        {
+          "name": "Bisteck a la Pizzarola",
+          "base_price": 27,
+          "description": "",
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "name": "Sopas",
+      "products": [
+        {
+          "name": "Sustancia de res o pollo",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Sopa a la Minuta",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Asparagus_soup_%28spargelsuppe%29.jpg/960px-Asparagus_soup_%28spargelsuppe%29.jpg"
+        },
+        {
+          "name": "Sopa Criolla",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Asparagus_soup_%28spargelsuppe%29.jpg/960px-Asparagus_soup_%28spargelsuppe%29.jpg"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "name": "Sabor Oriental",
+      "products": [
+        {
+          "name": "Chaufa de Pollo",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Chaufa de Res",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa Especial de Pollo",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Chaufa Especial de Res",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa con Lomo",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa con Tallarin",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa con Alitas",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Lomo Saltado",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Meat_stir-fry_dish_at_a_Tibetan_restaurant.jpg/960px-Meat_stir-fry_dish_at_a_Tibetan_restaurant.jpg"
+        },
+        {
+          "name": "Aeropuerto",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "name": "Bebidas Calientes",
+      "products": [
+        {
+          "name": "Mates",
+          "base_price": 2.5,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flaming_cocktails.jpg/960px-Flaming_cocktails.jpg"
+        },
+        {
+          "name": "Cafe Clasico",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        },
+        {
+          "name": "Cafe Pasado",
+          "base_price": 3.5,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        }
+      ],
+      "sort_order": 6
+    },
+    {
+      "name": "Gaseosas",
+      "products": [
+        {
+          "name": "Personal",
+          "base_price": 2.5,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Soft_drink_shelf_2.jpg/960px-Soft_drink_shelf_2.jpg"
+        },
+        {
+          "name": "1/2 litro descartable",
+          "base_price": 3.5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Soft_drink_shelf_2.jpg/960px-Soft_drink_shelf_2.jpg"
+        },
+        {
+          "name": "Gordita",
+          "base_price": 5.5,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Soft_drink_shelf_2.jpg/960px-Soft_drink_shelf_2.jpg"
+        },
+        {
+          "name": "1 litro",
+          "base_price": 7,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Soft_drink_shelf_2.jpg/960px-Soft_drink_shelf_2.jpg"
+        },
+        {
+          "name": "1 1/2 litros",
+          "base_price": 8.5,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Soft_drink_shelf_2.jpg/960px-Soft_drink_shelf_2.jpg"
+        },
+        {
+          "name": "2 1/2 litros",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Soft_drink_shelf_2.jpg/960px-Soft_drink_shelf_2.jpg"
+        },
+        {
+          "name": "3 litros",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Soft_drink_shelf_2.jpg/960px-Soft_drink_shelf_2.jpg"
+        },
+        {
+          "name": "Agua Mineral",
+          "base_price": 2.5,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Home_water_filters%2C_water_purifiers%2C_and_bottled_water_in_India.jpg/960px-Home_water_filters%2C_water_purifiers%2C_and_bottled_water_in_India.jpg"
+        }
+      ],
+      "sort_order": 7
+    },
+    {
+      "name": "Postres",
+      "products": [
+        {
+          "name": "Flan",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Homemade_Flan.jpg/960px-Homemade_Flan.jpg"
+        },
+        {
+          "name": "Gelatina",
+          "base_price": 2.5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Raspberry_Gelatin_Pineapple_Sour_Cream_Salad.jpg/960px-Raspberry_Gelatin_Pineapple_Sour_Cream_Salad.jpg"
+        },
+        {
+          "name": "Helados",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Apple_cake_with_vanilla_ice_cream_2.jpg/960px-Apple_cake_with_vanilla_ice_cream_2.jpg"
+        },
+        {
+          "name": "Duraznos en Almibar",
+          "base_price": 7,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/95/Peach_Melba.jpg"
+        }
+      ],
+      "sort_order": 8
+    },
+    {
+      "name": "Bebidas con Alcohol",
+      "products": [
+        {
+          "name": "Vinos",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Schwappender_Wein.jpg/960px-Schwappender_Wein.jpg"
+        },
+        {
+          "name": "Cerveza Cusquena",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Beer_bottles_2018_G1.jpg/960px-Beer_bottles_2018_G1.jpg"
+        },
+        {
+          "name": "Cristal",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Cristal_1928.JPG/960px-Cristal_1928.JPG"
+        },
+        {
+          "name": "Pilsen",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Beer_bottles_2018_G1.jpg/960px-Beer_bottles_2018_G1.jpg"
+        },
+        {
+          "name": "3 Cruces",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Lightning3.jpg/960px-Lightning3.jpg"
+        },
+        {
+          "name": "Heineken",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/CreativeTools.se_-_PackshotCreator_-_Heineken_beer_bottle_v01_%284290167332%29.jpg/960px-CreativeTools.se_-_PackshotCreator_-_Heineken_beer_bottle_v01_%284290167332%29.jpg"
+        }
+      ],
+      "sort_order": 9
+    }
+  ]
+}

@@ -1,0 +1,828 @@
+{
+  "slug": "cevicheria-los-delfines",
+  "source_pdf": "data/CEVICHERIA LOS DELFINES  8.00 AM A 5.00 PM.pdf",
+  "source_hours_label": "8.00 AM A 5.00 PM",
+  "merchant": {
+    "trade_name": "Cevicheria Los Delfines"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3
+    ],
+    "assumptions": [
+      "Se cargaron los combos mas legibles del OCR y se omitieron lineas demasiado rotas."
+    ]
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Chilcanos y Sudados",
+      "products": [
+        {
+          "name": "Chilcano de Pescado",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/15-09-26-RalfR-WLC-0059.jpg/960px-15-09-26-RalfR-WLC-0059.jpg"
+        },
+        {
+          "name": "Chilcano Especial",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/15-09-26-RalfR-WLC-0059.jpg/960px-15-09-26-RalfR-WLC-0059.jpg"
+        },
+        {
+          "name": "Sudado de Pescado",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Amalfitana_Fish_Stew_-_Tavola_Di_Famiglia_2026-02-27.jpg/960px-Amalfitana_Fish_Stew_-_Tavola_Di_Famiglia_2026-02-27.jpg"
+        },
+        {
+          "name": "Sudado de Trucha",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        },
+        {
+          "name": "Chupe de Pescado",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Asparagus_soup_%28spargelsuppe%29.jpg/960px-Asparagus_soup_%28spargelsuppe%29.jpg"
+        },
+        {
+          "name": "Parihuela",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/35/Kimchi_seafood_soup.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Combos Marinos",
+      "products": [
+        {
+          "name": "Leche de Tigre con Chicharron de Pescado y vaso de chicha morada",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Leche_de_tigre.JPG/960px-Leche_de_tigre.JPG"
+        },
+        {
+          "name": "Leche de Tigre con Arroz con Mariscos y vaso de chicha morada",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Leche_de_tigre.JPG/960px-Leche_de_tigre.JPG"
+        },
+        {
+          "name": "Leche de Tigre con Chaufa de Mariscos y vaso de chicha morada",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Leche de Tigre con Trucha Frita y vaso de chicha morada",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Chicharrones y Jaleas",
+      "products": [
+        {
+          "name": "Chicharron de Pescado",
+          "base_price": 26,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Seafood_fried_rice_in_Singapore_-_20140323.jpg/960px-Seafood_fried_rice_in_Singapore_-_20140323.jpg"
+        },
+        {
+          "name": "Chicharron de Pota",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Seafood_fried_rice_in_Singapore_-_20140323.jpg/960px-Seafood_fried_rice_in_Singapore_-_20140323.jpg"
+        },
+        {
+          "name": "Chicharron de Perico",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Seafood_fried_rice_in_Singapore_-_20140323.jpg/960px-Seafood_fried_rice_in_Singapore_-_20140323.jpg"
+        },
+        {
+          "name": "Chicharron Mixto",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Chicharron de Trucha",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        },
+        {
+          "name": "Chicharron de Langostinos",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Seafood_fried_rice_in_Singapore_-_20140323.jpg/960px-Seafood_fried_rice_in_Singapore_-_20140323.jpg"
+        },
+        {
+          "name": "Jalea Mixta",
+          "base_price": 45,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "name": "Leches",
+      "products": [
+        {
+          "name": "Leche de Tigre",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Leche_de_tigre.JPG/960px-Leche_de_tigre.JPG"
+        },
+        {
+          "name": "Leche Mixta",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Leche de Tigre con Chicharron de Pota",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Leche_de_tigre.JPG/960px-Leche_de_tigre.JPG"
+        },
+        {
+          "name": "Leche de Tigre con Chicharron de Pescado",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Leche_de_tigre.JPG/960px-Leche_de_tigre.JPG"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "name": "Cebiches y Tiraditos",
+      "products": [
+        {
+          "name": "Cebiche Clasico",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Ceviche_del_Per%C3%BA.jpg/960px-Ceviche_del_Per%C3%BA.jpg"
+        },
+        {
+          "name": "Cebiche en Crema",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Ceviche_del_Per%C3%BA.jpg/960px-Ceviche_del_Per%C3%BA.jpg"
+        },
+        {
+          "name": "Cebiche de Trucha",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        },
+        {
+          "name": "Cebiche Mixto",
+          "base_price": 45,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Tiradito de Pescado",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Tiradito.jpg/960px-Tiradito.jpg"
+        },
+        {
+          "name": "Tiradito 3 Estaciones",
+          "base_price": 45,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Tiradito.jpg/960px-Tiradito.jpg"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "name": "Pescados",
+      "products": [
+        {
+          "name": "Pescado Frito",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg/960px-Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg"
+        },
+        {
+          "name": "Trucha Frita",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        },
+        {
+          "name": "Milanesa de Pescado",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg/960px-Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg"
+        },
+        {
+          "name": "Milanesa de Trucha",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        },
+        {
+          "name": "Pescado al Ajo",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg/960px-Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg"
+        },
+        {
+          "name": "Trucha al Ajo",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        },
+        {
+          "name": "Picante de Pescado",
+          "base_price": 26,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Picante de Mariscos",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Pescado a lo Macho",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg/960px-Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg"
+        },
+        {
+          "name": "Pescado a la Plancha",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg/960px-Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg"
+        },
+        {
+          "name": "Tortilla con Langostinos",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 10,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg/960px-Baikal_omul%2C_Smoked_fish_dish%2C_Olkhon_Island%2C_Russia.jpg"
+        },
+        {
+          "name": "Causa con Langostinos",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 11,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Causa_Rellena.jpg/960px-Causa_Rellena.jpg"
+        },
+        {
+          "name": "Fetuccini en Salsa de Mariscos",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 12,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chicken_fettuccine_alfredo.JPG/960px-Chicken_fettuccine_alfredo.JPG"
+        },
+        {
+          "name": "Chicharron de Langostinos Salsa BBQ",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 13,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Seafood_fried_rice_in_Singapore_-_20140323.jpg/960px-Seafood_fried_rice_in_Singapore_-_20140323.jpg"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "name": "Arroces y Chaufas",
+      "products": [
+        {
+          "name": "Chaufa de Pescado",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa de Trucha",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        },
+        {
+          "name": "Chaufa de Langostinos",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa de Mariscos",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Arroz con Mariscos",
+          "base_price": 32,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Sea_Urchin_%26_Seafood_Rice_in_Stone_Pot.jpg/960px-Sea_Urchin_%26_Seafood_Rice_in_Stone_Pot.jpg"
+        },
+        {
+          "name": "Chaufa Amazonico",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Saltado Mar y Tierra",
+          "base_price": 35,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Meat_stir-fry_dish_at_a_Tibetan_restaurant.jpg/960px-Meat_stir-fry_dish_at_a_Tibetan_restaurant.jpg"
+        },
+        {
+          "name": "Chaufa de Pollo",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Saltado de Pescado",
+          "base_price": 30,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Meat_stir-fry_dish_at_a_Tibetan_restaurant.jpg/960px-Meat_stir-fry_dish_at_a_Tibetan_restaurant.jpg"
+        }
+      ],
+      "sort_order": 6
+    },
+    {
+      "name": "Duos Marinos",
+      "products": [
+        {
+          "name": "Arroz con Mariscos y Cebiche de Pescado",
+          "base_price": 45,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Sea_Urchin_%26_Seafood_Rice_in_Stone_Pot.jpg/960px-Sea_Urchin_%26_Seafood_Rice_in_Stone_Pot.jpg"
+        },
+        {
+          "name": "Arroz Chaufa de Mariscos y Cebiche de Pescado",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chicharron de Pota y Cebiche de Pescado",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Seafood_fried_rice_in_Singapore_-_20140323.jpg/960px-Seafood_fried_rice_in_Singapore_-_20140323.jpg"
+        },
+        {
+          "name": "Arroz Chaufa de Pescado y Cebiche de Pescado",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Causa de Pescado y Cebiche de Pescado",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Causa_Rellena.jpg/960px-Causa_Rellena.jpg"
+        },
+        {
+          "name": "Leche de Tigre y Cebiche de Pescado",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Leche_de_tigre.JPG/960px-Leche_de_tigre.JPG"
+        },
+        {
+          "name": "Trucha Frita y Cebiche de Pescado",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rakfisk.jpg/960px-Rakfisk.jpg"
+        }
+      ],
+      "sort_order": 7
+    },
+    {
+      "name": "Guarniciones",
+      "products": [
+        {
+          "name": "Porcion de Arroz",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Porcion de Algas Fritas",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Porcion de Cancha",
+          "base_price": 2,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Porcion de Chifles",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Porcion de Yuca Frita",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Porcion de Camote",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        }
+      ],
+      "sort_order": 8
+    },
+    {
+      "name": "Cervezas",
+      "products": [
+        {
+          "name": "Pilsen 630ml",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Beer_bottles_2018_G1.jpg/960px-Beer_bottles_2018_G1.jpg"
+        },
+        {
+          "name": "Pilsen 305ml",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Beer_bottles_2018_G1.jpg/960px-Beer_bottles_2018_G1.jpg"
+        },
+        {
+          "name": "Pilsen 1 litro",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Beer_bottles_2018_G1.jpg/960px-Beer_bottles_2018_G1.jpg"
+        },
+        {
+          "name": "Cusquena Trigo 620ml",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Beer_bottles_2018_G1.jpg/960px-Beer_bottles_2018_G1.jpg"
+        },
+        {
+          "name": "Cusquena Trigo 310ml",
+          "base_price": 7,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Beer_bottles_2018_G1.jpg/960px-Beer_bottles_2018_G1.jpg"
+        },
+        {
+          "name": "Cusquena Negra 620ml",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Beer_bottles_2018_G1.jpg/960px-Beer_bottles_2018_G1.jpg"
+        },
+        {
+          "name": "Cusquena Negra 310ml",
+          "base_price": 7,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Beer_bottles_2018_G1.jpg/960px-Beer_bottles_2018_G1.jpg"
+        },
+        {
+          "name": "Heineken",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/CreativeTools.se_-_PackshotCreator_-_Heineken_beer_bottle_v01_%284290167332%29.jpg/960px-CreativeTools.se_-_PackshotCreator_-_Heineken_beer_bottle_v01_%284290167332%29.jpg"
+        }
+      ],
+      "sort_order": 9
+    },
+    {
+      "name": "Gaseosas",
+      "products": [
+        {
+          "name": "Agua de Mesa",
+          "base_price": 2.5,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Soft_drink_shelf_2.jpg/960px-Soft_drink_shelf_2.jpg"
+        },
+        {
+          "name": "Coca Cola o Inca Cola Personal",
+          "base_price": 2.5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Coca_Cola_-_Mexican_death_sentence.jpg/960px-Coca_Cola_-_Mexican_death_sentence.jpg"
+        },
+        {
+          "name": "Coca Cola o Inca Cola 1 litro",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Coca_Cola_-_Mexican_death_sentence.jpg/960px-Coca_Cola_-_Mexican_death_sentence.jpg"
+        },
+        {
+          "name": "Coca Cola o Inca Cola 1.5 litros",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Coca_Cola_-_Mexican_death_sentence.jpg/960px-Coca_Cola_-_Mexican_death_sentence.jpg"
+        },
+        {
+          "name": "Coca Cola o Inca Cola 3 litros",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Coca_Cola_-_Mexican_death_sentence.jpg/960px-Coca_Cola_-_Mexican_death_sentence.jpg"
+        },
+        {
+          "name": "Inca Cola Gordita",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/IncaKolaBottleGlass.jpg/960px-IncaKolaBottleGlass.jpg"
+        }
+      ],
+      "sort_order": 10
+    },
+    {
+      "name": "Bebidas Frias",
+      "products": [
+        {
+          "name": "Chicha Morada 1/2 litro",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg/960px-Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg"
+        },
+        {
+          "name": "Chicha Morada 1 litro",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg/960px-Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg"
+        },
+        {
+          "name": "Limonada 1/2 litro",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg/960px-Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg"
+        },
+        {
+          "name": "Limonada 1 litro",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg/960px-Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg"
+        },
+        {
+          "name": "Maracuya 1/2 litro",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg/960px-Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg"
+        },
+        {
+          "name": "Maracuya 1 litro",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg/960px-Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg"
+        }
+      ],
+      "sort_order": 11
+    },
+    {
+      "name": "Vinos",
+      "products": [
+        {
+          "name": "Queirolo",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Wine_glass5275.jpg/960px-Wine_glass5275.jpg"
+        },
+        {
+          "name": "Tabernero",
+          "base_price": 26,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Wine_glass5275.jpg/960px-Wine_glass5275.jpg"
+        }
+      ],
+      "sort_order": 12
+    },
+    {
+      "name": "Postres",
+      "products": [
+        {
+          "name": "Helado en Copa",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Apple_cake_with_vanilla_ice_cream_2.jpg/960px-Apple_cake_with_vanilla_ice_cream_2.jpg"
+        },
+        {
+          "name": "Helado en Cono",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Apple_cake_with_vanilla_ice_cream_2.jpg/960px-Apple_cake_with_vanilla_ice_cream_2.jpg"
+        }
+      ],
+      "sort_order": 13
+    },
+    {
+      "name": "Bebidas Calientes",
+      "products": [
+        {
+          "name": "Infusiones",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Cafe",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        }
+      ],
+      "sort_order": 14
+    }
+  ]
+}

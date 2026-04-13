@@ -1,0 +1,376 @@
+{
+  "slug": "artesano-restaurant",
+  "source_pdf": "data/ARTESANO RESTAURANT 4.00 PM A 11.50 PM.pdf",
+  "source_hours_label": "4.00 PM A 11.50 PM",
+  "merchant": {
+    "trade_name": "Artesano Restaurant"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3
+    ],
+    "assumptions": [
+      "La carta tenia OCR muy ruidoso; se cargaron los platos mejor identificados y sus precios mas legibles."
+    ]
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Salchipapas",
+      "products": [
+        {
+          "name": "Salchipapa",
+          "base_price": 12.5,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg/960px-Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg"
+        },
+        {
+          "name": "Salchipobre",
+          "base_price": 13.5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        },
+        {
+          "name": "Salchipolo",
+          "base_price": 14.5,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Salchibros",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Hamburguesas Artesanales",
+      "products": [
+        {
+          "name": "Hawaiana",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Liliuokalani%2C_c._1891.jpg/960px-Liliuokalani%2C_c._1891.jpg"
+        },
+        {
+          "name": "Especial",
+          "base_price": 15.5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/2023_Havana_Club_A%C3%B1ejo_Especial_%283%29.jpg/960px-2023_Havana_Club_A%C3%B1ejo_Especial_%283%29.jpg"
+        },
+        {
+          "name": "Chihuan",
+          "base_price": 13.5,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Leyla_Chihuan_Ramos.png"
+        },
+        {
+          "name": "Regia",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Juglans_regia_2009_G2.jpg/960px-Juglans_regia_2009_G2.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Sandwiches",
+      "products": [
+        {
+          "name": "Chicken Club",
+          "base_price": 19,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Sandwich_on_a_cutting_board.jpg/960px-Sandwich_on_a_cutting_board.jpg"
+        },
+        {
+          "name": "Tostada Especial",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Sandwich_on_a_cutting_board.jpg/960px-Sandwich_on_a_cutting_board.jpg"
+        },
+        {
+          "name": "Chicken Club Hawaiana",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Sandwich_on_a_cutting_board.jpg/960px-Sandwich_on_a_cutting_board.jpg"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "name": "Broaster",
+      "products": [
+        {
+          "name": "Pollo Clasico Broaster",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Crispy_fried_chicken%2C_Xiang_Piao_Piao%2C_Paris_001.jpg/960px-Crispy_fried_chicken%2C_Xiang_Piao_Piao%2C_Paris_001.jpg"
+        },
+        {
+          "name": "Broaster Especial",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Freshippo_crispy_fried_chicken.jpg/960px-Freshippo_crispy_fried_chicken.jpg"
+        },
+        {
+          "name": "Pollo Crujiente",
+          "base_price": 13.5,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "name": "Alitas",
+      "products": [
+        {
+          "name": "Alitas",
+          "base_price": 17,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Alitas Mixtas",
+          "base_price": 33,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Mini Piernas",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Buffalo_Burgers_Buffalo_Chicken_Wings_%2836082467922%29.jpg/960px-Buffalo_Burgers_Buffalo_Chicken_Wings_%2836082467922%29.jpg"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "name": "Adicionales",
+      "products": [
+        {
+          "name": "Porcion de Papas",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Porcion de Salchicha",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg/960px-Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg"
+        },
+        {
+          "name": "Porcion de Huevos Fritos",
+          "base_price": 2,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        },
+        {
+          "name": "Porcion de Mix Ensalada",
+          "base_price": 4.5,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Porcion de Pina Ahumada",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "name": "Refrescos",
+      "products": [
+        {
+          "name": "1 litro Maracuya",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg/960px-Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg"
+        },
+        {
+          "name": "1 litro Maracumango",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg/960px-Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg"
+        },
+        {
+          "name": "1 litro Chicha Morada",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg/960px-Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg"
+        },
+        {
+          "name": "1 litro Limonada",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg/960px-Juice_bar_selling_oranges%2C_red_apples_and_other_fruits%2C_Clarke_Quay_MRT_station%2C_Singapore.jpg"
+        }
+      ],
+      "sort_order": 6
+    },
+    {
+      "name": "Bebidas",
+      "products": [
+        {
+          "name": "1 litro Inca Cola",
+          "base_price": 7,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/IncaKolaBottleGlass.jpg/960px-IncaKolaBottleGlass.jpg"
+        },
+        {
+          "name": "1 litro Coca Cola",
+          "base_price": 7,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Coca_Cola_-_Mexican_death_sentence.jpg/960px-Coca_Cola_-_Mexican_death_sentence.jpg"
+        },
+        {
+          "name": "600ml Inca Cola",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/IncaKolaBottleGlass.jpg/960px-IncaKolaBottleGlass.jpg"
+        },
+        {
+          "name": "600ml Coca Cola",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Coca_Cola_-_Mexican_death_sentence.jpg/960px-Coca_Cola_-_Mexican_death_sentence.jpg"
+        },
+        {
+          "name": "3 litros Inca Cola",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/IncaKolaBottleGlass.jpg/960px-IncaKolaBottleGlass.jpg"
+        },
+        {
+          "name": "3 litros Coca Cola",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Coca_Cola_-_Mexican_death_sentence.jpg/960px-Coca_Cola_-_Mexican_death_sentence.jpg"
+        },
+        {
+          "name": "Gordita",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Common_alcoholic_beverages.jpg/960px-Common_alcoholic_beverages.jpg"
+        },
+        {
+          "name": "Agua Mineral",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Home_water_filters%2C_water_purifiers%2C_and_bottled_water_in_India.jpg/960px-Home_water_filters%2C_water_purifiers%2C_and_bottled_water_in_India.jpg"
+        }
+      ],
+      "sort_order": 7
+    },
+    {
+      "name": "Combos",
+      "products": [
+        {
+          "name": "Combo Broaster Familiar",
+          "base_price": 29,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Pollo_Campero_Family_Meal.jpg/960px-Pollo_Campero_Family_Meal.jpg"
+        },
+        {
+          "name": "Combo Chicken Sandwich",
+          "base_price": 38,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Chicken-burger-combo_%281%29.jpg"
+        },
+        {
+          "name": "Combo Especial Artesano",
+          "base_price": 62,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Egyptian_food_Koshary.jpg/960px-Egyptian_food_Koshary.jpg"
+        }
+      ],
+      "sort_order": 8
+    }
+  ]
+}

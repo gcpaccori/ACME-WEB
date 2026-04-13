@@ -1,0 +1,99 @@
+{
+  "slug": "ponches-de-maca-sra-vicky",
+  "source_pdf": "data/PONCHES DE MACA SRA VICKY  3.00 PM - 10.30 PM.pdf",
+  "source_hours_label": "3.00 PM - 10.30 PM",
+  "merchant": {
+    "trade_name": "Ponches de Maca Sra Vicky"
+  },
+  "notes": {
+    "verified_pages": [
+      2
+    ],
+    "assumptions": []
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Ponches",
+      "products": [
+        {
+          "name": "Ponche de maca",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flaming_cocktails.jpg/960px-Flaming_cocktails.jpg"
+        },
+        {
+          "name": "Manzana con quinua",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flaming_cocktails.jpg/960px-Flaming_cocktails.jpg"
+        },
+        {
+          "name": "Maca",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flaming_cocktails.jpg/960px-Flaming_cocktails.jpg"
+        },
+        {
+          "name": "Cachanga",
+          "base_price": 2,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Flatbread_on_counter.jpg/960px-Flatbread_on_counter.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Sandwiches",
+      "products": [
+        {
+          "name": "Pan con queso",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Cheese_roll_at_The_Original_Tea_Hut_at_High_Beach%2C_Essex%2C_England.jpg/960px-Cheese_roll_at_The_Original_Tea_Hut_at_High_Beach%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Pan con pollo",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Pan con camote",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Homemade_sweet_potato_bread_3.jpg/960px-Homemade_sweet_potato_bread_3.jpg"
+        },
+        {
+          "name": "Pan con hamburguesa de pollo y carne",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        }
+      ],
+      "sort_order": 1
+    }
+  ]
+}

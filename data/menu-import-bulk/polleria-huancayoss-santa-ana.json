@@ -1,0 +1,414 @@
+{
+  "slug": "polleria-huancayoss-santa-ana",
+  "source_pdf": "data/POLLERIA HUANCAYOSS 1 - SANTA ANA  12.00 PM A 11.30 PM.pdf",
+  "source_hours_label": "4.00 PM A 11.50 PM",
+  "merchant": {
+    "trade_name": "Polleria Huancayoss Santa Ana"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "assumptions": [
+      "Se omitieron combos sin precio legible."
+    ]
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Pollos",
+      "products": [
+        {
+          "name": "1/4 Pollo",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Mostro",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/RotisserieChicken.jpg/960px-RotisserieChicken.jpg"
+        },
+        {
+          "name": "Mostrito",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/RotisserieChicken.jpg/960px-RotisserieChicken.jpg"
+        },
+        {
+          "name": "Chori Brasa",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Broaster",
+      "products": [
+        {
+          "name": "1/8 Broaster",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Crispy_fried_chicken%2C_Xiang_Piao_Piao%2C_Paris_001.jpg/960px-Crispy_fried_chicken%2C_Xiang_Piao_Piao%2C_Paris_001.jpg"
+        },
+        {
+          "name": "1/4 Broaster",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Chicken_quarter_and_chips%2C_Top_Fryz%2C_2025_%2801%29.jpg/960px-Chicken_quarter_and_chips%2C_Top_Fryz%2C_2025_%2801%29.jpg"
+        },
+        {
+          "name": "Alitas Broaster",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Chicken_wings_meal_at_Siipiweikot.jpg/960px-Chicken_wings_meal_at_Siipiweikot.jpg"
+        },
+        {
+          "name": "Combo Broaster 1/4",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/KFC_Pick_3_Combo_-_chicken%2C_fish_plank%2C_mashed_potatoes_%26_gravy.JPG/960px-KFC_Pick_3_Combo_-_chicken%2C_fish_plank%2C_mashed_potatoes_%26_gravy.JPG"
+        },
+        {
+          "name": "Combo Junior 1/8",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Combos",
+      "products": [
+        {
+          "name": "Familiar x4",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/A_familiar_history_of_birds_%28IA_familiarhistory00stanrich%29.pdf/page1-500px-A_familiar_history_of_birds_%28IA_familiarhistory00stanrich%29.pdf.jpg"
+        },
+        {
+          "name": "Combo Huancayoss 1",
+          "base_price": 80,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Egyptian_food_Koshary.jpg/960px-Egyptian_food_Koshary.jpg"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "name": "Caldos",
+      "products": [
+        {
+          "name": "Caldo Acevichado",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Chicken_soup_with_kreplach.jpg/960px-Chicken_soup_with_kreplach.jpg"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "name": "Parrillas de Pollo",
+      "products": [
+        {
+          "name": "Filete de Pollo a la Parrilla",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Filete de Pollo al Ajo",
+          "base_price": 19,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Filete de Pollo mas Chorizo",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Filete de Pollo a lo Pobre",
+          "base_price": 24,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "name": "Parrillas de Carne",
+      "products": [
+        {
+          "name": "Bistec a la Parrilla",
+          "base_price": 20,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Grilled_meat_and_fish.jpg/960px-Grilled_meat_and_fish.jpg"
+        },
+        {
+          "name": "Bistec al Ajo",
+          "base_price": 21,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Tenderloin_hot_plate%2C_Steak_Moen-Moen%2C_Lt_2%2C_BG_Junction%2C_2025_%2801%29.jpg/960px-Tenderloin_hot_plate%2C_Steak_Moen-Moen%2C_Lt_2%2C_BG_Junction%2C_2025_%2801%29.jpg"
+        },
+        {
+          "name": "Bistec mas Chorizo",
+          "base_price": 23,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Bistec a lo Pobre",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "name": "Parrillas Mixtas",
+      "products": [
+        {
+          "name": "Parrilla Mixta Clasica",
+          "base_price": 21,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Parrilla Mixta al Ajo",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Parrilla Mixta mas Chorizo",
+          "base_price": 24,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        },
+        {
+          "name": "Parrilla Mixta a lo Pobre",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        }
+      ],
+      "sort_order": 6
+    },
+    {
+      "name": "Anticuchos",
+      "products": [
+        {
+          "name": "Anticucho Corazon",
+          "base_price": 22,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Anticucho_del_Per%C3%BA.JPG/960px-Anticucho_del_Per%C3%BA.JPG"
+        },
+        {
+          "name": "Brocheta de Pollo Especial",
+          "base_price": 18,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        }
+      ],
+      "sort_order": 7
+    },
+    {
+      "name": "Salchipapas",
+      "products": [
+        {
+          "name": "Salchicha Clasica",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg/960px-Sausage_and_chips%2C_The_Fish_Palace%2C_Park_Road%2C_London_N8%2C_England.jpg"
+        },
+        {
+          "name": "Salchicha con Huevo",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        }
+      ],
+      "sort_order": 8
+    },
+    {
+      "name": "Chaufas",
+      "products": [
+        {
+          "name": "Chaufa de Pollo",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Chaufa de Res",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa 2 Sabores",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Chaufa con Alitas",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Chaufa Cubano",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Aeropuerto",
+          "base_price": 13,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Aeropuerto Carne",
+          "base_price": 14,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        },
+        {
+          "name": "Combinado",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        }
+      ],
+      "sort_order": 9
+    },
+    {
+      "name": "Guarniciones",
+      "products": [
+        {
+          "name": "Porcion Papa",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Porcion Ensalada",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Porcion Arroz Blanco",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg/960px-Sunday_roast_vegetable_side_dish_at_The_Stag%2C_Little_Easton%2C_Essex%2C_England.jpg"
+        },
+        {
+          "name": "Porcion Arroz Chaufa",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg/960px-Pineapple_fried_rice_at_Banana_Leaf_in_Milpitas%2C_California.jpg"
+        }
+      ],
+      "sort_order": 10
+    }
+  ]
+}

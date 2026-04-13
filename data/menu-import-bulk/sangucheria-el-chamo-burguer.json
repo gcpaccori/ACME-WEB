@@ -1,0 +1,91 @@
+{
+  "slug": "sangucheria-el-chamo-burguer",
+  "source_pdf": "data/SANGUCHERIA EL CHAMO BURGUER  4.30 PM A 11.00 PM.pdf",
+  "source_hours_label": "4.30 PM A 11.00 PM",
+  "merchant": {
+    "trade_name": "Sangucheria El Chamo Burguer"
+  },
+  "notes": {
+    "verified_pages": [
+      2
+    ],
+    "assumptions": [
+      "Se tomaron solo los productos y precios legibles en la carta fotografiada."
+    ]
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Hamburguesas",
+      "products": [
+        {
+          "name": "Hamburguesa Normal",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa Especial",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamburguesa Especial Mixta",
+          "base_price": 16,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Sandwiches",
+      "products": [
+        {
+          "name": "Hot Dog Grande",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/My_hot_dog_at_Hot_Doug%27s.jpg/960px-My_hot_dog_at_Hot_Doug%27s.jpg"
+        },
+        {
+          "name": "Pepito Mixto 50 cm",
+          "base_price": 40,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Currywurst_hamburg.jpg/960px-Currywurst_hamburg.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Alitas",
+      "products": [
+        {
+          "name": "Alitas Broaster a la BBQ",
+          "base_price": 15,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/French_fries_and_fried_chicken_wings%2C_Everything_with_Fries%2C_Holland_Village%2C_Singapore_-_20121021.jpg/960px-French_fries_and_fried_chicken_wings%2C_Everything_with_Fries%2C_Holland_Village%2C_Singapore_-_20121021.jpg"
+        }
+      ],
+      "sort_order": 2
+    }
+  ]
+}

@@ -122,6 +122,26 @@ function patchBranchSelection(current: string[], branchId: string, checked: bool
     : current.filter((item) => item !== branchId);
 }
 
+function resolveMerchantBranches(merchants: PlatformMerchantOption[], merchantId: string) {
+  return merchants.find((merchant) => merchant.id === merchantId)?.branches ?? [];
+}
+
+function reconcileBranchSelection(params: {
+  branches: PlatformMerchantOption['branches'];
+  branchIds: string[];
+  primaryBranchId: string;
+}) {
+  const availableBranchIds = new Set(params.branches.map((branch) => branch.id));
+  const normalizedBranchIds = Array.from(new Set(params.branchIds.filter((branchId) => availableBranchIds.has(branchId))));
+  const branchIds = normalizedBranchIds.length > 0
+    ? normalizedBranchIds
+    : params.branches[0]
+      ? [params.branches[0].id]
+      : [];
+  const primaryBranchId = branchIds.includes(params.primaryBranchId) ? params.primaryBranchId : branchIds[0] ?? '';
+  return { branchIds, primaryBranchId };
+}
+
 function renderAssignmentScopeButtons(params: {
   value: AssignmentScope;
   onChange: (scope: AssignmentScope) => void;
@@ -395,22 +415,59 @@ export function PlatformUsersPage() {
 
   // Handle merchant change in create form — reset branches
   const handleCreateMerchantChange = (merchantId: string) => {
-    setCreateForm((current) => ({
-      ...current,
-      merchantId,
-      branchIds: [],
-      primaryBranchId: '',
-    }));
+    setCreateForm((current) => {
+      if (current.assignmentScope !== 'branches') {
+        return {
+          ...current,
+          merchantId,
+          branchIds: [],
+          primaryBranchId: '',
+        };
+      }
+
+      const nextBranches = resolveMerchantBranches(merchants, merchantId);
+      const nextSelection = reconcileBranchSelection({
+        branches: nextBranches,
+        branchIds: [],
+        primaryBranchId: '',
+      });
+
+      return {
+        ...current,
+        merchantId,
+        branchIds: nextSelection.branchIds,
+        primaryBranchId: nextSelection.primaryBranchId,
+      };
+    });
   };
 
   const handleCreateScopeChange = (assignmentScope: AssignmentScope) => {
-    setCreateForm((current) => ({
-      ...current,
-      assignmentScope,
-      branchIds: assignmentScope === 'merchant' ? [] : current.branchIds,
-      primaryBranchId: assignmentScope === 'merchant' ? '' : current.primaryBranchId,
-      staffRole: adaptStaffRoleToScope(assignmentScope, current.staffRole),
-    }));
+    setCreateForm((current) => {
+      if (assignmentScope === 'merchant') {
+        return {
+          ...current,
+          assignmentScope,
+          branchIds: [],
+          primaryBranchId: '',
+          staffRole: adaptStaffRoleToScope(assignmentScope, current.staffRole),
+        };
+      }
+
+      const nextBranches = resolveMerchantBranches(merchants, current.merchantId);
+      const nextSelection = reconcileBranchSelection({
+        branches: nextBranches,
+        branchIds: current.branchIds,
+        primaryBranchId: current.primaryBranchId,
+      });
+
+      return {
+        ...current,
+        assignmentScope,
+        branchIds: nextSelection.branchIds,
+        primaryBranchId: nextSelection.primaryBranchId,
+        staffRole: adaptStaffRoleToScope(assignmentScope, current.staffRole),
+      };
+    });
   };
 
   const handleEditMerchantChange = (merchantId: string) => {
@@ -419,8 +476,16 @@ export function PlatformUsersPage() {
         ? {
             ...current,
             merchantId,
-            branchIds: [],
-            primaryBranchId: '',
+            ...(current.assignmentScope === 'branches'
+              ? reconcileBranchSelection({
+                  branches: resolveMerchantBranches(merchants, merchantId),
+                  branchIds: [],
+                  primaryBranchId: '',
+                })
+              : {
+                  branchIds: [],
+                  primaryBranchId: '',
+                }),
           }
         : current
     ));
@@ -432,8 +497,16 @@ export function PlatformUsersPage() {
         ? {
             ...current,
             assignmentScope,
-            branchIds: assignmentScope === 'merchant' ? [] : current.branchIds,
-            primaryBranchId: assignmentScope === 'merchant' ? '' : current.primaryBranchId,
+            ...(assignmentScope === 'merchant'
+              ? {
+                  branchIds: [],
+                  primaryBranchId: '',
+                }
+              : reconcileBranchSelection({
+                  branches: resolveMerchantBranches(merchants, current.merchantId),
+                  branchIds: current.branchIds,
+                  primaryBranchId: current.primaryBranchId,
+                })),
             staffRole: adaptStaffRoleToScope(assignmentScope, current.staffRole),
           }
         : current
@@ -672,13 +745,14 @@ export function PlatformUsersPage() {
                   label={branch.name}
                   checked={createForm.branchIds.includes(branch.id)}
                   onChange={(event) =>
-                    setCreateForm((c) => ({
-                      ...c,
-                      branchIds: patchBranchSelection(c.branchIds, branch.id, event.target.checked),
-                      primaryBranchId: !event.target.checked && c.primaryBranchId === branch.id
-                        ? c.branchIds.filter((id) => id !== branch.id)[0] ?? ''
-                        : c.primaryBranchId,
-                    }))
+                    setCreateForm((current) => {
+                      const nextBranchIds = patchBranchSelection(current.branchIds, branch.id, event.target.checked);
+                      return {
+                        ...current,
+                        branchIds: nextBranchIds,
+                        primaryBranchId: nextBranchIds.includes(current.primaryBranchId) ? current.primaryBranchId : nextBranchIds[0] ?? '',
+                      };
+                    })
                   }
                 />
               ))}
@@ -794,9 +868,10 @@ export function PlatformUsersPage() {
                                 ? {
                                     ...c,
                                     branchIds: patchBranchSelection(c.branchIds, branch.id, event.target.checked),
-                                    primaryBranchId: !event.target.checked && c.primaryBranchId === branch.id
-                                      ? c.branchIds.filter((id) => id !== branch.id)[0] ?? ''
-                                      : c.primaryBranchId,
+                                    primaryBranchId: (() => {
+                                      const nextBranchIds = patchBranchSelection(c.branchIds, branch.id, event.target.checked);
+                                      return nextBranchIds.includes(c.primaryBranchId) ? c.primaryBranchId : nextBranchIds[0] ?? '';
+                                    })(),
                                   }
                                 : c
                             )

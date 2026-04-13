@@ -1,0 +1,624 @@
+{
+  "slug": "pizza-roma",
+  "source_pdf": "data/PIZZA ROMA 5.00 PM A 10.30 PM.pdf",
+  "source_hours_label": "5.00 PM A 10.30 PM",
+  "merchant": {
+    "trade_name": "Pizza Roma"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "assumptions": [
+      "Las pizzas por tamano se cargaron como productos separados para simplificar la compra."
+    ]
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Pizzas",
+      "products": [
+        {
+          "name": "Americana Personal",
+          "base_price": 10.0,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Americana Mediana",
+          "base_price": 25.0,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Americana Familiar",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Americana Estrella Personal",
+          "base_price": 15.0,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Americana Estrella Mediana",
+          "base_price": 25.0,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Americana Estrella Familiar",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Napolitana Personal",
+          "base_price": 10.0,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Napolitana Mediana",
+          "base_price": 25.0,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Napolitana Familiar",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Hawaiana Personal",
+          "base_price": 15.0,
+          "description": "",
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Hawaiana Mediana",
+          "base_price": 30.0,
+          "description": "",
+          "sort_order": 10,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Hawaiana Familiar",
+          "base_price": 40.0,
+          "description": "",
+          "sort_order": 11,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Hawaiana Meats Personal",
+          "base_price": 15.0,
+          "description": "",
+          "sort_order": 12,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Hawaiana Meats Mediana",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 13,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Hawaiana Meats Familiar",
+          "base_price": 45.0,
+          "description": "",
+          "sort_order": 14,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "2A Personal",
+          "base_price": 15.0,
+          "description": "",
+          "sort_order": 15,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "2A Mediana",
+          "base_price": 25.0,
+          "description": "",
+          "sort_order": 16,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "2A Familiar",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 17,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Siciliana Personal",
+          "base_price": 15.0,
+          "description": "",
+          "sort_order": 18,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Siciliana Mediana",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 19,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Siciliana Familiar",
+          "base_price": 45.0,
+          "description": "",
+          "sort_order": 20,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Arcoiris Personal",
+          "base_price": 16.0,
+          "description": "",
+          "sort_order": 21,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Arcoiris Mediana",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 22,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Arcoiris Familiar",
+          "base_price": 45.0,
+          "description": "",
+          "sort_order": 23,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Roma Personal",
+          "base_price": 15.0,
+          "description": "",
+          "sort_order": 24,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Roma Mediana",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 25,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Roma Familiar",
+          "base_price": 45.0,
+          "description": "",
+          "sort_order": 26,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Pepperoni Personal",
+          "base_price": 15.0,
+          "description": "",
+          "sort_order": 27,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Pepperoni Mediana",
+          "base_price": 25.0,
+          "description": "",
+          "sort_order": 28,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Pepperoni Familiar",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 29,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Especial Mediana",
+          "base_price": 40.0,
+          "description": "",
+          "sort_order": 30,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Especial Familiar",
+          "base_price": 50.0,
+          "description": "",
+          "sort_order": 31,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Chocobanana Personal",
+          "base_price": 15.0,
+          "description": "",
+          "sort_order": 32,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Chocobanana Mediana",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 33,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Chocobanana Familiar",
+          "base_price": 45.0,
+          "description": "",
+          "sort_order": 34,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Pizza Vegetariana Personal",
+          "base_price": 15.0,
+          "description": "",
+          "sort_order": 35,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Pizza Vegetariana Mediana",
+          "base_price": 28.0,
+          "description": "",
+          "sort_order": 36,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        },
+        {
+          "name": "Pizza Vegetariana Familiar",
+          "base_price": 40.0,
+          "description": "",
+          "sort_order": 37,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vegetarian_Pizza.jpg/960px-Vegetarian_Pizza.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Pastas",
+      "products": [
+        {
+          "name": "Lasagna Doble Queso Personal",
+          "base_price": 22.0,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Meaty_Lasagna_8of8_%288736299782%29.jpg/960px-Meaty_Lasagna_8of8_%288736299782%29.jpg"
+        },
+        {
+          "name": "Lasagna Doble Queso Familiar",
+          "base_price": 50.0,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Meaty_Lasagna_8of8_%288736299782%29.jpg/960px-Meaty_Lasagna_8of8_%288736299782%29.jpg"
+        },
+        {
+          "name": "Tallarines a la Bolognesa",
+          "base_price": 15.0,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/MIE_KERING_MAKASSAR.jpg/960px-MIE_KERING_MAKASSAR.jpg"
+        },
+        {
+          "name": "Tallarines al Alfredo",
+          "base_price": 18.0,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/MIE_KERING_MAKASSAR.jpg/960px-MIE_KERING_MAKASSAR.jpg"
+        },
+        {
+          "name": "Ravioles a la Romana",
+          "base_price": 18.0,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/86/Ravioli_di_Faraona.JPG"
+        },
+        {
+          "name": "Canelones",
+          "base_price": 20.0,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Cannelloni2.png/960px-Cannelloni2.png"
+        },
+        {
+          "name": "Spaguetti al Pesto",
+          "base_price": 18.0,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Spaghetti_%2853257476437%29_%28cropped%29.png/960px-Spaghetti_%2853257476437%29_%28cropped%29.png"
+        },
+        {
+          "name": "Spaguetti al Pesto con Champinones",
+          "base_price": 20.0,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Spaghetti_%2853257476437%29_%28cropped%29.png/960px-Spaghetti_%2853257476437%29_%28cropped%29.png"
+        },
+        {
+          "name": "Fetuccini en Salsa de Curcuma",
+          "base_price": 18.0,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chicken_fettuccine_alfredo.JPG/960px-Chicken_fettuccine_alfredo.JPG"
+        },
+        {
+          "name": "Gratinado de Fideos Coditos",
+          "base_price": 18.0,
+          "description": "",
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/%28Pasta%29_by_David_Adam_Kess_%28pic.2%29.jpg/960px-%28Pasta%29_by_David_Adam_Kess_%28pic.2%29.jpg"
+        },
+        {
+          "name": "Gratinado de Plumillas",
+          "base_price": 18.0,
+          "description": "",
+          "sort_order": 10,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/%28Pasta%29_by_David_Adam_Kess_%28pic.2%29.jpg/960px-%28Pasta%29_by_David_Adam_Kess_%28pic.2%29.jpg"
+        },
+        {
+          "name": "Fetuccini en Salsa de Beterraga",
+          "base_price": 18.0,
+          "description": "",
+          "sort_order": 11,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chicken_fettuccine_alfredo.JPG/960px-Chicken_fettuccine_alfredo.JPG"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Nuevas Pastas",
+      "products": [
+        {
+          "name": "Fetuccini con Salsa Curry",
+          "base_price": 22.0,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chicken_fettuccine_alfredo.JPG/960px-Chicken_fettuccine_alfredo.JPG"
+        },
+        {
+          "name": "Fetuccini con Salsa de Gorgonzola",
+          "base_price": 23.0,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chicken_fettuccine_alfredo.JPG/960px-Chicken_fettuccine_alfredo.JPG"
+        },
+        {
+          "name": "Fetuccini con Salsa Blanca y Embutido Ahumado",
+          "base_price": 20.0,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chicken_fettuccine_alfredo.JPG/960px-Chicken_fettuccine_alfredo.JPG"
+        },
+        {
+          "name": "Fetuccini con Salsa Blanca con Champinones, Cabanossi y Tocino Ahumado",
+          "base_price": 22.0,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chicken_fettuccine_alfredo.JPG/960px-Chicken_fettuccine_alfredo.JPG"
+        },
+        {
+          "name": "Fetuccini con Salsa Blanca con 2A, Pepperoni y Cabanossi",
+          "base_price": 22.0,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Chicken_fettuccine_alfredo.JPG/960px-Chicken_fettuccine_alfredo.JPG"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "name": "Comida Vegetariana",
+      "products": [
+        {
+          "name": "Ravioles de Espinaca",
+          "base_price": 18.0,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/86/Ravioli_di_Faraona.JPG"
+        },
+        {
+          "name": "Tallarines Rojos Vegetarianos",
+          "base_price": 20.0,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/MIE_KERING_MAKASSAR.jpg/960px-MIE_KERING_MAKASSAR.jpg"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "name": "Combos",
+      "products": [
+        {
+          "name": "Duo Perfecto",
+          "base_price": 30.0,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Don_Jos%C3%A9_Perfecto_Salas_%28IA_donjoseperfect00amun%29.pdf/page1-500px-Don_Jos%C3%A9_Perfecto_Salas_%28IA_donjoseperfect00amun%29.pdf.jpg"
+        },
+        {
+          "name": "La Familia Feliz",
+          "base_price": 45.0,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Jan_Havicksz._Steen_-_Het_vrolijke_huisgezin_-_Google_Art_Project.jpg/960px-Jan_Havicksz._Steen_-_Het_vrolijke_huisgezin_-_Google_Art_Project.jpg"
+        },
+        {
+          "name": "El Trio Imbatible",
+          "base_price": 60.0,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Egyptian_food_Koshary.jpg/960px-Egyptian_food_Koshary.jpg"
+        },
+        {
+          "name": "Martes 2x1",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Medical_Heritage_Library_%28IA_dethermisandreae00bacc%29.pdf/page1-960px-Medical_Heritage_Library_%28IA_dethermisandreae00bacc%29.pdf.jpg"
+        },
+        {
+          "name": "Pasta & Chill",
+          "base_price": 20.0,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Hiyamugi_%282706154251%29.jpg/960px-Hiyamugi_%282706154251%29.jpg"
+        },
+        {
+          "name": "Pasta Date",
+          "base_price": 35.0,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Pasta_e_ceci_con_maltagliati_di_pasta_all%E2%80%99uovo.jpg/960px-Pasta_e_ceci_con_maltagliati_di_pasta_all%E2%80%99uovo.jpg"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "name": "Aperitivos",
+      "products": [
+        {
+          "name": "Pan al Ajo Especial",
+          "base_price": 5.0,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Red_peppers%2C_Red_cherry_tomatoes%2C_Food_collage%2C_Rostov-on-Don%2C_Russia.jpg/960px-Red_peppers%2C_Red_cherry_tomatoes%2C_Food_collage%2C_Rostov-on-Don%2C_Russia.jpg"
+        },
+        {
+          "name": "Palitos Picantes",
+          "base_price": 5.0,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Red_peppers%2C_Red_cherry_tomatoes%2C_Food_collage%2C_Rostov-on-Don%2C_Russia.jpg/960px-Red_peppers%2C_Red_cherry_tomatoes%2C_Food_collage%2C_Rostov-on-Don%2C_Russia.jpg"
+        },
+        {
+          "name": "Pan Meats",
+          "base_price": 5.0,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Red_peppers%2C_Red_cherry_tomatoes%2C_Food_collage%2C_Rostov-on-Don%2C_Russia.jpg/960px-Red_peppers%2C_Red_cherry_tomatoes%2C_Food_collage%2C_Rostov-on-Don%2C_Russia.jpg"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "name": "Bebidas",
+      "products": [
+        {
+          "name": "Mates e Infusiones",
+          "base_price": 3.0,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Cafe",
+          "base_price": 5.0,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        },
+        {
+          "name": "Chocolate Caliente",
+          "base_price": 6.0,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        }
+      ],
+      "sort_order": 6
+    }
+  ]
+}

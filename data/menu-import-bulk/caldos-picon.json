@@ -1,0 +1,114 @@
+{
+  "slug": "caldos-picon",
+  "source_pdf": "data/CALDOS PICON 4.00 PM A 11.00 PM.pdf",
+  "source_hours_label": "4.00 PM A 11.00 PM",
+  "merchant": {
+    "trade_name": "Caldos Picon"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3
+    ],
+    "assumptions": []
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Caldos",
+      "products": [
+        {
+          "name": "Caldo con huevo y complementos",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/K%C3%B6fte_and_a_fried_egg.jpg/960px-K%C3%B6fte_and_a_fried_egg.jpg"
+        },
+        {
+          "name": "Caldo con alita y complementos",
+          "base_price": 7,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Chicken_soup_with_kreplach.jpg/960px-Chicken_soup_with_kreplach.jpg"
+        },
+        {
+          "name": "Caldo con pecho y complementos",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Chicken_soup_with_kreplach.jpg/960px-Chicken_soup_with_kreplach.jpg"
+        },
+        {
+          "name": "Caldo con muslo y complementos",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Chicken_soup_with_kreplach.jpg/960px-Chicken_soup_with_kreplach.jpg"
+        },
+        {
+          "name": "Caldo con entrepierna y complementos",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Chicken_soup_with_kreplach.jpg/960px-Chicken_soup_with_kreplach.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Broaster",
+      "products": [
+        {
+          "name": "Paquete 1 - media presa con caldo de gallina",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Paquete 2 - media presa con papas, cremas y ensalada",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Bebidas",
+      "products": [
+        {
+          "name": "Gaseosa",
+          "base_price": 3,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Common_alcoholic_beverages.jpg/960px-Common_alcoholic_beverages.jpg"
+        },
+        {
+          "name": "Infusiones",
+          "base_price": 2,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        }
+      ],
+      "sort_order": 2
+    }
+  ]
+}

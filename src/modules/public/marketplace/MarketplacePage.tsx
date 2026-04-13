@@ -1,85 +1,386 @@
-import { useEffect, useMemo, useState } from 'react';
-import { publicMarketplaceService, PublicMarketplaceMerchant, PublicMarketplaceProduct } from '../../../core/services/publicMarketplaceService';
+import { startTransition, useDeferredValue, useEffect, useMemo, useState, type CSSProperties } from 'react';
+import {
+  publicMarketplaceService,
+  PublicMarketplaceBranch,
+  PublicMarketplaceMerchant,
+  PublicMarketplaceProduct,
+} from '../../../core/services/publicMarketplaceService';
 import { usePublicStore } from '../store/PublicStoreContext';
 import './MarketplacePage.css';
 
-/* ─────────── helpers ─────────── */
-
 function formatMoney(value: number, currency = 'PEN') {
-  return new Intl.NumberFormat('es-PE', { style: 'currency', currency, minimumFractionDigits: 2 }).format(value);
+  return new Intl.NumberFormat('es-PE', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+  }).format(value);
+}
+
+function merchantSignal(value: string | null | undefined) {
+  return String(value ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
 }
 
 function productSettingForBranch(product: PublicMarketplaceProduct, branchId: string | null) {
   if (!branchId) return null;
-  return product.settings.find((s) => s.branch_id === branchId) ?? null;
+  return product.settings.find((setting) => setting.branch_id === branchId) ?? null;
 }
 
 function isProductAvailable(product: PublicMarketplaceProduct, branchId: string | null) {
-  const s = productSettingForBranch(product, branchId);
-  if (!s) return true;
-  return s.is_available && !s.is_paused;
+  const setting = productSettingForBranch(product, branchId);
+  if (!setting) return true;
+  return setting.is_available && !setting.is_paused;
 }
 
 function priceForBranch(product: PublicMarketplaceProduct, branchId: string | null) {
-  const s = productSettingForBranch(product, branchId);
-  return s?.price ?? product.base_price;
+  const setting = productSettingForBranch(product, branchId);
+  return setting?.price ?? product.base_price;
 }
 
-const GRADIENTS = [
-  'linear-gradient(135deg, rgba(255,98,0,.22), rgba(255,177,122,.38))',
-  'linear-gradient(135deg, rgba(77,20,140,.22), rgba(163,117,255,.32))',
-  'linear-gradient(135deg, rgba(22,163,74,.18), rgba(134,239,172,.32))',
-  'linear-gradient(135deg, rgba(14,165,233,.18), rgba(125,211,252,.34))',
-  'linear-gradient(135deg, rgba(234,88,12,.18), rgba(253,186,116,.32))',
-  'linear-gradient(135deg, rgba(124,58,237,.18), rgba(196,181,253,.32))',
-];
+type MarketplaceTheme = {
+  accent: string;
+  accentStrong: string;
+  surface: string;
+  surfaceAlt: string;
+  ink: string;
+  muted: string;
+  soft: string;
+  glow: string;
+  hero: string;
+  highlight: string;
+};
 
-function gradientFor(idx: number) { return GRADIENTS[idx % GRADIENTS.length]; }
+const DEFAULT_THEME: MarketplaceTheme = {
+  accent: '#ff6a13',
+  accentStrong: '#d9480f',
+  surface: 'rgba(255,255,255,.84)',
+  surfaceAlt: 'rgba(255,247,241,.9)',
+  ink: '#1d1630',
+  muted: '#6b7280',
+  soft: 'rgba(255,116,43,.18)',
+  glow: 'rgba(255,106,19,.26)',
+  hero: 'linear-gradient(135deg, rgba(255,140,51,.95), rgba(120,40,180,.88))',
+  highlight: 'linear-gradient(135deg, rgba(255,191,141,.55), rgba(255,108,47,.18))',
+};
 
-function thumbStyle(imgUrl: string | null | undefined, idx: number): React.CSSProperties {
-  return imgUrl
-    ? { background: `center / cover no-repeat url(${imgUrl})` }
-    : { background: gradientFor(idx) };
+function themeForMerchant(merchant: PublicMarketplaceMerchant | null): MarketplaceTheme {
+  const signal = merchantSignal(merchant?.trade_name);
+
+  if (signal.includes('cevich') || signal.includes('mar') || signal.includes('delfin')) {
+    return {
+      accent: '#0f9bb3',
+      accentStrong: '#0b7285',
+      surface: 'rgba(245,252,255,.84)',
+      surfaceAlt: 'rgba(236,250,253,.92)',
+      ink: '#0f2430',
+      muted: '#4b6472',
+      soft: 'rgba(15,155,179,.16)',
+      glow: 'rgba(15,155,179,.24)',
+      hero: 'linear-gradient(135deg, rgba(15,155,179,.92), rgba(16,67,114,.88))',
+      highlight: 'linear-gradient(135deg, rgba(146,230,245,.62), rgba(54,162,186,.2))',
+    };
+  }
+
+  if (
+    signal.includes('poller') ||
+    signal.includes('broster') ||
+    signal.includes('broast') ||
+    signal.includes('bisteck') ||
+    signal.includes('fogones') ||
+    signal.includes('salchi')
+  ) {
+    return {
+      accent: '#ef6c00',
+      accentStrong: '#c75100',
+      surface: 'rgba(255,250,244,.85)',
+      surfaceAlt: 'rgba(255,244,229,.92)',
+      ink: '#2e170b',
+      muted: '#73564b',
+      soft: 'rgba(239,108,0,.18)',
+      glow: 'rgba(239,108,0,.28)',
+      hero: 'linear-gradient(135deg, rgba(239,108,0,.96), rgba(109,32,5,.9))',
+      highlight: 'linear-gradient(135deg, rgba(255,199,140,.58), rgba(255,137,54,.18))',
+    };
+  }
+
+  if (signal.includes('pizza') || signal.includes('roma')) {
+    return {
+      accent: '#d94841',
+      accentStrong: '#b02b26',
+      surface: 'rgba(255,249,248,.84)',
+      surfaceAlt: 'rgba(255,242,239,.92)',
+      ink: '#301514',
+      muted: '#775857',
+      soft: 'rgba(217,72,65,.16)',
+      glow: 'rgba(217,72,65,.24)',
+      hero: 'linear-gradient(135deg, rgba(217,72,65,.95), rgba(139,36,30,.88))',
+      highlight: 'linear-gradient(135deg, rgba(255,196,179,.56), rgba(217,72,65,.16))',
+    };
+  }
+
+  if (signal.includes('juguer') || signal.includes('cafe') || signal.includes('ponch') || signal.includes('maca')) {
+    return {
+      accent: '#2f9e44',
+      accentStrong: '#23773a',
+      surface: 'rgba(248,253,248,.84)',
+      surfaceAlt: 'rgba(239,250,239,.92)',
+      ink: '#17261a',
+      muted: '#5d6e61',
+      soft: 'rgba(47,158,68,.16)',
+      glow: 'rgba(47,158,68,.22)',
+      hero: 'linear-gradient(135deg, rgba(47,158,68,.95), rgba(204,120,18,.86))',
+      highlight: 'linear-gradient(135deg, rgba(200,241,184,.58), rgba(47,158,68,.16))',
+    };
+  }
+
+  if (signal.includes('chifa')) {
+    return {
+      accent: '#8f3e00',
+      accentStrong: '#6c2c00',
+      surface: 'rgba(255,251,245,.84)',
+      surfaceAlt: 'rgba(255,243,226,.92)',
+      ink: '#2a180c',
+      muted: '#735a48',
+      soft: 'rgba(143,62,0,.16)',
+      glow: 'rgba(143,62,0,.24)',
+      hero: 'linear-gradient(135deg, rgba(143,62,0,.94), rgba(62,20,3,.9))',
+      highlight: 'linear-gradient(135deg, rgba(255,219,169,.56), rgba(143,62,0,.15))',
+    };
+  }
+
+  if (signal.includes('restobar') || signal.includes('bohemia') || signal.includes('oasis') || signal.includes('curayacu')) {
+    return {
+      accent: '#9c36b5',
+      accentStrong: '#7b2b93',
+      surface: 'rgba(252,247,255,.84)',
+      surfaceAlt: 'rgba(246,236,253,.92)',
+      ink: '#231128',
+      muted: '#6d5b76',
+      soft: 'rgba(156,54,181,.15)',
+      glow: 'rgba(156,54,181,.22)',
+      hero: 'linear-gradient(135deg, rgba(156,54,181,.93), rgba(255,124,64,.86))',
+      highlight: 'linear-gradient(135deg, rgba(233,190,244,.58), rgba(156,54,181,.15))',
+    };
+  }
+
+  return DEFAULT_THEME;
 }
 
-/* ─────────── sub-components ─────────── */
+function themeVars(theme: MarketplaceTheme): CSSProperties {
+  return {
+    ['--mp-accent' as string]: theme.accent,
+    ['--mp-accent-strong' as string]: theme.accentStrong,
+    ['--mp-surface' as string]: theme.surface,
+    ['--mp-surface-alt' as string]: theme.surfaceAlt,
+    ['--mp-ink' as string]: theme.ink,
+    ['--mp-muted' as string]: theme.muted,
+    ['--mp-soft' as string]: theme.soft,
+    ['--mp-glow' as string]: theme.glow,
+    ['--mp-hero' as string]: theme.hero,
+    ['--mp-highlight' as string]: theme.highlight,
+  };
+}
 
-function SkeletonCards() {
+function thumbStyle(imageUrl: string | null | undefined): CSSProperties | undefined {
+  return imageUrl ? { backgroundImage: `url(${imageUrl})` } : undefined;
+}
+
+function merchantHeroImage(merchant: PublicMarketplaceMerchant | null) {
+  if (!merchant) return '';
+  return merchant.products.find((product) => product.image_url)?.image_url || merchant.logo_url || '';
+}
+
+function merchantLeadLine(merchant: PublicMarketplaceMerchant | null) {
+  if (!merchant) return '';
+  const signal = merchantSignal(merchant.trade_name);
+
+  if (signal.includes('juguer') || signal.includes('cafe') || signal.includes('ponch')) {
+    return 'Bebidas y antojos ligeros presentados para despertar frescura, animo y compra impulsiva desde el primer vistazo.';
+  }
+  if (signal.includes('cevich')) {
+    return 'Una carta pensada para vender frescura: platos brillantes, lectura rapida y foco total en lo marino.';
+  }
+  if (signal.includes('pizza')) {
+    return 'Horno, queso y combinaciones visibles al instante para que la decision de compra se sienta obvia.';
+  }
+  if (signal.includes('chifa')) {
+    return 'El menu entra como una cartilla de casa: sazones potentes, secciones claras y antojo inmediato.';
+  }
+  if (signal.includes('poller') || signal.includes('broster') || signal.includes('bisteck') || signal.includes('salchi')) {
+    return 'Todo lo que empuja hambre real: dorado, calor visual y platos que se sienten contundentes antes de pedirlos.';
+  }
+  if (signal.includes('restobar')) {
+    return 'Una experiencia con atmosfera de salida: la carta se recorre como si ya estuvieras sentado en el local.';
+  }
+
+  return `${merchant.trade_name} entra en modo vitrina para vender mejor cada plato, no solo para listarlo.`;
+}
+
+function statusLabel(branch: PublicMarketplaceBranch | null) {
+  if (!branch) return 'Carta disponible';
+  if (branch.is_open && branch.accepting_orders) return 'Abierto y tomando pedidos';
+  if (branch.is_open) return 'Abierto, confirma disponibilidad';
+  if (branch.accepts_orders) return 'Agenda abierta para pedidos';
+  return 'Consulta horario del local';
+}
+
+function branchPrepLabel(branch: PublicMarketplaceBranch | null) {
+  if (!branch) return 'Tiempo sujeto al local';
+  if (branch.prep_time_avg_min > 0) {
+    const upperBound = branch.prep_time_avg_min + 8;
+    return `${branch.prep_time_avg_min}-${upperBound} min estimados`;
+  }
+  return branch.accepting_orders ? 'Preparacion activa ahora' : 'Tiempo segun horario';
+}
+
+function appetiteKicker(product: PublicMarketplaceProduct) {
+  const signal = merchantSignal(`${product.name} ${product.description}`);
+
+  if (signal.includes('combo') || signal.includes('familiar') || signal.includes('parrilla')) return 'Para compartir';
+  if (signal.includes('jugo') || signal.includes('smoothie') || signal.includes('ponche') || signal.includes('cafe')) return 'Fresco al momento';
+  if (signal.includes('pizza')) return 'Recien horneada';
+  if (signal.includes('ceviche') || signal.includes('pescado') || signal.includes('marisco')) return 'Golpe marino';
+  if (signal.includes('chaufa') || signal.includes('tallarin') || signal.includes('aeropuerto')) return 'Wok humeante';
+  if (signal.includes('broaster') || signal.includes('broster') || signal.includes('brasa') || signal.includes('salchi')) return 'Dorado que convence';
+  if (signal.includes('especial') || signal.includes('suprema') || signal.includes('premium')) return 'Favorito del local';
+  return 'Listo para pedir';
+}
+
+function appetiteDescription(product: PublicMarketplaceProduct) {
+  const cleanDescription = product.description.trim();
+  if (cleanDescription.length >= 46) return cleanDescription;
+
+  const signal = merchantSignal(`${product.name} ${cleanDescription}`);
+  if (signal.includes('jugo') || signal.includes('smoothie') || signal.includes('ponche') || signal.includes('cafe')) {
+    return `${product.name} preparado para refrescar, levantar el animo y acompanar cualquier hora del dia.`;
+  }
+  if (signal.includes('broaster') || signal.includes('broster') || signal.includes('brasa') || signal.includes('salchi') || signal.includes('bisteck')) {
+    return `${product.name} con textura, calor visual y ese perfil contundente que abre el apetito antes del primer bocado.`;
+  }
+  if (signal.includes('pizza')) {
+    return `${product.name} sale con protagonismo de queso, horno y porcion lista para tentar una segunda vuelta.`;
+  }
+  if (signal.includes('ceviche') || signal.includes('marisco') || signal.includes('pescado')) {
+    return `${product.name} entra fresco, vibrante y con ese punto citrico que hace que el pedido se sienta especial.`;
+  }
+  if (signal.includes('chaufa') || signal.includes('tallarin') || signal.includes('aeropuerto') || signal.includes('chifa')) {
+    return `${product.name} va directo al antojo con wok marcado, sazon alta y una presencia que invita a pedirlo ya.`;
+  }
+  return `${product.name} presentado para resolver el antojo rapido, con lectura clara y ganas de agregarlo al carrito.`;
+}
+
+function appetiteFooter(product: PublicMarketplaceProduct) {
+  const signal = merchantSignal(`${product.name} ${product.description}`);
+
+  if (signal.includes('jugo') || signal.includes('smoothie') || signal.includes('ponche') || signal.includes('cafe')) {
+    return 'Perfecto para refrescar el pedido y subir el ticket sin esfuerzo.';
+  }
+  if (signal.includes('combo') || signal.includes('familiar') || signal.includes('parrilla')) {
+    return 'Pensado para compartir y hacer que la compra se sienta mas completa.';
+  }
+  if (signal.includes('broaster') || signal.includes('broster') || signal.includes('brasa') || signal.includes('salchi')) {
+    return 'De esos platos que llegan a mesa y desaparecen primero.';
+  }
+  if (signal.includes('pizza')) {
+    return 'Una opcion hecha para que la siguiente porcion parezca inevitable.';
+  }
+  if (signal.includes('ceviche') || signal.includes('marisco')) {
+    return 'Brilla por frescura y levanta el valor percibido de la carta.';
+  }
+  return 'Una pieza fuerte para mover compra por impulso.';
+}
+
+function categoryNarrative(categoryName: string, merchantName: string) {
+  const signal = merchantSignal(categoryName);
+
+  if (signal.includes('bebida') || signal.includes('jugo') || signal.includes('cafe')) {
+    return `La parte fresca de ${merchantName}: entradas rapidas, color apetecible y opciones faciles de sumar al pedido.`;
+  }
+  if (signal.includes('promo') || signal.includes('combo')) {
+    return `Aqui viven las decisiones rapidas: packs visibles, lectura simple y valor claro para cerrar compra.`;
+  }
+  if (signal.includes('especial') || signal.includes('casa')) {
+    return `La seleccion que mejor representa a ${merchantName}, presentada para que el cliente empiece por lo mas tentador.`;
+  }
+  return `${categoryName} entra como una mini cartilla propia, con foco en hambre, claridad y deseo de agregar otro plato.`;
+}
+
+function shortAddress(branch: PublicMarketplaceBranch | null) {
+  if (!branch) return 'Huancayo';
+  return branch.address_label || [branch.district, branch.city].filter(Boolean).join(' / ') || 'Huancayo';
+}
+
+function scrollToId(id: string) {
+  const target = document.getElementById(id);
+  if (!target) return;
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+type MenuSection = {
+  category: {
+    id: string;
+    name: string;
+    sort_order: number;
+  };
+  products: PublicMarketplaceProduct[];
+};
+
+function SidebarSkeleton() {
   return (
-    <div className="mp-skeleton-grid">
-      {[0,1,2].map((i) => (
-        <div key={i} className="mp-skeleton-card">
-          <div className="mp-skeleton-thumb" />
+    <div className="mp-shell">
+      <aside className="mp-sidebar">
+        <div className="mp-sidebar-card mp-skeleton-panel">
+          <div className="mp-skeleton-block mp-skeleton-block--hero" />
           <div className="mp-skeleton-line" />
           <div className="mp-skeleton-line mp-skeleton-line--short" />
-          <div className="mp-skeleton-strip">
-            <div className="mp-skeleton-mini" />
-            <div className="mp-skeleton-mini" />
-            <div className="mp-skeleton-mini" />
-          </div>
+          <div className="mp-skeleton-line mp-skeleton-line--tiny" />
         </div>
-      ))}
+        <div className="mp-sidebar-card mp-skeleton-panel">
+          <div className="mp-skeleton-line" />
+          <div className="mp-skeleton-item" />
+          <div className="mp-skeleton-item" />
+          <div className="mp-skeleton-item" />
+        </div>
+      </aside>
+      <div className="mp-stage">
+        <section className="mp-stage-hero mp-skeleton-panel">
+          <div className="mp-skeleton-line mp-skeleton-line--tiny" />
+          <div className="mp-skeleton-line mp-skeleton-line--title" />
+          <div className="mp-skeleton-line" />
+          <div className="mp-skeleton-line mp-skeleton-line--short" />
+          <div className="mp-skeleton-block mp-skeleton-block--showcase" />
+        </section>
+        <section className="mp-menu-section mp-skeleton-panel">
+          <div className="mp-skeleton-line mp-skeleton-line--title" />
+          <div className="mp-skeleton-grid">
+            <div className="mp-skeleton-item mp-skeleton-item--card" />
+            <div className="mp-skeleton-item mp-skeleton-item--card" />
+            <div className="mp-skeleton-item mp-skeleton-item--card" />
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
-
-/* ─────────── main component ─────────── */
 
 export function MarketplacePage() {
   const publicStore = usePublicStore();
   const [snapshot, setSnapshot] = useState<{ merchants: PublicMarketplaceMerchant[] } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError]   = useState<string | null>(null);
-  const [query, setQuery]   = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
   const [activeMerchantId, setActiveMerchantId] = useState<string | null>(null);
-  const [activeBranchId,   setActiveBranchId]   = useState<string | null>(null);
+  const [activeBranchId, setActiveBranchId] = useState<string | null>(null);
   const [activeCategoryId, setActiveCategoryId] = useState('all');
-  const [selectedProduct,  setSelectedProduct]  = useState<PublicMarketplaceProduct | null>(null);
-  const [selectedOptions,  setSelectedOptions]  = useState<Record<string, string[]>>({});
-  const [productNotes,     setProductNotes]     = useState('');
-  const [justAdded,        setJustAdded]        = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<PublicMarketplaceProduct | null>(null);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({});
+  const [productNotes, setProductNotes] = useState('');
+  const [justAdded, setJustAdded] = useState(false);
+  const deferredQuery = useDeferredValue(query);
 
-  /* load */
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -87,34 +388,53 @@ export function MarketplacePage() {
       const result = await publicMarketplaceService.fetchSnapshot();
       setLoading(false);
 
-      if (result.error) { setError(result.error.message); return; }
+      if (result.error) {
+        setError(result.error.message);
+        return;
+      }
 
       const merchants = result.data?.merchants ?? [];
       setSnapshot({ merchants });
       if (merchants.length > 0) {
-        setActiveMerchantId((c) => c ?? merchants[0].id);
-        setActiveBranchId((c)   => c ?? merchants[0].branches[0]?.id ?? null);
+        setActiveMerchantId((current) => current ?? merchants[0].id);
+        setActiveBranchId((current) => current ?? merchants[0].branches[0]?.id ?? null);
       }
     };
+
     load();
   }, []);
 
   const merchants = snapshot?.merchants ?? [];
 
   const filteredMerchants = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return merchants;
-    return merchants.filter((m) => {
-      const hay = [m.trade_name, ...m.branches.map((b) => `${b.name} ${b.district} ${b.city}`), ...m.products.map((p) => p.name)].join(' ').toLowerCase();
-      return hay.includes(q);
-    });
-  }, [merchants, query]);
+    const normalizedQuery = deferredQuery.trim().toLowerCase();
+    if (!normalizedQuery) return merchants;
 
-  const activeMerchant = filteredMerchants.find((m) => m.id === activeMerchantId) ?? filteredMerchants[0] ?? null;
+    return merchants.filter((merchant) => {
+      const haystack = [
+        merchant.trade_name,
+        ...merchant.featured_product_names,
+        ...merchant.branches.map((branch) => `${branch.name} ${branch.district} ${branch.city} ${branch.address_label}`),
+        ...merchant.categories.map((category) => category.name),
+        ...merchant.products.map((product) => `${product.name} ${product.description}`),
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return haystack.includes(normalizedQuery);
+    });
+  }, [deferredQuery, merchants]);
+
+  const activeMerchant = filteredMerchants.find((merchant) => merchant.id === activeMerchantId) ?? filteredMerchants[0] ?? null;
 
   useEffect(() => {
-    if (!filteredMerchants.length) { setActiveMerchantId(null); setActiveBranchId(null); return; }
-    if (!activeMerchantId || !filteredMerchants.some((m) => m.id === activeMerchantId)) {
+    if (filteredMerchants.length === 0) {
+      setActiveMerchantId(null);
+      setActiveBranchId(null);
+      return;
+    }
+
+    if (!activeMerchantId || !filteredMerchants.some((merchant) => merchant.id === activeMerchantId)) {
       setActiveMerchantId(filteredMerchants[0].id);
       setActiveBranchId(filteredMerchants[0].branches[0]?.id ?? null);
       setActiveCategoryId('all');
@@ -123,44 +443,108 @@ export function MarketplacePage() {
 
   useEffect(() => {
     if (!activeMerchant) return;
-    if (!activeBranchId || !activeMerchant.branches.some((b) => b.id === activeBranchId)) {
+    if (!activeBranchId || !activeMerchant.branches.some((branch) => branch.id === activeBranchId)) {
       setActiveBranchId(activeMerchant.branches[0]?.id ?? null);
     }
   }, [activeBranchId, activeMerchant]);
 
-  const visibleProducts = useMemo(() => {
-    if (!activeMerchant) return [];
-    return activeMerchant.products.filter((p) => {
-      const matchesCat = activeCategoryId === 'all' || p.category_id === activeCategoryId;
-      return matchesCat && isProductAvailable(p, activeBranchId);
-    });
-  }, [activeBranchId, activeCategoryId, activeMerchant]);
+  useEffect(() => {
+    setSelectedProduct(null);
+    setSelectedOptions({});
+    setProductNotes('');
+    setJustAdded(false);
+  }, [activeMerchantId, activeBranchId]);
 
-  /* add to cart */
+  const activeBranch =
+    activeMerchant?.branches.find((branch) => branch.id === activeBranchId) ??
+    activeMerchant?.branches[0] ??
+    null;
+
+  const theme = themeForMerchant(activeMerchant);
+  const heroImage = merchantHeroImage(activeMerchant);
+  const merchantImage = activeMerchant?.logo_url || heroImage;
+
+  const availableProducts = useMemo(() => {
+    if (!activeMerchant) return [];
+    return activeMerchant.products.filter((product) => isProductAvailable(product, activeBranchId));
+  }, [activeBranchId, activeMerchant]);
+
+  const menuSections = useMemo(() => {
+    if (!activeMerchant) return [] as MenuSection[];
+
+    const sections = activeMerchant.categories
+      .map((category) => ({
+        category,
+        products: availableProducts.filter((product) => product.category_id === category.id),
+      }))
+      .filter((section) => section.products.length > 0);
+
+    const uncategorizedProducts = availableProducts.filter(
+      (product) => !product.category_id || !activeMerchant.categories.some((category) => category.id === product.category_id)
+    );
+
+    if (uncategorizedProducts.length > 0) {
+      sections.push({
+        category: {
+          id: 'recomendados',
+          name: 'Recomendados',
+          sort_order: Number.MAX_SAFE_INTEGER,
+        },
+        products: uncategorizedProducts,
+      });
+    }
+
+    return sections.sort(
+      (left, right) =>
+        left.category.sort_order - right.category.sort_order || left.category.name.localeCompare(right.category.name)
+    );
+  }, [activeMerchant, availableProducts]);
+
+  const showcaseProducts = useMemo(() => availableProducts.slice(0, 4), [availableProducts]);
+  const sidebarMerchants = filteredMerchants.filter((merchant) => merchant.id !== activeMerchant?.id);
+  const resultCountLabel = `${filteredMerchants.length} negocio${filteredMerchants.length === 1 ? '' : 's'} visibles`;
+
+  const openProduct = (product: PublicMarketplaceProduct) => {
+    setSelectedProduct(product);
+    setSelectedOptions({});
+    setProductNotes('');
+    setJustAdded(false);
+  };
+
   const addSelectedProduct = () => {
     if (!selectedProduct || !activeMerchant || !activeBranchId) return;
-    const modifiers = selectedProduct.modifier_groups.flatMap((g) =>
-      (selectedOptions[g.id] ?? [])
-        .map((oId) => g.options.find((o) => o.id === oId))
+
+    const modifiers = selectedProduct.modifier_groups.flatMap((group) =>
+      (selectedOptions[group.id] ?? [])
+        .map((optionId) => group.options.find((option) => option.id === optionId))
         .filter(Boolean)
-        .map((o) => ({ id: o!.id, option_id: o!.id, group_id: g.id, name: o!.name, price_delta: o!.price_delta, quantity: 1 }))
+        .map((option) => ({
+          id: option!.id,
+          option_id: option!.id,
+          group_id: group.id,
+          name: option!.name,
+          price_delta: option!.price_delta,
+          quantity: 1,
+        }))
     );
+
     publicStore.addItem({
-      merchant_id:          activeMerchant.id,
-      merchant_name:        activeMerchant.trade_name,
-      branch_id:            activeBranchId,
-      branch_name:          activeMerchant.branches.find((b) => b.id === activeBranchId)?.name || 'Sucursal',
-      product_id:           selectedProduct.id,
-      product_name:         selectedProduct.name,
-      product_description:  selectedProduct.description,
-      image_url:            selectedProduct.image_url,
-      unit_price:           priceForBranch(selectedProduct, activeBranchId),
-      quantity:             1,
-      notes:                productNotes.trim(),
+      merchant_id: activeMerchant.id,
+      merchant_name: activeMerchant.trade_name,
+      branch_id: activeBranchId,
+      branch_name: activeMerchant.branches.find((branch) => branch.id === activeBranchId)?.name || 'Sucursal',
+      product_id: selectedProduct.id,
+      product_name: selectedProduct.name,
+      product_description: selectedProduct.description,
+      image_url: selectedProduct.image_url,
+      unit_price: priceForBranch(selectedProduct, activeBranchId),
+      quantity: 1,
+      notes: productNotes.trim(),
       modifiers,
     });
+
     setJustAdded(true);
-    setTimeout(() => {
+    window.setTimeout(() => {
       setJustAdded(false);
       setSelectedProduct(null);
       setSelectedOptions({});
@@ -168,322 +552,372 @@ export function MarketplacePage() {
     }, 900);
   };
 
-  /* toggle modifier option */
   const toggleOption = (groupId: string, optionId: string, maxSelect: number) => {
-    setSelectedOptions((cur) => {
-      const sel = cur[groupId] ?? [];
-      if (sel.includes(optionId)) return { ...cur, [groupId]: sel.filter((x) => x !== optionId) };
-      if (sel.length >= Math.max(1, maxSelect)) return cur;
-      return { ...cur, [groupId]: [...sel, optionId] };
+    setSelectedOptions((current) => {
+      const selected = current[groupId] ?? [];
+      if (selected.includes(optionId)) {
+        return { ...current, [groupId]: selected.filter((item) => item !== optionId) };
+      }
+      if (selected.length >= Math.max(1, maxSelect)) {
+        return current;
+      }
+      return { ...current, [groupId]: [...selected, optionId] };
     });
   };
 
-  /* address label */
-  const branchAddressLabel = (merchantObj: typeof activeMerchant) => {
-    if (!merchantObj || !activeBranchId) return 'Carta disponible';
-    const b = merchantObj.branches.find((x) => x.id === activeBranchId);
-    return b?.address_label || b?.district || 'Carta disponible';
-  };
-
-  /* ────────── render ────────── */
   return (
-    <section className="mp-page">
+    <section className="mp-page" style={themeVars(theme)}>
       <div className="mp-wrapper">
+        <header className="mp-topbar">
+          <div className="mp-topbar__copy">
+            <span className="mp-topbar__eyebrow">Marketplace gastronomico</span>
+            <h1 className="mp-topbar__title">Haz que el antojo mande.</h1>
+            <p className="mp-topbar__subtitle">
+              Un restaurante a la vez, con foco en platos que se sienten deseables, claros y faciles de pedir.
+            </p>
+          </div>
 
-        {/* ── Hero Search ── */}
-        <div className="mp-hero">
-          <div className="mp-hero__top">
-            <div className="mp-hero__heading">
-              <h1 className="mp-hero__title">Pide ahora 🛵</h1>
-              <p className="mp-hero__subtitle">Elige un local, explora su carta y agrega al carrito.</p>
+          <div className="mp-search-panel">
+            <label className="mp-search-label" htmlFor="mp-search-input">
+              Buscar local o plato
+            </label>
+            <div className="mp-search-box">
+              <span className="mp-search-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+              </span>
+              <input
+                id="mp-search-input"
+                className="mp-search-input"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Ej. polleria, jugo, pizza familiar..."
+              />
             </div>
-            <span className="mp-hero__badge">
-              <span className="mp-hero__badge-dot" />
-              {filteredMerchants.length} local{filteredMerchants.length !== 1 ? 'es' : ''}
-            </span>
+            <div className="mp-search-meta">
+              <span className="mp-result-pill">{resultCountLabel}</span>
+              <span className="mp-search-hint">Explora por negocio, seccion o nombre de plato.</span>
+            </div>
           </div>
+        </header>
 
-          <div className="mp-search-wrap">
-            <span className="mp-search-icon">
-              {/* Search SVG */}
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
-            </span>
-            <input
-              id="mp-search-input"
-              className="mp-search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar local, plato..."
-            />
-          </div>
-        </div>
+        {loading ? <SidebarSkeleton /> : null}
 
-        {/* ── Loading / Error / Content ── */}
-        {loading ? (
-          <SkeletonCards />
-        ) : error ? (
+        {!loading && error ? (
           <div className="mp-error">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            {error}
+            <span>{error}</span>
           </div>
-        ) : (
-          <>
-            {/* Merchant cards */}
-            <div className="mp-merchants">
-              {filteredMerchants.map((merchant, idx) => {
-                const isActive      = merchant.id === activeMerchant?.id;
-                const previewProds  = merchant.products.slice(0, 3);
-                return (
-                  <button
-                    key={merchant.id}
-                    type="button"
-                    id={`mp-merchant-${merchant.id}`}
-                    className={`mp-merchant-card${isActive ? ' mp-merchant-card--active' : ''}`}
-                    onClick={() => {
-                      setActiveMerchantId(merchant.id);
-                      setActiveBranchId(merchant.branches[0]?.id ?? null);
-                      setActiveCategoryId('all');
-                    }}
-                  >
-                    {/* Banner */}
-                    <div
-                      className="mp-merchant-banner"
-                      style={merchant.logo_url
-                        ? { backgroundImage: `url(${merchant.logo_url})` }
-                        : { background: gradientFor(idx) }}
-                    >
-                      <div className="mp-merchant-nameplate">
-                        <strong>{merchant.trade_name}</strong>
-                        <span>{merchant.branches[0]?.district || 'Huancayo'}</span>
-                      </div>
-                      <span className="mp-merchant-count" title="Productos disponibles">
-                        {merchant.products.length}
-                      </span>
-                    </div>
+        ) : null}
 
-                    {/* Preview strip */}
-                    {previewProds.length > 0 && (
-                      <div className="mp-merchant-preview">
-                        {previewProds.map((product, pi) => (
-                          <div key={product.id} className="mp-preview-item">
-                            <div className="mp-preview-thumb" style={thumbStyle(product.image_url, pi + idx)} />
-                            <span className="mp-preview-label">{product.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
+        {!loading && !error && filteredMerchants.length === 0 ? (
+          <div className="mp-empty">
+            <div className="mp-empty-icon">?</div>
+            <div>
+              <strong>No encontramos resultados para "{query}".</strong>
+              <p>Prueba con otro negocio, distrito o nombre de plato.</p>
             </div>
+          </div>
+        ) : null}
 
-            {/* Empty search */}
-            {filteredMerchants.length === 0 && (
-              <div className="mp-empty">
-                <div className="mp-empty-icon">🔍</div>
-                <p>No encontramos locales o platos con <strong>"{query}"</strong></p>
-              </div>
-            )}
-
-            {/* ── Active Merchant Menu ── */}
-            {activeMerchant && (
-              <section className="mp-menu" id="mp-active-menu">
-                {/* Header */}
-                <div className="mp-menu-header">
-                  <div>
-                    <h2 className="mp-menu-title">{activeMerchant.trade_name}</h2>
-                    <p className="mp-menu-address">
-                      📍 {branchAddressLabel(activeMerchant)}
-                    </p>
+        {!loading && !error && activeMerchant ? (
+          <div className="mp-shell">
+            <aside className="mp-sidebar">
+              <div className="mp-sidebar-card">
+                <button type="button" className="mp-sidebar-now" onClick={() => scrollToId('mp-stage-top')}>
+                  <div className="mp-sidebar-now__thumb" style={thumbStyle(merchantImage)} />
+                  <div className="mp-sidebar-now__body">
+                    <span className="mp-sidebar-caption">Restaurante activo</span>
+                    <strong>{activeMerchant.trade_name}</strong>
+                    <span>{shortAddress(activeBranch)}</span>
                   </div>
-                  {activeMerchant.branches.length > 1 && (
+                </button>
+
+                <div className="mp-sidebar-list-head">
+                  <div>
+                    <span className="mp-sidebar-caption">Otros negocios</span>
+                    <strong className="mp-sidebar-title">Cambia de local sin perder el contexto.</strong>
+                  </div>
+                  <span className="mp-sidebar-pill">{sidebarMerchants.length}</span>
+                </div>
+
+                <div className="mp-sidebar-list">
+                  {sidebarMerchants.length > 0 ? (
+                    sidebarMerchants.map((merchant) => {
+                      const merchantImageUrl = merchant.logo_url || merchantHeroImage(merchant);
+                      return (
+                        <button
+                          key={merchant.id}
+                          type="button"
+                          className="mp-sidebar-item"
+                          onClick={() =>
+                            startTransition(() => {
+                              setActiveMerchantId(merchant.id);
+                              setActiveBranchId(merchant.branches[0]?.id ?? null);
+                              setActiveCategoryId('all');
+                              scrollToId('mp-stage-top');
+                            })
+                          }
+                        >
+                          <div className="mp-sidebar-item__thumb" style={thumbStyle(merchantImageUrl)} />
+                          <div className="mp-sidebar-item__body">
+                            <div className="mp-sidebar-item__topline">
+                              <strong>{merchant.trade_name}</strong>
+                              <span>{merchant.products.length}</span>
+                            </div>
+                            <p>{merchant.featured_product_names.slice(0, 2).join(' / ') || 'Carta lista para vender mejor.'}</p>
+                            <div className="mp-sidebar-item__meta">
+                              <span>{merchant.branches[0]?.district || 'Huancayo'}</span>
+                              <span>{merchant.branches.length} sucursales</span>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className="mp-sidebar-empty">
+                      <strong>Solo queda este negocio en tu busqueda.</strong>
+                      <span>Prueba otro termino para volver a abrir mas opciones en la barra lateral.</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </aside>
+
+            <main className="mp-stage" id="mp-stage-top">
+              <section className="mp-stage-hero">
+                <div className="mp-stage-copy">
+                  <span className="mp-stage-overline">Cartilla del restaurante</span>
+                  <h2 className="mp-stage-title">{activeMerchant.trade_name}</h2>
+                  <p className="mp-stage-lead">{merchantLeadLine(activeMerchant)}</p>
+
+                  <div className="mp-stage-meta">
+                    <span className="mp-stage-chip mp-stage-chip--accent">{statusLabel(activeBranch)}</span>
+                    <span className="mp-stage-chip">{branchPrepLabel(activeBranch)}</span>
+                    <span className="mp-stage-chip">{shortAddress(activeBranch)}</span>
+                  </div>
+
+                  {activeMerchant.branches.length > 1 ? (
                     <div className="mp-branch-tabs">
                       {activeMerchant.branches.map((branch) => (
                         <button
                           key={branch.id}
                           type="button"
-                          id={`mp-branch-${branch.id}`}
                           className={`mp-branch-btn${branch.id === activeBranchId ? ' mp-branch-btn--active' : ''}`}
-                          onClick={() => setActiveBranchId(branch.id)}
+                          onClick={() =>
+                            startTransition(() => {
+                              setActiveBranchId(branch.id);
+                              setActiveCategoryId('all');
+                            })
+                          }
                         >
                           {branch.name}
                         </button>
                       ))}
                     </div>
-                  )}
+                  ) : null}
+
+                  <div className="mp-stage-stats">
+                    <div className="mp-stage-stat">
+                      <strong>{availableProducts.length}</strong>
+                      <span>platos visibles</span>
+                    </div>
+                    <div className="mp-stage-stat">
+                      <strong>{menuSections.length}</strong>
+                      <span>secciones navegables</span>
+                    </div>
+                    <div className="mp-stage-stat">
+                      <strong>{activeMerchant.branches.length}</strong>
+                      <span>sucursales del local</span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Category chips */}
-                <div className="mp-cats" role="tablist" aria-label="Categorías">
+                <div className="mp-showcase">
+                  <div className="mp-showcase-screen">
+                    <div className="mp-showcase-image" style={thumbStyle(heroImage)} />
+                    <div className="mp-showcase-stack">
+                      {showcaseProducts.map((product, index) => (
+                        <div
+                          key={product.id}
+                          className="mp-showcase-item"
+                          style={{ ['--order' as string]: index } as CSSProperties}
+                        >
+                          <div className="mp-showcase-item__thumb" style={thumbStyle(product.image_url)} />
+                          <div className="mp-showcase-item__body">
+                            <span>{appetiteKicker(product)}</span>
+                            <strong>{product.name}</strong>
+                            <small>{formatMoney(priceForBranch(product, activeBranchId))}</small>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <nav className="mp-stage-rail">
+                <button
+                  type="button"
+                  className={activeCategoryId === 'all' ? 'mp-rail-btn mp-rail-btn--active' : 'mp-rail-btn'}
+                  onClick={() => {
+                    setActiveCategoryId('all');
+                    scrollToId('mp-stage-top');
+                  }}
+                >
+                  Portada
+                </button>
+                {menuSections.map((section) => (
                   <button
+                    key={section.category.id}
                     type="button"
-                    role="tab"
-                    id="mp-cat-all"
-                    aria-selected={activeCategoryId === 'all'}
-                    className={`mp-cat-btn${activeCategoryId === 'all' ? ' mp-cat-btn--active' : ''}`}
-                    onClick={() => setActiveCategoryId('all')}
+                    className={activeCategoryId === section.category.id ? 'mp-rail-btn mp-rail-btn--active' : 'mp-rail-btn'}
+                    onClick={() => {
+                      setActiveCategoryId(section.category.id);
+                      scrollToId(`mp-section-${section.category.id}`);
+                    }}
                   >
-                    Todo
+                    {section.category.name}
                   </button>
-                  {activeMerchant.categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      role="tab"
-                      id={`mp-cat-${cat.id}`}
-                      aria-selected={activeCategoryId === cat.id}
-                      className={`mp-cat-btn${activeCategoryId === cat.id ? ' mp-cat-btn--active' : ''}`}
-                      onClick={() => setActiveCategoryId(cat.id)}
-                    >
-                      {cat.name}
-                    </button>
+                ))}
+              </nav>
+
+              {menuSections.length === 0 ? (
+                <div className="mp-empty">
+                  <div className="mp-empty-icon">!</div>
+                  <div>
+                    <strong>Esta sucursal no tiene platos disponibles en este momento.</strong>
+                    <p>Cambia de sucursal o vuelve mas tarde para revisar la carta activa.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="mp-menu-sections" id="mp-stage-sections">
+                  {menuSections.map((section) => (
+                    <section key={section.category.id} id={`mp-section-${section.category.id}`} className="mp-menu-section">
+                      <div className="mp-menu-section__head">
+                        <div>
+                          <span className="mp-menu-section__eyebrow">Seccion de la carta</span>
+                          <h3>{section.category.name}</h3>
+                          <p>{categoryNarrative(section.category.name, activeMerchant.trade_name)}</p>
+                        </div>
+                        <span className="mp-menu-section__count">{section.products.length} opciones</span>
+                      </div>
+
+                      <div className="mp-dishes-grid">
+                        {section.products.map((product, index) => {
+                          const branchSetting = productSettingForBranch(product, activeBranchId);
+                          return (
+                            <article key={product.id} className={`mp-dish-card${index === 0 ? ' mp-dish-card--feature' : ''}`}>
+                              <div className="mp-dish-media" style={thumbStyle(product.image_url)}>
+                                <div className="mp-dish-overlay" />
+                                <div className="mp-dish-topline">
+                                  <span className="mp-dish-kicker">{appetiteKicker(product)}</span>
+                                  <strong className="mp-dish-price">{formatMoney(priceForBranch(product, activeBranchId))}</strong>
+                                </div>
+                              </div>
+
+                              <div className="mp-dish-body">
+                                <div className="mp-dish-head">
+                                  <strong className="mp-dish-name">{product.name}</strong>
+                                  {branchSetting?.stock_qty != null ? (
+                                    <span className="mp-dish-stock">{branchSetting.stock_qty} und.</span>
+                                  ) : null}
+                                </div>
+
+                                <p className="mp-dish-desc">{appetiteDescription(product)}</p>
+
+                                <div className="mp-dish-footer">
+                                  <span>{appetiteFooter(product)}</span>
+                                  <button type="button" className="mp-add-btn" onClick={() => openProduct(product)}>
+                                    Agregar
+                                  </button>
+                                </div>
+                              </div>
+                            </article>
+                          );
+                        })}
+                      </div>
+                    </section>
                   ))}
                 </div>
-
-                {/* Products */}
-                {visibleProducts.length === 0 ? (
-                  <div className="mp-empty">
-                    <div className="mp-empty-icon">🍽️</div>
-                    <p>Sin productos disponibles en esta categoría.</p>
-                  </div>
-                ) : (
-                  <div className="mp-products">
-                    {visibleProducts.map((product, pi) => {
-                      const setting = productSettingForBranch(product, activeBranchId);
-                      return (
-                        <article key={product.id} className="mp-prod-card">
-                          {/* Thumbnail */}
-                          <div className="mp-prod-thumb" style={thumbStyle(product.image_url, pi + 4)}>
-                            <div className="mp-prod-thumb-overlay" />
-                            <div className="mp-prod-badges">
-                              <span className="mp-prod-price">
-                                {formatMoney(priceForBranch(product, activeBranchId))}
-                              </span>
-                              {setting?.stock_qty != null && (
-                                <span className="mp-prod-stock">
-                                  {setting.stock_qty} und.
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Body */}
-                          <div className="mp-prod-body">
-                            <strong className="mp-prod-name">{product.name}</strong>
-                            <p className="mp-prod-desc">
-                              {product.description || 'Disponible para pedir ahora.'}
-                            </p>
-                            <button
-                              id={`mp-add-${product.id}`}
-                              type="button"
-                              className="mp-add-btn"
-                              onClick={() => {
-                                setSelectedProduct(product);
-                                setSelectedOptions({});
-                                setProductNotes('');
-                              }}
-                            >
-                              {/* plus icon */}
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                              </svg>
-                              Agregar
-                            </button>
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </div>
-                )}
-              </section>
-            )}
-          </>
-        )}
+              )}
+            </main>
+          </div>
+        ) : null}
       </div>
 
-      {/* ════════════════════════════════════════
-          PRODUCT MODAL
-      ════════════════════════════════════════ */}
-      {selectedProduct && activeMerchant && activeBranchId && (
+      {selectedProduct && activeMerchant && activeBranchId ? (
         <div
           className="mp-modal-overlay"
           role="dialog"
           aria-modal="true"
           aria-label={`Configurar ${selectedProduct.name}`}
-          onClick={(e) => { if (e.target === e.currentTarget) setSelectedProduct(null); }}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setSelectedProduct(null);
+            }
+          }}
         >
           <div className="mp-modal">
-            {/* Optional product image */}
-            {selectedProduct.image_url && (
-              <div
-                className="mp-modal-img-placeholder"
-                style={{ backgroundImage: `url(${selectedProduct.image_url})` }}
-              />
-            )}
+            <div className="mp-modal-hero" style={thumbStyle(selectedProduct.image_url || heroImage)} />
 
             <div className="mp-modal-body">
-              {/* Header */}
               <div className="mp-modal-header">
                 <div className="mp-modal-info">
                   <h3 className="mp-modal-name">{selectedProduct.name}</h3>
-                  {selectedProduct.description && (
-                    <p className="mp-modal-desc">{selectedProduct.description}</p>
-                  )}
-                  <span className="mp-modal-price">
-                    💰 {formatMoney(priceForBranch(selectedProduct, activeBranchId))}
-                  </span>
+                  <p className="mp-modal-desc">{appetiteDescription(selectedProduct)}</p>
+                  <span className="mp-modal-price">{formatMoney(priceForBranch(selectedProduct, activeBranchId))}</span>
                 </div>
+
                 <button
                   type="button"
-                  id="mp-modal-close"
                   className="mp-modal-close"
                   onClick={() => setSelectedProduct(null)}
-                  aria-label="Cerrar"
+                  aria-label="Cerrar vista"
                 >
-                  ×
+                  x
                 </button>
               </div>
 
-              {/* Modifier groups */}
               {selectedProduct.modifier_groups.map((group) => (
                 <div key={group.id} className="mp-modifier">
                   <div className="mp-modifier-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <div>
                       <span className="mp-modifier-name">{group.name}</span>
-                      <span className={group.is_required ? 'mp-modifier-required' : 'mp-modifier-optional'}>
-                        {group.is_required ? 'Requerido' : 'Opcional'}
-                      </span>
+                      <p className="mp-modifier-meta">
+                        Elige hasta {Math.max(1, group.max_select)} opcion{Math.max(1, group.max_select) === 1 ? '' : 'es'}.
+                      </p>
                     </div>
-                    <p className="mp-modifier-meta">
-                      Elige hasta {Math.max(1, group.max_select)} opción{Math.max(1, group.max_select) !== 1 ? 'es' : ''}
-                    </p>
+                    <span className={group.is_required ? 'mp-modifier-required' : 'mp-modifier-optional'}>
+                      {group.is_required ? 'Requerido' : 'Opcional'}
+                    </span>
                   </div>
+
                   <div className="mp-options">
                     {group.options.map((option) => {
-                      const sel = (selectedOptions[group.id] ?? []).includes(option.id);
+                      const selected = (selectedOptions[group.id] ?? []).includes(option.id);
                       return (
                         <button
                           key={option.id}
                           type="button"
-                          id={`mp-opt-${option.id}`}
-                          className={`mp-option-btn${sel ? ' mp-option-btn--selected' : ''}`}
+                          className={selected ? 'mp-option-btn mp-option-btn--selected' : 'mp-option-btn'}
                           onClick={() => toggleOption(group.id, option.id, group.max_select)}
                         >
                           <span>{option.name}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <strong style={{ fontSize: '13px' }}>
-                              {option.price_delta > 0 ? `+${formatMoney(option.price_delta)}` : 'Incluido'}
-                            </strong>
+                          <div className="mp-option-side">
+                            <strong>{option.price_delta > 0 ? `+${formatMoney(option.price_delta)}` : 'Incluido'}</strong>
                             <span className="mp-option-check">
-                              {sel && (
+                              {selected ? (
                                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                  <polyline points="2,6 5,9 10,3"/>
+                                  <polyline points="2,6 5,9 10,3" />
                                 </svg>
-                              )}
+                              ) : null}
                             </span>
                           </div>
                         </button>
@@ -493,56 +927,25 @@ export function MarketplacePage() {
                 </div>
               ))}
 
-              {/* Notes */}
               <textarea
-                id="mp-notes"
                 className="mp-notes"
                 value={productNotes}
-                onChange={(e) => setProductNotes(e.target.value)}
-                placeholder="✏️  Notas para cocina (sin picante, aparte la salsa…)"
+                onChange={(event) => setProductNotes(event.target.value)}
+                placeholder="Notas para cocina o detalle del pedido."
               />
 
-              {/* Footer */}
               <div className="mp-modal-footer">
-                <button
-                  type="button"
-                  id="mp-modal-cancel"
-                  className="mp-cancel-btn"
-                  onClick={() => setSelectedProduct(null)}
-                >
+                <button type="button" className="mp-cancel-btn" onClick={() => setSelectedProduct(null)}>
                   Cancelar
                 </button>
-                <button
-                  type="button"
-                  id="mp-modal-confirm"
-                  className="mp-confirm-btn"
-                  onClick={addSelectedProduct}
-                  disabled={justAdded}
-                >
-                  {justAdded ? (
-                    <>
-                      {/* checkmark */}
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
-                      ¡Agregado!
-                    </>
-                  ) : (
-                    <>
-                      {/* cart icon */}
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                      </svg>
-                      Agregar al carrito
-                    </>
-                  )}
+                <button type="button" className="mp-confirm-btn" onClick={addSelectedProduct} disabled={justAdded}>
+                  {justAdded ? 'Agregado al carrito' : 'Agregar al carrito'}
                 </button>
               </div>
             </div>
           </div>
         </div>
-      )}
+      ) : null}
     </section>
   );
 }

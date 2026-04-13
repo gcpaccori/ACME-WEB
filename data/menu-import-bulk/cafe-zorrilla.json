@@ -1,0 +1,904 @@
+{
+  "slug": "cafe-zorrilla",
+  "source_pdf": "data/CAF? ZORRILLA 8.00 AM A 10.00 PM.pdf",
+  "source_hours_label": "8.00 AM A 10.00 PM",
+  "merchant": {
+    "trade_name": "Cafe Zorrilla"
+  },
+  "notes": {
+    "verified_pages": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "assumptions": [
+      "Los precios de algunas familias se alinearon segun la lectura del cuadro OCR."
+    ]
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Jugos",
+      "products": [
+        {
+          "name": "Jugo de Papaya",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Orange_juice_1_edit1.jpg/960px-Orange_juice_1_edit1.jpg"
+        },
+        {
+          "name": "Jugo de Fresa",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Orange_juice_1_edit1.jpg/960px-Orange_juice_1_edit1.jpg"
+        },
+        {
+          "name": "Jugo de Mango",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Orange_juice_1_edit1.jpg/960px-Orange_juice_1_edit1.jpg"
+        },
+        {
+          "name": "Jugo de Pina",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Orange_juice_1_edit1.jpg/960px-Orange_juice_1_edit1.jpg"
+        },
+        {
+          "name": "Jugo Especial",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Orange_juice_1_edit1.jpg/960px-Orange_juice_1_edit1.jpg"
+        },
+        {
+          "name": "Jugo Surtido",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Orange_juice_1_edit1.jpg/960px-Orange_juice_1_edit1.jpg"
+        }
+      ],
+      "sort_order": 0
+    },
+    {
+      "name": "Batidos",
+      "products": [
+        {
+          "name": "Batido de Fresa",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/San_Vicente%2C_Milkshake%2C_Palawan%2C_Philippines.jpg/960px-San_Vicente%2C_Milkshake%2C_Palawan%2C_Philippines.jpg"
+        },
+        {
+          "name": "Batido de Mango",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/San_Vicente%2C_Milkshake%2C_Palawan%2C_Philippines.jpg/960px-San_Vicente%2C_Milkshake%2C_Palawan%2C_Philippines.jpg"
+        },
+        {
+          "name": "Batido de Platano",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/San_Vicente%2C_Milkshake%2C_Palawan%2C_Philippines.jpg/960px-San_Vicente%2C_Milkshake%2C_Palawan%2C_Philippines.jpg"
+        }
+      ],
+      "sort_order": 1
+    },
+    {
+      "name": "Cafe de Especialidad",
+      "products": [
+        {
+          "name": "Cafe Americano",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        },
+        {
+          "name": "Expreso",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Espresso_BW_1.jpg/960px-Espresso_BW_1.jpg"
+        },
+        {
+          "name": "Expreso Doble",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Espresso_BW_1.jpg/960px-Espresso_BW_1.jpg"
+        },
+        {
+          "name": "Capuccino",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Cappuccino_and_cookie.jpg/960px-Cappuccino_and_cookie.jpg"
+        },
+        {
+          "name": "Mocca",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Mocha_coffee.jpg/960px-Mocha_coffee.jpg"
+        },
+        {
+          "name": "Latte Art",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Matcha_tea_latte_with_rosetta_latte_art.jpg/960px-Matcha_tea_latte_with_rosetta_latte_art.jpg"
+        },
+        {
+          "name": "Maquiato",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        },
+        {
+          "name": "Cafe Cortado",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        }
+      ],
+      "sort_order": 2
+    },
+    {
+      "name": "Hierbas de la Zona",
+      "products": [
+        {
+          "name": "Hierba Luisa",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg/960px-Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg"
+        },
+        {
+          "name": "Muna",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg/960px-Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg"
+        },
+        {
+          "name": "Manzanilla y Anis",
+          "base_price": 7,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg/960px-Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg"
+        },
+        {
+          "name": "Cedron",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg/960px-Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg"
+        },
+        {
+          "name": "Coca",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg/960px-Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg"
+        },
+        {
+          "name": "Manzanilla",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg/960px-Krasnoyarsk_Stolby%2C_Herbal_tea%2C_Herbal_infusion%2C_Taiga_forest_tea%2C_Russia.jpg"
+        }
+      ],
+      "sort_order": 3
+    },
+    {
+      "name": "Bebidas Calientes",
+      "products": [
+        {
+          "name": "Cafe Pasado",
+          "base_price": 4.5,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        },
+        {
+          "name": "Leche Fresca",
+          "base_price": 3.5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flaming_cocktails.jpg/960px-Flaming_cocktails.jpg"
+        },
+        {
+          "name": "Leche Fresca con Cafe",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/960px-A_small_cup_of_coffee.JPG"
+        },
+        {
+          "name": "Chocolate Caliente",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te de Bergamota",
+          "base_price": 7,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te de Caramelo",
+          "base_price": 7,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Te Negro",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        }
+      ],
+      "sort_order": 4
+    },
+    {
+      "name": "Frappes",
+      "products": [
+        {
+          "name": "Frappe de Fresa",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Frapp%C3%A9.jpg/960px-Frapp%C3%A9.jpg"
+        },
+        {
+          "name": "Frappe de Oreo",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Frapp%C3%A9.jpg/960px-Frapp%C3%A9.jpg"
+        },
+        {
+          "name": "Frappe de Mango",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Frapp%C3%A9.jpg/960px-Frapp%C3%A9.jpg"
+        },
+        {
+          "name": "Frappuccino",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Starbucks_matcha_jelly_mountain_frappuccino_%281%29.jpg/960px-Starbucks_matcha_jelly_mountain_frappuccino_%281%29.jpg"
+        }
+      ],
+      "sort_order": 5
+    },
+    {
+      "name": "Postres Clasicos",
+      "products": [
+        {
+          "name": "Brownie",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Sizzling_Brownie_by_CCD.jpg/960px-Sizzling_Brownie_by_CCD.jpg"
+        },
+        {
+          "name": "Alfajor",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Alfajor-P1060387.JPG/960px-Alfajor-P1060387.JPG"
+        },
+        {
+          "name": "Mini Suspiro a la Limena",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Suspiro_lime%C3%B1o.jpg/960px-Suspiro_lime%C3%B1o.jpg"
+        },
+        {
+          "name": "Mil Hojas",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Mille-feuille_20100916.jpg/960px-Mille-feuille_20100916.jpg"
+        },
+        {
+          "name": "Creme Brulee",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/91/Cr%C3%A8me_br%C3%BBl%C3%A9e_w._whipped_cream.jpg"
+        },
+        {
+          "name": "Crema Volteada",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Homemade_Flan.jpg/960px-Homemade_Flan.jpg"
+        }
+      ],
+      "sort_order": 6
+    },
+    {
+      "name": "Tartas",
+      "products": [
+        {
+          "name": "Pye de Limon",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Lemon_tart_%28cropped%29.jpg/960px-Lemon_tart_%28cropped%29.jpg"
+        },
+        {
+          "name": "Tulip de Arandanos",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Tarta de Arandanos",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Tarta de Frutos de Estacion",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Tarta Vasca",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Tarta de Banana",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Tarta de Manzana",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        }
+      ],
+      "sort_order": 7
+    },
+    {
+      "name": "Postres de Vitrina",
+      "products": [
+        {
+          "name": "Pasion de Fresa",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Poire_belle_H%C3%A9l%C3%A8ne.jpg/960px-Poire_belle_H%C3%A9l%C3%A8ne.jpg"
+        },
+        {
+          "name": "Fruto Prohibido",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Poire_belle_H%C3%A9l%C3%A8ne.jpg/960px-Poire_belle_H%C3%A9l%C3%A8ne.jpg"
+        },
+        {
+          "name": "Strudell de Manzana",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Poire_belle_H%C3%A9l%C3%A8ne.jpg/960px-Poire_belle_H%C3%A9l%C3%A8ne.jpg"
+        },
+        {
+          "name": "Chocomango",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Poire_belle_H%C3%A9l%C3%A8ne.jpg/960px-Poire_belle_H%C3%A9l%C3%A8ne.jpg"
+        },
+        {
+          "name": "Cheesecake de Maracuya",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Souffl%C3%A9-style_cheesecake_001.jpg/960px-Souffl%C3%A9-style_cheesecake_001.jpg"
+        },
+        {
+          "name": "Cheesecake de Oreo",
+          "base_price": 12,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Souffl%C3%A9-style_cheesecake_001.jpg/960px-Souffl%C3%A9-style_cheesecake_001.jpg"
+        },
+        {
+          "name": "Cheesecake New York",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Souffl%C3%A9-style_cheesecake_001.jpg/960px-Souffl%C3%A9-style_cheesecake_001.jpg"
+        },
+        {
+          "name": "Tiramisu",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Dolce_Tiramis%C3%B9_monoporzione.jpg/960px-Dolce_Tiramis%C3%B9_monoporzione.jpg"
+        },
+        {
+          "name": "Opera",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Poire_belle_H%C3%A9l%C3%A8ne.jpg/960px-Poire_belle_H%C3%A9l%C3%A8ne.jpg"
+        },
+        {
+          "name": "Mousse Princesa",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Pretty_mousse_dessert_by_Osamu_Uchida.jpg"
+        },
+        {
+          "name": "Mousse de Lucuma",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 10,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Pretty_mousse_dessert_by_Osamu_Uchida.jpg"
+        },
+        {
+          "name": "Muffin de Arandanos",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 11,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Plain_vanilla_muffin_in_Tuntorp.jpg/960px-Plain_vanilla_muffin_in_Tuntorp.jpg"
+        },
+        {
+          "name": "Muffin de Chocolate",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 12,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Plain_vanilla_muffin_in_Tuntorp.jpg/960px-Plain_vanilla_muffin_in_Tuntorp.jpg"
+        }
+      ],
+      "sort_order": 8
+    },
+    {
+      "name": "Tortas en Porciones",
+      "products": [
+        {
+          "name": "Selva Negra",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Carrot Cake",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Carrot_cake_slice_and_latte_-_Saltmarsh_Farmhouse_%26_Cafe_2024-12-19.jpg/960px-Carrot_cake_slice_and_latte_-_Saltmarsh_Farmhouse_%26_Cafe_2024-12-19.jpg"
+        },
+        {
+          "name": "Chocolate",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Red Velvet",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Red_velvet_cake_slice.jpg/960px-Red_velvet_cake_slice.jpg"
+        },
+        {
+          "name": "Tres Leches de Vainilla",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Tres_leches_cake.jpg/960px-Tres_leches_cake.jpg"
+        },
+        {
+          "name": "Tres Leches de Maracuya",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Tres_leches_cake.jpg/960px-Tres_leches_cake.jpg"
+        },
+        {
+          "name": "Triple",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Pionono de Aguaymanto",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Pandan_swiss_roll.jpg/960px-Pandan_swiss_roll.jpg"
+        },
+        {
+          "name": "Pionono Tradicional",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Pandan_swiss_roll.jpg/960px-Pandan_swiss_roll.jpg"
+        },
+        {
+          "name": "Papillon de Lucuma",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/960px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg"
+        },
+        {
+          "name": "Carrot Cake en Molde",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 10,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Carrot_cake_slice_and_latte_-_Saltmarsh_Farmhouse_%26_Cafe_2024-12-19.jpg/960px-Carrot_cake_slice_and_latte_-_Saltmarsh_Farmhouse_%26_Cafe_2024-12-19.jpg"
+        }
+      ],
+      "sort_order": 9
+    },
+    {
+      "name": "Salados",
+      "products": [
+        {
+          "name": "Empanada de Pollo",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Empanada de Jamon y Queso",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Empanada_-_Stu_Spivack.jpg/960px-Empanada_-_Stu_Spivack.jpg"
+        },
+        {
+          "name": "Quiche Andino",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Quiche_restaurant_in_Omotesando.jpg/960px-Quiche_restaurant_in_Omotesando.jpg"
+        },
+        {
+          "name": "Croissant con Pollo",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Fried-Chicken-Set.jpg/960px-Fried-Chicken-Set.jpg"
+        },
+        {
+          "name": "Croissant con Queso y Jamon",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Croissant_sandwich_set_lunch.jpg/960px-Croissant_sandwich_set_lunch.jpg"
+        },
+        {
+          "name": "Crispy Chicken Croissant Sandwich",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Croissant_sandwich_set_lunch.jpg/960px-Croissant_sandwich_set_lunch.jpg"
+        },
+        {
+          "name": "Croissant Smash Burguer",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Croissant_sandwich_set_lunch.jpg/960px-Croissant_sandwich_set_lunch.jpg"
+        },
+        {
+          "name": "Empanada de Res",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Empanada_-_Stu_Spivack.jpg/960px-Empanada_-_Stu_Spivack.jpg"
+        },
+        {
+          "name": "Lasagna",
+          "base_price": 25,
+          "description": "",
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Meaty_Lasagna_8of8_%288736299782%29.jpg/960px-Meaty_Lasagna_8of8_%288736299782%29.jpg"
+        }
+      ],
+      "sort_order": 10
+    },
+    {
+      "name": "Cuchareables",
+      "products": [
+        {
+          "name": "Lucuma",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Fin_de_collation_-_Willem_Claeszoon_Hedan_-_Mus%C3%A9e_du_Louvre_Peintures_INV_1319.jpg/960px-Fin_de_collation_-_Willem_Claeszoon_Hedan_-_Mus%C3%A9e_du_Louvre_Peintures_INV_1319.jpg"
+        },
+        {
+          "name": "Mango",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Fin_de_collation_-_Willem_Claeszoon_Hedan_-_Mus%C3%A9e_du_Louvre_Peintures_INV_1319.jpg/960px-Fin_de_collation_-_Willem_Claeszoon_Hedan_-_Mus%C3%A9e_du_Louvre_Peintures_INV_1319.jpg"
+        },
+        {
+          "name": "Fresa",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Fin_de_collation_-_Willem_Claeszoon_Hedan_-_Mus%C3%A9e_du_Louvre_Peintures_INV_1319.jpg/960px-Fin_de_collation_-_Willem_Claeszoon_Hedan_-_Mus%C3%A9e_du_Louvre_Peintures_INV_1319.jpg"
+        },
+        {
+          "name": "Alfajor Cuchareable",
+          "base_price": 9,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Alfajor-P1060387.JPG/960px-Alfajor-P1060387.JPG"
+        },
+        {
+          "name": "Chocolate",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Fin_de_collation_-_Willem_Claeszoon_Hedan_-_Mus%C3%A9e_du_Louvre_Peintures_INV_1319.jpg/960px-Fin_de_collation_-_Willem_Claeszoon_Hedan_-_Mus%C3%A9e_du_Louvre_Peintures_INV_1319.jpg"
+        },
+        {
+          "name": "Pablova",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Fin_de_collation_-_Willem_Claeszoon_Hedan_-_Mus%C3%A9e_du_Louvre_Peintures_INV_1319.jpg/960px-Fin_de_collation_-_Willem_Claeszoon_Hedan_-_Mus%C3%A9e_du_Louvre_Peintures_INV_1319.jpg"
+        }
+      ],
+      "sort_order": 11
+    },
+    {
+      "name": "Cookies",
+      "products": [
+        {
+          "name": "Chispas de Chocolate y Almendras",
+          "base_price": 4,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/2023_Fili%C5%BCanki_do_herbaty.jpg/960px-2023_Fili%C5%BCanki_do_herbaty.jpg"
+        },
+        {
+          "name": "Chocopistacho",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Christmas_cookie_-_Boston%2C_MA.jpg/960px-Christmas_cookie_-_Boston%2C_MA.jpg"
+        },
+        {
+          "name": "Chocolucuma",
+          "base_price": 6,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Christmas_cookie_-_Boston%2C_MA.jpg/960px-Christmas_cookie_-_Boston%2C_MA.jpg"
+        },
+        {
+          "name": "M&M Cookie",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Christmas_cookie_-_Boston%2C_MA.jpg/960px-Christmas_cookie_-_Boston%2C_MA.jpg"
+        },
+        {
+          "name": "Oreo Cookie",
+          "base_price": 5,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Christmas_cookie_-_Boston%2C_MA.jpg/960px-Christmas_cookie_-_Boston%2C_MA.jpg"
+        }
+      ],
+      "sort_order": 12
+    },
+    {
+      "name": "Bolleria",
+      "products": [
+        {
+          "name": "Croissant de Nutella",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Croissant_sandwich_set_lunch.jpg/960px-Croissant_sandwich_set_lunch.jpg"
+        },
+        {
+          "name": "New York Rolls",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/2018-12-20-Turkish_pastry_with_cream_filling-1253.jpg/960px-2018-12-20-Turkish_pastry_with_cream_filling-1253.jpg"
+        },
+        {
+          "name": "Croissant de Pistacho",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Croissant_sandwich_set_lunch.jpg/960px-Croissant_sandwich_set_lunch.jpg"
+        },
+        {
+          "name": "Brioche Buns Apple",
+          "base_price": 8,
+          "description": "",
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/2018-12-20-Turkish_pastry_with_cream_filling-1253.jpg/960px-2018-12-20-Turkish_pastry_with_cream_filling-1253.jpg"
+        },
+        {
+          "name": "Croissant con Fresas",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Croissant_sandwich_set_lunch.jpg/960px-Croissant_sandwich_set_lunch.jpg"
+        },
+        {
+          "name": "Cinamon Rolls Clasico",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Cinnamon_Roll_-_Olea_2025-07-03.jpg/960px-Cinnamon_Roll_-_Olea_2025-07-03.jpg"
+        },
+        {
+          "name": "Cinamon Rolls de Oreo",
+          "base_price": 11,
+          "description": "",
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Cinnamon_Roll_-_Olea_2025-07-03.jpg/960px-Cinnamon_Roll_-_Olea_2025-07-03.jpg"
+        },
+        {
+          "name": "Croissant de Matcha con Fresas",
+          "base_price": 10,
+          "description": "",
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Croissant_sandwich_set_lunch.jpg/960px-Croissant_sandwich_set_lunch.jpg"
+        }
+      ],
+      "sort_order": 13
+    }
+  ]
+}
