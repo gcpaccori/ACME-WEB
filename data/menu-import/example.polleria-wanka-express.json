@@ -1,0 +1,62 @@
+{
+  "merchant": {
+    "trade_name": "Polleria Wanka Express"
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Combos",
+      "sort_order": 0,
+      "products": [
+        {
+          "name": "1/4 Pollo + Papas + Gaseosa personal",
+          "description": "Combo clasico con papas crocantes y bebida personal.",
+          "base_price": 24.9,
+          "sku": "PWE-COMBO-001",
+          "sort_order": 0,
+          "image_url": "",
+          "is_active": true
+        },
+        {
+          "name": "1/2 Pollo + Papas familiares",
+          "description": "Ideal para compartir entre dos personas.",
+          "base_price": 42.9,
+          "sku": "PWE-COMBO-002",
+          "sort_order": 1,
+          "image_url": "",
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "name": "Bebidas",
+      "sort_order": 1,
+      "products": [
+        {
+          "name": "Inca Kola 1.5L",
+          "description": "",
+          "base_price": 9.5,
+          "sku": "PWE-BEB-001",
+          "sort_order": 0,
+          "image_url": "",
+          "is_active": true,
+          "branch_settings": [
+            {
+              "branch_name": "Sucursal Huancayo Centro",
+              "price_override": 9.5,
+              "is_available": true,
+              "stock_qty": null,
+              "is_paused": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

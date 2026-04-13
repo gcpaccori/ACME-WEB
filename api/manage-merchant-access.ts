@@ -492,7 +492,7 @@ async function applyPendingReviewState(adminClient: ReturnType<typeof createClie
     branch_id: branchId,
     is_open: false,
     accepting_orders: false,
-    status_code: 'onboarding_pending',
+    status_code: 'closed',
     pause_reason: 'Pendiente de aprobacion de plataforma',
     updated_by_user_id: operatorUserId,
   }))

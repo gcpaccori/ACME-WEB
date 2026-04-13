@@ -1,0 +1,703 @@
+{
+  "source_pdf": "data/JUGUERIA LA BAHIA DE ADA 7.30 AM - 9.30 PM.pdf",
+  "source_hours_label": "7.30 AM - 9.30 PM",
+  "merchant": {
+    "trade_name": "Jugueria La Bahia de Ada"
+  },
+  "notes": {
+    "verified_pages": [
+      2,
+      3,
+      4
+    ],
+    "omitted_sections": [
+      "Extractos: el PDF muestra los nombres, pero el precio no aparece en el escaneo."
+    ],
+    "assumptions": [
+      "La linea 'Queso, huevo, pollo' se tomo como descripcion de 'Sandwich mixto'."
+    ]
+  },
+  "defaults": {
+    "apply_to_all_branches": true,
+    "is_available": true,
+    "is_paused": false,
+    "stock_qty": null,
+    "price_override": null
+  },
+  "categories": [
+    {
+      "name": "Jugos",
+      "sort_order": 0,
+      "products": [
+        {
+          "name": "Papaya",
+          "description": "",
+          "base_price": 6.0,
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/I_worked_for_an_hour_today_at_%22Fresh_Blenders%22_in_Scottsdale%2C_Hayden_and_Indian_Bend._I_have_my_Papaya_Passion_smoothie%2C_just_missing_rum%2C_azure_blue_water%2C_white_sand_beach_and_a_beach_hut_at_the_end_%282277871185%29.jpg/960px-thumbnail.jpg"
+        },
+        {
+          "name": "Platano",
+          "description": "",
+          "base_price": 5.0,
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/92/Banana-smoothie.jpg"
+        },
+        {
+          "name": "Pina",
+          "description": "",
+          "base_price": 6.0,
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Pineapple_Juice_fruits-465832.jpg/960px-Pineapple_Juice_fruits-465832.jpg"
+        },
+        {
+          "name": "Naranja",
+          "description": "",
+          "base_price": 4.5,
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/02024_1286_Orange_juice.jpg/960px-02024_1286_Orange_juice.jpg"
+        },
+        {
+          "name": "Surtido",
+          "description": "",
+          "base_price": 6.0,
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/25/Mixed_fruit_juice.jpg"
+        },
+        {
+          "name": "Especial",
+          "description": "",
+          "base_price": 7.0,
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Saboroso_tropical_fruit_juice_drinks_%288604874002%29.jpg/960px-Saboroso_tropical_fruit_juice_drinks_%288604874002%29.jpg"
+        },
+        {
+          "name": "Mango",
+          "description": "",
+          "base_price": 9.0,
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Fresh-mango-smoothie_01.jpg/960px-Fresh-mango-smoothie_01.jpg"
+        },
+        {
+          "name": "Fresa",
+          "description": "",
+          "base_price": 9.0,
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Cookies_and_a_strawberry_smoothie_%287342791200%29.jpg/960px-Cookies_and_a_strawberry_smoothie_%287342791200%29.jpg"
+        },
+        {
+          "name": "Manzana",
+          "description": "",
+          "base_price": 6.0,
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Apple_juice-_Jindra_%C4%8C%C3%ADp.jpg/960px-Apple_juice-_Jindra_%C4%8C%C3%ADp.jpg"
+        },
+        {
+          "name": "Papaya c/n Platano",
+          "description": "",
+          "base_price": 6.0,
+          "sort_order": 9,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Tricolor_Smoothie%2C_Papaya%2C_Banana_%26_Kiwi_-_Gujarat_-_SHAILI_006.jpg/960px-Tricolor_Smoothie%2C_Papaya%2C_Banana_%26_Kiwi_-_Gujarat_-_SHAILI_006.jpg"
+        },
+        {
+          "name": "Papaya c/n Pina",
+          "description": "",
+          "base_price": 7.0,
+          "sort_order": 10,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Exterior%2C_Tropical_Smoothie_Cafe_franchise%2C_Alexandria%2C_Virginia.jpg/960px-Exterior%2C_Tropical_Smoothie_Cafe_franchise%2C_Alexandria%2C_Virginia.jpg"
+        },
+        {
+          "name": "Papaya c/n Naranja",
+          "description": "",
+          "base_price": 7.0,
+          "sort_order": 11,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/cf/In_suite_breakfast_experience_%283119861609%29.jpg"
+        },
+        {
+          "name": "Papaya c/n Leche",
+          "description": "",
+          "base_price": 7.0,
+          "sort_order": 12,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/I_worked_for_an_hour_today_at_%22Fresh_Blenders%22_in_Scottsdale%2C_Hayden_and_Indian_Bend._I_have_my_Papaya_Passion_smoothie%2C_just_missing_rum%2C_azure_blue_water%2C_white_sand_beach_and_a_beach_hut_at_the_end_%282277871185%29.jpg/960px-thumbnail.jpg"
+        },
+        {
+          "name": "Platano c/n Leche",
+          "description": "",
+          "base_price": 7.0,
+          "sort_order": 13,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Banana_Milkshake.jpg/960px-Banana_Milkshake.jpg"
+        },
+        {
+          "name": "Mango c/n Leche",
+          "description": "",
+          "base_price": 7.0,
+          "sort_order": 14,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Chili-mango_milkshake_-_Sparkys_-_Hatch_New_Mexico.jpg/960px-Chili-mango_milkshake_-_Sparkys_-_Hatch_New_Mexico.jpg"
+        },
+        {
+          "name": "Fresa c/n Leche",
+          "description": "",
+          "base_price": 10.0,
+          "sort_order": 15,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Milkshake_beverage_strawberry_drink-1021027.jpg/960px-Milkshake_beverage_strawberry_drink-1021027.jpg"
+        },
+        {
+          "name": "Lucuma c/n Leche",
+          "description": "",
+          "base_price": 10.0,
+          "sort_order": 16,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Batido_l%C3%BAcuma.jpg/960px-Batido_l%C3%BAcuma.jpg"
+        },
+        {
+          "name": "Arandano c/n Leche",
+          "description": "",
+          "base_price": 10.0,
+          "sort_order": 17,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Blueberry_Milkshake.jpg/960px-Blueberry_Milkshake.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Bebidas Calientes",
+      "sort_order": 1,
+      "products": [
+        {
+          "name": "Cafe c/n Leche",
+          "description": "",
+          "base_price": 4.0,
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Caffe_Latte_at_Pulse_Cafe.jpg/960px-Caffe_Latte_at_Pulse_Cafe.jpg"
+        },
+        {
+          "name": "Milo Solo",
+          "description": "",
+          "base_price": 3.0,
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Christchurch_BG_Rosa_%27Hot_Cocoa%27_kz01.jpg/960px-Christchurch_BG_Rosa_%27Hot_Cocoa%27_kz01.jpg"
+        },
+        {
+          "name": "Leche c/n Milo",
+          "description": "",
+          "base_price": 4.5,
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Dolfin_milk_chocolate_with_hot_Massala_%2834051765664%29.jpg/960px-Dolfin_milk_chocolate_with_hot_Massala_%2834051765664%29.jpg"
+        },
+        {
+          "name": "Leche c/n Cocoa",
+          "description": "",
+          "base_price": 4.5,
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Christchurch_BG_Rosa_%27Hot_Cocoa%27_kz01.jpg/960px-Christchurch_BG_Rosa_%27Hot_Cocoa%27_kz01.jpg"
+        },
+        {
+          "name": "Chocolate",
+          "description": "",
+          "base_price": 5.0,
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/1998_hot_chocolate_cologne.jpg/960px-1998_hot_chocolate_cologne.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Cafes",
+      "sort_order": 2,
+      "products": [
+        {
+          "name": "Cafe Simple",
+          "description": "",
+          "base_price": 2.5,
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Black_coffee_cup_%28Unsplash%29.jpg/960px-Black_coffee_cup_%28Unsplash%29.jpg"
+        },
+        {
+          "name": "Cafe Aromatizado",
+          "description": "",
+          "base_price": 4.0,
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Biscoff_%26_Coffee_Cake_-_Bond_Street_Coffee%2C_Brighton_2024-02-20.jpg/960px-Biscoff_%26_Coffee_Cake_-_Bond_Street_Coffee%2C_Brighton_2024-02-20.jpg"
+        },
+        {
+          "name": "Cafe Expreso",
+          "description": "",
+          "base_price": 5.0,
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Cup_of_espresso_02.jpg/960px-Cup_of_espresso_02.jpg"
+        },
+        {
+          "name": "Cafe Capuchino",
+          "description": "",
+          "base_price": 7.0,
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/A-cup-of-cappuccino-coffee-dar-es-salaam-cafe.jpg/960px-A-cup-of-cappuccino-coffee-dar-es-salaam-cafe.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Infusiones",
+      "sort_order": 3,
+      "products": [
+        {
+          "name": "Manzanilla",
+          "description": "",
+          "base_price": 2.0,
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Glass_of_chamomile_tea.jpg/960px-Glass_of_chamomile_tea.jpg"
+        },
+        {
+          "name": "Anis",
+          "description": "",
+          "base_price": 2.0,
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/A_Kind_Of_Tea_Spoon_%28255052213%29.jpeg/960px-A_Kind_Of_Tea_Spoon_%28255052213%29.jpeg"
+        },
+        {
+          "name": "Te",
+          "description": "",
+          "base_price": 2.0,
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/A_super-cup_of_tea.jpg/960px-A_super-cup_of_tea.jpg"
+        },
+        {
+          "name": "Coca",
+          "description": "",
+          "base_price": 3.0,
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Back_of_a_Del_Valle_Mate_de_Coca_tea_bag_with_ingredients_and_instructions.jpg/960px-Back_of_a_Del_Valle_Mate_de_Coca_tea_bag_with_ingredients_and_instructions.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Panes",
+      "sort_order": 4,
+      "products": [
+        {
+          "name": "Pan con Huevo",
+          "description": "",
+          "base_price": 2.5,
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/3d/-Egg_Sandwich_-Happiness_-Yammy_-Jojo_Momos.jpg"
+        },
+        {
+          "name": "Pan con Palta",
+          "description": "",
+          "base_price": 2.5,
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Chipotle_chicken_avocado_sandwich_from_Earl_of_Sandwich.jpg/960px-Chipotle_chicken_avocado_sandwich_from_Earl_of_Sandwich.jpg"
+        },
+        {
+          "name": "Pan con Queso",
+          "description": "",
+          "base_price": 2.5,
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Bombay_cheese_sandwich.jpg/960px-Bombay_cheese_sandwich.jpg"
+        },
+        {
+          "name": "Pan con Aceituna",
+          "description": "",
+          "base_price": 2.5,
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Artisan_bread_with_olive_oil_and_salt.jpg/960px-Artisan_bread_with_olive_oil_and_salt.jpg"
+        },
+        {
+          "name": "Pan con Jamonada",
+          "description": "",
+          "base_price": 2.5,
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Australia_Dairy_Company_-_Ham_and_Egg_Sandwich.jpg/960px-Australia_Dairy_Company_-_Ham_and_Egg_Sandwich.jpg"
+        },
+        {
+          "name": "Pan con Mantequilla",
+          "description": "",
+          "base_price": 2.0,
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Bread_and_Butter_Pudding_and_Custard.jpg/960px-Bread_and_Butter_Pudding_and_Custard.jpg"
+        },
+        {
+          "name": "Pan con Mermelada",
+          "description": "",
+          "base_price": 2.0,
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/A_French_Toast_with_Fruit_jam_and_butter.jpg/960px-A_French_Toast_with_Fruit_jam_and_butter.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Sandwich",
+      "sort_order": 5,
+      "products": [
+        {
+          "name": "Pollo Deshilachado",
+          "description": "",
+          "base_price": 4.0,
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Grilled_Cajun_chicken_sandwich_with_guacamole%2C_pico_de_gallo%2C_arugula%2C_pepper_jack_cheese%2C_pickled_jalapeno%2C_and_shredded_iceberg_lettuce._-_34996612463.jpg/960px-Grilled_Cajun_chicken_sandwich_with_guacamole%2C_pico_de_gallo%2C_arugula%2C_pepper_jack_cheese%2C_pickled_jalapeno%2C_and_shredded_iceberg_lettuce._-_34996612463.jpg"
+        },
+        {
+          "name": "Hot Dog",
+          "description": "",
+          "base_price": 5.0,
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/60m_Hot_Dog_Akasaka_Aug4_06.jpeg/960px-60m_Hot_Dog_Akasaka_Aug4_06.jpeg"
+        },
+        {
+          "name": "Chorizo",
+          "description": "",
+          "base_price": 5.0,
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Chorip%C3%A1n_%28argentine_sandwich_with_chorizo%29.jpg/960px-Chorip%C3%A1n_%28argentine_sandwich_with_chorizo%29.jpg"
+        },
+        {
+          "name": "Omelet de Queso",
+          "description": "",
+          "base_price": 6.0,
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Cheese_Egg_Omelet_Sandwiches.jpg/960px-Cheese_Egg_Omelet_Sandwiches.jpg"
+        },
+        {
+          "name": "Omelet de Pollo",
+          "description": "",
+          "base_price": 6.0,
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/2016-09-18_Chicken_curry_with_omelette_at_Curryhouse_Beijing_anagoria.jpg/960px-2016-09-18_Chicken_curry_with_omelette_at_Curryhouse_Beijing_anagoria.jpg"
+        },
+        {
+          "name": "Sandwich a lo Pobre",
+          "description": "",
+          "base_price": 10.0,
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Breakfast_Sandwich_-_Tivoli_Cafe_2025-09-17.jpg/960px-Breakfast_Sandwich_-_Tivoli_Cafe_2025-09-17.jpg"
+        },
+        {
+          "name": "Sandwich Mixto",
+          "description": "Queso, huevo, pollo.",
+          "base_price": 10.0,
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/BK_Ham_and_Cheese_Sandwich.JPG/960px-BK_Ham_and_Cheese_Sandwich.JPG"
+        },
+        {
+          "name": "Sandwich Triple",
+          "description": "",
+          "base_price": 10.0,
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/City_Centre_Club_Sandwich_for_room_service_at_Holiday_Inn_Qingdao_City_Centre_%2820191004082448%29.jpg/960px-City_Centre_Club_Sandwich_for_room_service_at_Holiday_Inn_Qingdao_City_Centre_%2820191004082448%29.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Hamburguesas",
+      "sort_order": 6,
+      "products": [
+        {
+          "name": "Hamb. de Carne",
+          "description": "",
+          "base_price": 6.0,
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/A_plate_of_fries_and_a_beef_burger_with_salad.jpg/960px-A_plate_of_fries_and_a_beef_burger_with_salad.jpg"
+        },
+        {
+          "name": "Hamb. de Pollo",
+          "description": "",
+          "base_price": 6.0,
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Chargrilled_Chicken_Burger_-_Leon.jpg/960px-Chargrilled_Chicken_Burger_-_Leon.jpg"
+        },
+        {
+          "name": "Hamb. Royal",
+          "description": "",
+          "base_price": 8.0,
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Big_Mac_hamburger.jpg/960px-Big_Mac_hamburger.jpg"
+        },
+        {
+          "name": "Hamb. Cheeseburger",
+          "description": "",
+          "base_price": 8.0,
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Cheeseburger.jpg/960px-Cheeseburger.jpg"
+        },
+        {
+          "name": "Hamb. a lo Pobre",
+          "description": "",
+          "base_price": 12.0,
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Food_burger_001_beef_with_fried_egg_and_bacon.jpg/960px-Food_burger_001_beef_with_fried_egg_and_bacon.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Postres",
+      "sort_order": 7,
+      "products": [
+        {
+          "name": "Gelatina",
+          "description": "",
+          "base_price": 2.0,
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/2019-10-10_22_15_43_Gelatin_from_a_single_opened_cup_of_Jell-O_strawberry_gelatin_snack_being_lifted_by_a_spoon_in_the_Franklin_Farm_section_of_Oak_Hill%2C_Fairfax_County%2C_Virginia.jpg/960px-thumbnail.jpg"
+        },
+        {
+          "name": "Flan",
+          "description": "",
+          "base_price": 2.5,
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Flan_-_Donostia.jpg/960px-Flan_-_Donostia.jpg"
+        },
+        {
+          "name": "Leche Asada",
+          "description": "",
+          "base_price": 2.5,
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/87/Creme_Caramel_India.JPG"
+        },
+        {
+          "name": "Ensalada de Fruta",
+          "description": "El PDF muestra un rango de precio.",
+          "base_price": 6.0,
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Frozen_Fruit_Salad_%281915%29.png/960px-Frozen_Fruit_Salad_%281915%29.png"
+        },
+        {
+          "name": "Yogurt Frutado",
+          "description": "",
+          "base_price": 10.0,
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/-2020-01-13_Fruit_and_Yogurt_Breakfast_Parfait%2C_Trimingham.JPG/960px--2020-01-13_Fruit_and_Yogurt_Breakfast_Parfait%2C_Trimingham.JPG"
+        },
+        {
+          "name": "Keke de Vainilla",
+          "description": "",
+          "base_price": 3.0,
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/2022-01-17_08_42_32_A_slice_of_vanilla_cake_in_the_Dulles_section_of_Sterling%2C_Loudoun_County%2C_Virginia.jpg/960px-2022-01-17_08_42_32_A_slice_of_vanilla_cake_in_the_Dulles_section_of_Sterling%2C_Loudoun_County%2C_Virginia.jpg"
+        },
+        {
+          "name": "Keke de Chocolate",
+          "description": "",
+          "base_price": 3.0,
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/A_slice_of_white_chocolate_cake%2C_January_2009.jpg/960px-A_slice_of_white_chocolate_cake%2C_January_2009.jpg"
+        },
+        {
+          "name": "Empanada de Queso",
+          "description": "",
+          "base_price": 5.0,
+          "sort_order": 7,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/A_cod_and_cheese_empanada_Portugese_classic_%2854046599801%29.jpg/960px-A_cod_and_cheese_empanada_Portugese_classic_%2854046599801%29.jpg"
+        },
+        {
+          "name": "Empanada de Pollo",
+          "description": "",
+          "base_price": 5.0,
+          "sort_order": 8,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Baked_Chicken_Empanada.jpg/960px-Baked_Chicken_Empanada.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Frappe",
+      "sort_order": 8,
+      "products": [
+        {
+          "name": "Frappe de Fresa",
+          "description": "",
+          "base_price": 13.0,
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Mozart_White_Chocolate_Cream_Strawberry_Liqueur_01.tif/lossy-page1-960px-Mozart_White_Chocolate_Cream_Strawberry_Liqueur_01.tif.jpg"
+        },
+        {
+          "name": "Frappe de Mango",
+          "description": "",
+          "base_price": 13.0,
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Fresh-mango-smoothie_01.jpg/960px-Fresh-mango-smoothie_01.jpg"
+        },
+        {
+          "name": "Frappe de Lucuma",
+          "description": "",
+          "base_price": 13.0,
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Batido_l%C3%BAcuma.jpg/960px-Batido_l%C3%BAcuma.jpg"
+        },
+        {
+          "name": "Frappe de Oreo",
+          "description": "",
+          "base_price": 13.0,
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Milkshake_de_Oreo_Cali.jpg/960px-Milkshake_de_Oreo_Cali.jpg"
+        },
+        {
+          "name": "Frappe de Chocolate",
+          "description": "",
+          "base_price": 13.0,
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Chocolate_Frappe.jpg/960px-Chocolate_Frappe.jpg"
+        },
+        {
+          "name": "Frappe de Mocochino",
+          "description": "",
+          "base_price": 13.0,
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/McCafe_Medium_Mocha_Frappe_with_Monopoly_Game_Stamps_%285116545544%29.jpg/960px-McCafe_Medium_Mocha_Frappe_with_Monopoly_Game_Stamps_%285116545544%29.jpg"
+        },
+        {
+          "name": "Frappuchino",
+          "description": "",
+          "base_price": 13.0,
+          "sort_order": 6,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Starbucks_-_Coffee_Frappuccino_%2851259869202%29.jpg/960px-Starbucks_-_Coffee_Frappuccino_%2851259869202%29.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Batidos",
+      "sort_order": 9,
+      "products": [
+        {
+          "name": "Platano",
+          "description": "",
+          "base_price": 8.0,
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Banana_Milkshake.jpg/960px-Banana_Milkshake.jpg"
+        },
+        {
+          "name": "Fresa",
+          "description": "",
+          "base_price": 10.0,
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Milkshake_beverage_strawberry_drink-1021027.jpg/960px-Milkshake_beverage_strawberry_drink-1021027.jpg"
+        },
+        {
+          "name": "Mango",
+          "description": "",
+          "base_price": 10.0,
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Chili-mango_milkshake_-_Sparkys_-_Hatch_New_Mexico.jpg/960px-Chili-mango_milkshake_-_Sparkys_-_Hatch_New_Mexico.jpg"
+        },
+        {
+          "name": "Lucuma",
+          "description": "",
+          "base_price": 10.0,
+          "sort_order": 3,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Batido_l%C3%BAcuma.jpg/960px-Batido_l%C3%BAcuma.jpg"
+        },
+        {
+          "name": "Chocolate",
+          "description": "",
+          "base_price": 10.0,
+          "sort_order": 4,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Burger_King_Chocolate_Milkshake_%2843925151774%29.jpg/960px-Burger_King_Chocolate_Milkshake_%2843925151774%29.jpg"
+        },
+        {
+          "name": "Oreo",
+          "description": "",
+          "base_price": 10.0,
+          "sort_order": 5,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Milkshake_de_Oreo_Cali.jpg/960px-Milkshake_de_Oreo_Cali.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Desayunos",
+      "sort_order": 10,
+      "products": [
+        {
+          "name": "Desayuno Ejecutivo",
+          "description": "Jugo de papaya, mate, pan con queso y pan solo.",
+          "base_price": 8.0,
+          "sort_order": 0,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/%28a_glass_of_orange_juice_a_banana_a_waffle_Breakfast_cereal_with_milk%29.jpg/960px-%28a_glass_of_orange_juice_a_banana_a_waffle_Breakfast_cereal_with_milk%29.jpg"
+        },
+        {
+          "name": "Desayuno Americano",
+          "description": "Jugo de naranja, cafe, pan con mermelada, pan solo y huevo revuelto.",
+          "base_price": 10.0,
+          "sort_order": 1,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/American_Breakfast_-_Snais%27s_Cafe_2026-01-05.jpg/960px-American_Breakfast_-_Snais%27s_Cafe_2026-01-05.jpg"
+        },
+        {
+          "name": "Desayuno Continental",
+          "description": "Surtido, Milo solo, 1 pan con mantequilla, 1 con mermelada y platano con leche condensada.",
+          "base_price": 10.0,
+          "sort_order": 2,
+          "is_active": true,
+          "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/ContinentalBreakfast.jpg/960px-ContinentalBreakfast.jpg"
+        }
+      ]
+    }
+  ]
+}

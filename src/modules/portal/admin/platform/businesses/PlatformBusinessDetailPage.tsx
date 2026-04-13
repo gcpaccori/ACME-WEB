@@ -195,8 +195,75 @@ export function PlatformBusinessDetailPage() {
     return <div>Esta vista pertenece a la capa plataforma.</div>;
   }
 
-  if (loading || !detail || !form) {
+  if (loading) {
     return <LoadingScreen message="Cargando comercio..." />;
+  }
+
+  if (error) {
+    return (
+      <AdminPageFrame
+        title="Detalle de comercio"
+        description="No se pudo cargar la ficha del negocio desde plataforma."
+        breadcrumbs={[
+          { label: 'Admin', to: AppRoutes.portal.admin.root },
+          { label: 'Comercios', to: AppRoutes.portal.admin.platformBusinesses },
+          { label: 'Error de carga' },
+        ]}
+        contextItems={[
+          { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+          { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
+          { label: 'Entidad', value: 'Merchant', tone: 'warning' },
+          { label: 'Estado', value: 'Con error', tone: 'danger' },
+        ]}
+      >
+        <SectionCard title="Carga fallida" description="La vista ya no se queda bloqueada en loading cuando el backend devuelve un error.">
+          <div style={{ padding: '14px 16px', borderRadius: '12px', background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' }}>
+            {error}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              type="button"
+              onClick={() => {
+                void loadData();
+              }}
+              style={{
+                padding: '12px 16px',
+                borderRadius: '10px',
+                border: '1px solid #d1d5db',
+                background: '#ffffff',
+                fontWeight: 800,
+              }}
+            >
+              Reintentar
+            </button>
+          </div>
+        </SectionCard>
+      </AdminPageFrame>
+    );
+  }
+
+  if (!detail || !form) {
+    return (
+      <AdminPageFrame
+        title="Detalle de comercio"
+        description="No se encontro informacion suficiente para mostrar esta ficha."
+        breadcrumbs={[
+          { label: 'Admin', to: AppRoutes.portal.admin.root },
+          { label: 'Comercios', to: AppRoutes.portal.admin.platformBusinesses },
+          { label: 'Sin datos' },
+        ]}
+        contextItems={[
+          { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
+          { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
+          { label: 'Entidad', value: 'Merchant', tone: 'warning' },
+          { label: 'Estado', value: 'Sin datos', tone: 'warning' },
+        ]}
+      >
+        <SectionCard title="Sin datos" description="Puede ocurrir si el negocio fue creado de forma parcial o si hubo un error previo en el backend.">
+          <div style={{ color: '#6b7280' }}>Revisa el registro del negocio o vuelve a cargar la pagina.</div>
+        </SectionCard>
+      </AdminPageFrame>
+    );
   }
 
   return (

@@ -88,6 +88,29 @@ function uniqueStrings(values: string[]) {
   return Array.from(new Set(values.filter(Boolean)));
 }
 
+async function listMerchantCustomerIds(merchantId: string) {
+  const [ordersResult, cartsResult] = await Promise.all([
+    supabase.from('orders').select('customer_id').eq('merchant_id', merchantId),
+    supabase.from('carts').select('customer_id').eq('merchant_id', merchantId),
+  ]);
+
+  if (ordersResult.error) {
+    return { data: [] as string[], error: ordersResult.error };
+  }
+
+  if (cartsResult.error) {
+    return { data: [] as string[], error: cartsResult.error };
+  }
+
+  return {
+    data: uniqueStrings([
+      ...((ordersResult.data ?? []) as any[]).map((row) => stringOrEmpty(row.customer_id)),
+      ...((cartsResult.data ?? []) as any[]).map((row) => stringOrEmpty(row.customer_id)),
+    ]),
+    error: null,
+  };
+}
+
 function isPromotionTargetForMerchant(
   targetType: string,
   targetId: string,
@@ -226,7 +249,7 @@ export const adminPlatformService = {
       productsResult,
       promotionsResult,
       promotionTargetsResult,
-      customersResult,
+      customerIdsResult,
       merchantAuditResult,
     ] = await Promise.all([
       adminService.fetchMerchant(merchantId),
@@ -256,7 +279,7 @@ export const adminPlatformService = {
       supabase.from('products').select('id, merchant_id').eq('merchant_id', merchantId),
       supabase.from('promotions').select('id, is_active'),
       supabase.from('promotion_targets').select('promotion_id, target_type, target_id'),
-      supabase.from('customers').select('user_id, merchant_id').eq('merchant_id', merchantId),
+      listMerchantCustomerIds(merchantId),
       supabase.from('merchant_audit_logs').select('*').eq('merchant_id', merchantId).order('created_at', { ascending: false }).limit(40),
     ]);
 
@@ -268,7 +291,7 @@ export const adminPlatformService = {
     if (productsResult.error) return { data: null, error: productsResult.error };
     if (promotionsResult.error) return { data: null, error: promotionsResult.error };
     if (promotionTargetsResult.error) return { data: null, error: promotionTargetsResult.error };
-    if (customersResult.error) return { data: null, error: customersResult.error };
+    if (customerIdsResult.error) return { data: null, error: customerIdsResult.error };
     if (merchantAuditResult.error) return { data: null, error: merchantAuditResult.error };
     if (!merchantResult.data) return { data: null, error: new Error('No se encontro el comercio solicitado') };
 
@@ -379,7 +402,7 @@ export const adminPlatformService = {
           orders: orders.length,
           active_orders: activeOrders,
           promotions: merchantPromotions.filter((promotion) => Boolean(promotion.is_active ?? true)).length,
-          customers: uniqueStrings(((customersResult.data ?? []) as any[]).map((row) => stringOrEmpty(row.user_id))).length,
+          customers: customerIdsResult.data.length,
           audit_logs: auditLogs.length,
         },
       } satisfies PlatformMerchantDetail,

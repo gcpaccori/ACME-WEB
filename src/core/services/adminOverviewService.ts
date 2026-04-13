@@ -14,6 +14,10 @@ function formatCount(value: number | null | undefined) {
 
 const BUSINESS_SETTING_KEYS = ['order_timeouts'];
 
+function uniqueStrings(values: string[]) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
 async function countRows(table: string, filters: Array<{ column: string; value: string }> = []) {
   let query = supabase.from(table).select('*', { count: 'exact', head: true });
   for (const filter of filters) {
@@ -61,6 +65,28 @@ async function countMerchantSettingsRows(merchantId: string) {
   return { count: result.count ?? 0, error: null };
 }
 
+async function countMerchantCustomers(merchantId: string) {
+  const [ordersResult, cartsResult] = await Promise.all([
+    supabase.from('orders').select('customer_id').eq('merchant_id', merchantId),
+    supabase.from('carts').select('customer_id').eq('merchant_id', merchantId),
+  ]);
+
+  if (ordersResult.error) {
+    return { count: 0, error: ordersResult.error };
+  }
+
+  if (cartsResult.error) {
+    return { count: 0, error: cartsResult.error };
+  }
+
+  const customerIds = uniqueStrings([
+    ...((ordersResult.data ?? []) as any[]).map((row) => String(row.customer_id ?? '')).filter(Boolean),
+    ...((cartsResult.data ?? []) as any[]).map((row) => String(row.customer_id ?? '')).filter(Boolean),
+  ]);
+
+  return { count: customerIds.length, error: null };
+}
+
 export const adminOverviewService = {
   fetchMetricCards: async (params: {
     scopeType: PortalScopeType | null;
@@ -104,7 +130,7 @@ export const adminOverviewService = {
       const [branchesResult, staffResult, customersResult, categoriesResult, productsResult, modifiersResult, hoursResult, closuresResult, coverageResult, merchantSettingsResult] = await Promise.all([
         countRows('merchant_branches', filters),
         countRows('merchant_staff', filters),
-        countRows('customers', filters),
+        countMerchantCustomers(params.merchantId),
         countRows('categories', filters),
         countRows('products', filters),
         countRows('modifier_groups', filters),

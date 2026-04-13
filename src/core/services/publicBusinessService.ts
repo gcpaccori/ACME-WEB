@@ -196,7 +196,7 @@ async function createBusinessStructure(userId: string, draft: PendingBusinessReg
     branch_id: branchId,
     is_open: false,
     accepting_orders: false,
-    status_code: 'onboarding_pending',
+    status_code: 'closed',
     pause_reason: 'Pendiente de aprobacion de plataforma',
     updated_by_user_id: userId,
   });
