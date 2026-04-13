@@ -147,11 +147,6 @@ export function AccountPage() {
 
   useEffect(() => {
     const checkLocationPrematurely = async () => {
-      if (publicStore.sessionUser) {
-        setLocationStatus('allowed');
-        return;
-      }
-
       setLocationStatus('checking');
       try {
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -180,7 +175,7 @@ export function AccountPage() {
     };
 
     checkLocationPrematurely();
-  }, [publicStore.sessionUser]);
+  }, []);
 
   const loadAccount = async () => {
     if (!publicStore.sessionUser) return;
