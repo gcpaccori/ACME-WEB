@@ -326,22 +326,52 @@ export function BranchEditorPage() {
         { label: isNew ? 'Nueva' : form.name || 'Sucursal' },
       ]}
       contextItems={[
-        { label: 'Rol', value: portal.staffAssignment?.role || 'sin rol', tone: 'info' },
-        { label: 'Comercio', value: portal.currentMerchant?.name || portal.merchant?.name || 'sin comercio', tone: 'neutral' },
-        { label: 'Sucursal', value: isNew ? 'Nueva' : form.name || 'sin nombre', tone: 'info' },
-        { label: 'Modo', value: isNew ? 'Creacion' : 'Edicion', tone: dirty ? 'warning' : 'info' },
-        { label: 'Estado', value: dirty ? 'Cambios pendientes' : 'Sin cambios', tone: dirty ? 'warning' : 'success' },
+        { label: 'OPERADOR', value: portal.profile?.full_name?.split(' ')[0] || 'ADMIN', tone: 'info' },
+        { label: 'NEGOCIO', value: portal.currentMerchant?.name || 'ESTÁNDAR', tone: 'neutral' },
+        { label: 'NIVEL', value: isNew ? 'BORRADOR' : 'PUBLICADO', tone: isNew ? 'neutral' : 'success' },
+        { label: 'SINCRONÍA', value: dirty ? 'CAMBIOS LOCALES' : 'EN LA NUBE', tone: dirty ? 'warning' : 'success' },
       ]}
       actions={
-        <SaveActions
-          onSave={() => handleSave(false)}
-          onSecondarySave={() => handleSave(true)}
-          onCancel={() => navigate(AppRoutes.portal.admin.branches)}
-          saveLabel="Guardar cambios"
-          secondaryLabel="Guardar y volver al listado"
-          disabled={!dirty}
-          isSaving={saving}
-        />
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button 
+            type="button" 
+            onClick={() => navigate(AppRoutes.portal.admin.branches)} 
+            className="btn btn--secondary"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Cancelar
+          </button>
+          <button 
+            type="button" 
+            onClick={() => handleSave(true)} 
+            disabled={!dirty || saving}
+            className="btn btn--secondary"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Guardar y volver
+          </button>
+          <button 
+            type="button" 
+            onClick={() => handleSave(false)} 
+            disabled={!dirty || saving}
+            className="btn btn--primary"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 24px' }}
+          >
+            {saving ? (
+              <>
+                <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                Guardando...
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Guardar cambios
+              </>
+            )}
+          </button>
+        </div>
       }
     >
       <AdminTabs
@@ -356,78 +386,92 @@ export function BranchEditorPage() {
 
       {activeTab === 'overview' ? (
         <AdminTabPanel>
-          <SectionCard title="Datos base" description="La relacion con el comercio se completa automaticamente desde el contexto.">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-              <FieldGroup label="Nombre">
-                <TextField value={form.name} onChange={(event) => updateField('name', event.target.value)} />
+          <SectionCard title="Identidad de Sucursal" description="Información base para la identificación pública y contacto interno.">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+              <FieldGroup label="Nombre Comercial" hint="Nombre público que aparecerá en la App.">
+                <TextField value={form.name} onChange={(event) => updateField('name', event.target.value)} placeholder="Ej: Sucursal Centro" />
               </FieldGroup>
-              <FieldGroup label="Telefono">
-                <TextField value={form.phone} onChange={(event) => updateField('phone', event.target.value)} />
+              <FieldGroup label="Teléfono Directo" hint="Para soporte y atención al cliente.">
+                <TextField value={form.phone} onChange={(event) => updateField('phone', event.target.value)} placeholder="+51 999 999 999" />
               </FieldGroup>
-              <FieldGroup label="Tiempo promedio de preparacion">
+              <FieldGroup label="Tiempo Preparación (min)" hint="Estimado base para el cálculo de entrega.">
                 <NumberField value={form.prep_time_avg_min} onChange={(event) => updateField('prep_time_avg_min', event.target.value)} />
               </FieldGroup>
-              <FieldGroup label="Estado de sucursal">
+              <FieldGroup label="Estado de Registro" hint="Define si la sucursal es visible en el sistema.">
                 <SelectField value={form.status} onChange={(event) => updateField('status', event.target.value)} options={statusOptions} />
               </FieldGroup>
             </div>
-            <CheckboxField
-              label="La sucursal acepta pedidos"
-              checked={form.accepts_orders}
-              onChange={(event) => updateField('accepts_orders', event.target.checked)}
-            />
-          </SectionCard>
-
-          <SectionCard title="Direccion" description="Esta direccion se guarda en la tabla relacional `addresses` y se enlaza a la sucursal.">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-              <FieldGroup label="Linea 1">
-                <TextField value={form.address.line1} onChange={(event) => updateAddress('line1', event.target.value)} />
-              </FieldGroup>
-              <FieldGroup label="Linea 2">
-                <TextField value={form.address.line2} onChange={(event) => updateAddress('line2', event.target.value)} />
-              </FieldGroup>
-              <FieldGroup label="Referencia">
-                <TextField value={form.address.reference} onChange={(event) => updateAddress('reference', event.target.value)} />
-              </FieldGroup>
-              <FieldGroup label="Distrito">
-                <TextField value={form.address.district} onChange={(event) => updateAddress('district', event.target.value)} />
-              </FieldGroup>
-              <FieldGroup label="Ciudad">
-                <TextField value={form.address.city} onChange={(event) => updateAddress('city', event.target.value)} />
-              </FieldGroup>
-              <FieldGroup label="Region">
-                <TextField value={form.address.region} onChange={(event) => updateAddress('region', event.target.value)} />
-              </FieldGroup>
-              <FieldGroup label="Pais">
-                <TextField value={form.address.country} onChange={(event) => updateAddress('country', event.target.value)} />
-              </FieldGroup>
+            <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '12px', background: 'var(--acme-bg-soft)', border: '1px solid var(--acme-border)' }}>
+              <CheckboxField
+                label="La sucursal está habilitada para recibir pedidos en vivo"
+                checked={form.accepts_orders}
+                onChange={(event) => updateField('accepts_orders', event.target.checked)}
+              />
             </div>
           </SectionCard>
 
-          <SectionCard title="Estado operativo" description="Esta seccion actualiza la tabla `merchant_branch_status`.">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-              <FieldGroup label="Estado operativo">
-                <SelectField
-                  value={form.branch_status.status_code}
-                  onChange={(event) => updateBranchStatus('status_code', event.target.value)}
-                  options={branchStatusOptions}
-                />
+          <SectionCard title="Ubicación Física" description="Dirección exacta para el despacho de pedidos y geolocalización.">
+            <div style={{ display: 'grid', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <FieldGroup label="Dirección Línea 1" hint="Calle, número, urbanización.">
+                  <TextField value={form.address.line1} onChange={(event) => updateAddress('line1', event.target.value)} placeholder="Jr. Ejemplo 123" />
+                </FieldGroup>
+                <FieldGroup label="Dirección Línea 2 (Opcional)" hint="Piso, oficina, local.">
+                  <TextField value={form.address.line2} onChange={(event) => updateAddress('line2', event.target.value)} placeholder="Local A-2" />
+                </FieldGroup>
+              </div>
+              <FieldGroup label="Referencia de Ubicación" hint="Datos adicionales para facilitar la llegada del repartidor.">
+                <TextField value={form.address.reference} onChange={(event) => updateAddress('reference', event.target.value)} placeholder="Frente al parque central" />
               </FieldGroup>
-              <FieldGroup label="Motivo de pausa">
-                <TextField value={form.branch_status.pause_reason} onChange={(event) => updateBranchStatus('pause_reason', event.target.value)} />
-              </FieldGroup>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
+                <FieldGroup label="Distrito">
+                  <TextField value={form.address.district} onChange={(event) => updateAddress('district', event.target.value)} />
+                </FieldGroup>
+                <FieldGroup label="Ciudad/Provincia">
+                  <TextField value={form.address.city} onChange={(event) => updateAddress('city', event.target.value)} />
+                </FieldGroup>
+                <FieldGroup label="Región/Departamento">
+                  <TextField value={form.address.region} onChange={(event) => updateAddress('region', event.target.value)} />
+                </FieldGroup>
+                <FieldGroup label="País">
+                  <TextField value={form.address.country} onChange={(event) => updateAddress('country', event.target.value)} />
+                </FieldGroup>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap' }}>
-              <CheckboxField
-                label="Sucursal abierta"
-                checked={form.branch_status.is_open}
-                onChange={(event) => updateBranchStatus('is_open', event.target.checked)}
-              />
-              <CheckboxField
-                label="Aceptando pedidos"
-                checked={form.branch_status.accepting_orders}
-                onChange={(event) => updateBranchStatus('accepting_orders', event.target.checked)}
-              />
+          </SectionCard>
+
+          <SectionCard title="Estado Transaccional" description="Gobernanza operativa en tiempo real para la recepción de órdenes.">
+            <div style={{ display: 'grid', gap: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+                <FieldGroup label="Situación de Atención" hint="Define si la sucursal está operando normalmente.">
+                  <SelectField
+                    value={form.branch_status.status_code}
+                    onChange={(event) => updateBranchStatus('status_code', event.target.value)}
+                    options={branchStatusOptions}
+                  />
+                </FieldGroup>
+                <FieldGroup label="Nota de Estado (Opcional)" hint="Motivo visible si la sucursal está pausada.">
+                  <TextField value={form.branch_status.pause_reason} onChange={(event) => updateBranchStatus('pause_reason', event.target.value)} placeholder="Ej: Mantenimiento de cocina" />
+                </FieldGroup>
+              </div>
+              <div style={{ padding: '16px', borderRadius: '14px', border: '1px solid var(--acme-border)', background: 'var(--acme-bg-soft)', display: 'grid', gap: '16px' }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', color: 'var(--acme-purple)' }}>
+                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                   <span style={{ fontSize: '13px', fontWeight: 800 }}>CONTROLES DINÁMICOS</span>
+                </div>
+                <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+                  <CheckboxField
+                    label="Switch Maestro Puerta (Abierta)"
+                    checked={form.branch_status.is_open}
+                    onChange={(event) => updateBranchStatus('is_open', event.target.checked)}
+                  />
+                  <CheckboxField
+                    label="Canal Online Activo (Recibiendo)"
+                    checked={form.branch_status.accepting_orders}
+                    onChange={(event) => updateBranchStatus('accepting_orders', event.target.checked)}
+                  />
+                </div>
+              </div>
             </div>
           </SectionCard>
         </AdminTabPanel>
@@ -435,67 +479,143 @@ export function BranchEditorPage() {
 
       {activeTab === 'schedule' ? (
         <AdminTabPanel>
-          <SectionCard title="Horarios" description="Los 7 dias se muestran en una sola tabla para evitar registros ciegos.">
-            <div style={{ display: 'grid', gap: '12px' }}>
+          <SectionCard title="Cronograma Semanal" description="Configuración de horarios base por día. Los cambios afectan la visibilidad en tiempo real.">
+            <div style={{ display: 'grid', gap: '1px', background: 'var(--acme-border)', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--acme-border)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr 1fr 120px', gap: '1px', background: 'var(--acme-surface-muted)', padding: '12px 16px', fontSize: '12px', fontWeight: 800, color: 'var(--acme-text-faint)' }}>
+                <span>DÍA</span>
+                <span>APERTURA</span>
+                <span>CIERRE</span>
+                <span style={{ textAlign: 'center' }}>ESTADO</span>
+              </div>
               {form.hours.map((hour, index) => (
-                <div key={hour.id ?? hour.day_of_week} style={{ display: 'grid', gridTemplateColumns: '180px 1fr 1fr auto', gap: '12px', alignItems: 'center' }}>
-                  <strong>{weekdayLabels[hour.day_of_week]}</strong>
-                  <TextField value={hour.open_time} onChange={(event) => updateHour(index, { open_time: event.target.value })} />
-                  <TextField value={hour.close_time} onChange={(event) => updateHour(index, { close_time: event.target.value })} />
-                  <CheckboxField label="Cerrado" checked={hour.is_closed} onChange={(event) => updateHour(index, { is_closed: event.target.checked })} />
+                <div key={hour.id ?? hour.day_of_week} style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '140px 1fr 1fr 120px', 
+                  gap: '16px', 
+                  alignItems: 'center', 
+                  background: 'white', 
+                  padding: '10px 16px' 
+                }}>
+                  <span style={{ fontWeight: 700, fontSize: '13px' }}>{weekdayLabels[hour.day_of_week]}</span>
+                  <TextField 
+                    disabled={hour.is_closed}
+                    value={hour.open_time} 
+                    onChange={(event) => updateHour(index, { open_time: event.target.value })} 
+                    style={{ background: hour.is_closed ? 'var(--acme-bg-soft)' : 'white' }}
+                  />
+                  <TextField 
+                    disabled={hour.is_closed}
+                    value={hour.close_time} 
+                    onChange={(event) => updateHour(index, { close_time: event.target.value })} 
+                    style={{ background: hour.is_closed ? 'var(--acme-bg-soft)' : 'white' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={() => updateHour(index, { is_closed: !hour.is_closed })}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        background: hour.is_closed ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+                        color: hour.is_closed ? 'var(--acme-red)' : 'var(--acme-green)',
+                      }}
+                    >
+                      {hour.is_closed ? 'CERRADO' : 'ABIERTO'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           </SectionCard>
 
           <SectionCard
-            title="Cierres especiales"
-            description="Se registran sobre `merchant_branch_closures` para mantenimientos, feriados o bloqueos temporales."
+            title="Gestión de Cierres Especiales"
+            description="Registros sobre `merchant_branch_closures` para mantenimientos, feriados o bloqueos temporales."
           >
-            <div style={{ display: 'grid', gap: '12px' }}>
-              {form.closures.length === 0 ? <span style={{ color: '#6b7280' }}>No hay cierres especiales registrados.</span> : null}
-              {form.closures.map((closure, index) => (
-                <div
-                  key={closure.id ?? `closure-${index}`}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) auto',
-                    gap: '12px',
-                    alignItems: 'start',
-                    padding: '16px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '14px',
-                    background: '#f9fafb',
-                  }}
-                >
-                  <FieldGroup label="Inicio">
-                    <TextField
-                      type="datetime-local"
-                      value={normalizeDateTimeValue(closure.starts_at)}
-                      onChange={(event) => updateClosure(index, { starts_at: event.target.value })}
-                    />
-                  </FieldGroup>
-                  <FieldGroup label="Fin">
-                    <TextField
-                      type="datetime-local"
-                      value={normalizeDateTimeValue(closure.ends_at)}
-                      onChange={(event) => updateClosure(index, { ends_at: event.target.value })}
-                    />
-                  </FieldGroup>
-                  <FieldGroup label="Motivo">
-                    <TextField value={closure.reason} onChange={(event) => updateClosure(index, { reason: event.target.value })} />
-                  </FieldGroup>
-                  <div style={{ display: 'flex', alignItems: 'end' }}>
-                    <button type="button" onClick={() => removeClosure(index)}>
-                      Quitar
-                    </button>
-                  </div>
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {form.closures.length === 0 ? (
+                <div style={{ padding: '32px', textAlign: 'center', border: '2px dashed var(--acme-border)', borderRadius: '20px', color: 'var(--acme-text-faint)' }}>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ marginBottom: '12px', opacity: 0.5 }}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <p style={{ fontSize: '14px' }}>No hay cierres especiales programados.</p>
                 </div>
-              ))}
+              ) : null}
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+                {form.closures.map((closure, index) => (
+                  <div
+                    key={closure.id ?? `closure-${index}`}
+                    style={{
+                      display: 'grid',
+                      gap: '16px',
+                      padding: '20px',
+                      border: '1px solid var(--acme-border)',
+                      borderRadius: '18px',
+                      background: 'white',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                      position: 'relative'
+                    }}
+                  >
+                    <button 
+                      type="button" 
+                      onClick={() => removeClosure(index)}
+                      style={{
+                        position: 'absolute',
+                        top: '12px',
+                        right: '12px',
+                        padding: '6px',
+                        borderRadius: '50%',
+                        border: 'none',
+                        background: 'rgba(239, 68, 68, 0.05)',
+                        color: 'var(--acme-red)',
+                        cursor: 'pointer'
+                      }}
+                      title="Eliminar cierre"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <FieldGroup label="Desde">
+                        <TextField
+                          type="datetime-local"
+                          value={normalizeDateTimeValue(closure.starts_at)}
+                          onChange={(event) => updateClosure(index, { starts_at: event.target.value })}
+                        />
+                      </FieldGroup>
+                      <FieldGroup label="Hasta">
+                        <TextField
+                          type="datetime-local"
+                          value={normalizeDateTimeValue(closure.ends_at)}
+                          onChange={(event) => updateClosure(index, { ends_at: event.target.value })}
+                        />
+                      </FieldGroup>
+                    </div>
+                    <FieldGroup label="Motivo o Justificación">
+                      <TextField 
+                        value={closure.reason} 
+                        onChange={(event) => updateClosure(index, { reason: event.target.value })} 
+                        placeholder="Ej: Feriado Regional"
+                      />
+                    </FieldGroup>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div style={{ marginTop: '16px' }}>
-              <button type="button" onClick={addClosure}>
-                Agregar cierre
+            
+            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center' }}>
+              <button 
+                type="button" 
+                onClick={addClosure}
+                className="btn btn--secondary"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '14px' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Programar cierre especial
               </button>
             </div>
           </SectionCard>
@@ -505,105 +625,163 @@ export function BranchEditorPage() {
       {activeTab === 'coverage' ? (
         <AdminTabPanel>
           <SectionCard
-            title="Catalogo de zonas"
-            description="Estas zonas son compartidas. Cambiar nombre o tarifa base afecta el catalogo usado por otras sucursales."
+            title="Catálogo Maestro de Zonas"
+            description="Estas zonas son compartidas en toda la red. Los cambios en tarifas base afectan el catálogo global."
           >
-            <div style={{ display: 'grid', gap: '16px' }}>
-              {form.delivery_zones.length === 0 ? <span style={{ color: '#6b7280' }}>Todavia no hay zonas de reparto cargadas.</span> : null}
-              {form.delivery_zones.map((zone, index) => (
-                <div
-                  key={zone.id ?? `zone-${index}`}
-                  style={{
-                    display: 'grid',
-                    gap: '12px',
-                    padding: '16px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '14px',
-                    background: '#ffffff',
-                  }}
-                >
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) auto', gap: '12px', alignItems: 'start' }}>
-                    <FieldGroup label="Nombre de zona">
-                      <TextField value={zone.name} onChange={(event) => updateZone(index, { name: event.target.value })} />
-                    </FieldGroup>
-                    <FieldGroup label="Tarifa base">
-                      <NumberField value={zone.base_fee} onChange={(event) => updateZone(index, { base_fee: event.target.value })} />
-                    </FieldGroup>
-                    <FieldGroup label="Pedido minimo">
-                      <NumberField value={zone.min_order_amount} onChange={(event) => updateZone(index, { min_order_amount: event.target.value })} />
-                    </FieldGroup>
-                    <FieldGroup label="Minutos estimados">
-                      <NumberField value={zone.estimated_minutes} onChange={(event) => updateZone(index, { estimated_minutes: event.target.value })} />
-                    </FieldGroup>
-                    <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'flex-end' }}>
-                      {zone.id?.startsWith('temp:') ? (
-                        <button type="button" onClick={() => removeNewZone(zone.id)}>
-                          Quitar nueva zona
+            <div style={{ display: 'grid', gap: '20px' }}>
+              {form.delivery_zones.length === 0 ? (
+                <div style={{ padding: '32px', textAlign: 'center', border: '2px dashed var(--acme-border)', borderRadius: '20px', color: 'var(--acme-text-faint)' }}>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ marginBottom: '12px', opacity: 0.5 }}><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+                  <p style={{ fontSize: '14px' }}>No hay zonas de reparto registradas en el catálogo.</p>
+                </div>
+              ) : null}
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+                {form.delivery_zones.map((zone, index) => (
+                  <div
+                    key={zone.id ?? `zone-${index}`}
+                    style={{
+                      display: 'grid',
+                      gap: '16px',
+                      padding: '24px',
+                      border: '1px solid var(--acme-border)',
+                      borderRadius: '20px',
+                      background: 'white',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+                      transition: 'all 0.2s ease',
+                      position: 'relative'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(77,20,140,0.1)', color: 'var(--acme-purple)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        </div>
+                        <span style={{ fontWeight: 800, fontSize: '15px', color: 'var(--acme-text)' }}>{zone.name || 'Zona sin nombre'}</span>
+                      </div>
+                      {zone.id?.startsWith('temp:') && (
+                        <button 
+                          type="button" 
+                          onClick={() => removeNewZone(zone.id)}
+                          style={{ padding: '6px', borderRadius: '50%', border: 'none', background: 'rgba(239, 68, 68, 0.05)', color: 'var(--acme-red)', cursor: 'pointer' }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         </button>
-                      ) : null}
+                      )}
+                    </div>
+
+                    <FieldGroup label="Nombre identificativo">
+                      <TextField value={zone.name} onChange={(event) => updateZone(index, { name: event.target.value })} placeholder="Ej: Zona Norte A" />
+                    </FieldGroup>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                      <FieldGroup label="Base S/">
+                        <NumberField value={zone.base_fee} onChange={(event) => updateZone(index, { base_fee: event.target.value })} />
+                      </FieldGroup>
+                      <FieldGroup label="Min S/">
+                        <NumberField value={zone.min_order_amount} onChange={(event) => updateZone(index, { min_order_amount: event.target.value })} />
+                      </FieldGroup>
+                      <FieldGroup label="ETA (min)">
+                        <NumberField value={zone.estimated_minutes} onChange={(event) => updateZone(index, { estimated_minutes: event.target.value })} />
+                      </FieldGroup>
+                    </div>
+
+                    <FieldGroup label="Geocerca (GeoJSON Polígono)" hint="Opcional. Se usará para validación espacial automática.">
+                      <TextAreaField
+                        value={zone.polygon_geojson}
+                        onChange={(event) => updateZone(index, { polygon_geojson: event.target.value })}
+                        placeholder='{"type":"Polygon","coordinates":[...]}'
+                        style={{ fontSize: '11px', fontFamily: 'monospace', minHeight: '60px' }}
+                      />
+                    </FieldGroup>
+
+                    <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'var(--acme-bg-soft)', border: '1px solid var(--acme-border)' }}>
+                      <CheckboxField
+                        label="Habilitar en el catálogo maestro"
+                        checked={zone.is_active}
+                        onChange={(event) => updateZone(index, { is_active: event.target.checked })}
+                      />
                     </div>
                   </div>
-                  <FieldGroup label="Polygon GeoJSON" hint="Opcional por ahora. Se puede completar cuando el reparto use mapa o geocercas.">
-                    <TextAreaField
-                      value={zone.polygon_geojson}
-                      onChange={(event) => updateZone(index, { polygon_geojson: event.target.value })}
-                      placeholder='{"type":"Polygon","coordinates":[...]}'
-                    />
-                  </FieldGroup>
-                  <CheckboxField
-                    label="Zona activa en catalogo"
-                    checked={zone.is_active}
-                    onChange={(event) => updateZone(index, { is_active: event.target.checked })}
-                  />
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-            <div style={{ marginTop: '16px' }}>
-              <button type="button" onClick={addZone}>
-                Agregar zona
+            
+            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center' }}>
+              <button 
+                type="button" 
+                onClick={addZone}
+                className="btn btn--secondary"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '14px' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Registrar nueva zona base
               </button>
             </div>
           </SectionCard>
 
           <SectionCard
-            title="Cobertura de esta sucursal"
-            description="Activa aqui las zonas que atiende esta sucursal y define un sobrecargo si la tarifa cambia para este punto."
+            title="Vínculo de Cobertura Propio"
+            description="Active las zonas que atiende este punto de venta y defina ajustes de precio si es necesario."
           >
-            <div style={{ display: 'grid', gap: '12px' }}>
+            <div style={{ display: 'grid', gap: '1px', background: 'var(--acme-border)', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--acme-border)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px 140px 100px', gap: '1px', background: 'var(--acme-surface-muted)', padding: '12px 16px', fontSize: '11px', fontWeight: 800, color: 'var(--acme-text-faint)' }}>
+                <span>ZONA DE REPARTO</span>
+                <span>TARIFA SUCURSAL (S/)</span>
+                <span style={{ textAlign: 'center' }}>ASIGNACIÓN</span>
+                <span style={{ textAlign: 'center' }}>ACTIVA</span>
+              </div>
               {form.branch_delivery_zones.map((relation) => (
                 <div
                   key={relation.zone_id}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'minmax(220px, 1fr) minmax(160px, 220px) auto auto',
-                    gap: '12px',
+                    gridTemplateColumns: '1fr 200px 140px 100px',
+                    gap: '16px',
                     alignItems: 'center',
-                    padding: '14px 16px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '14px',
-                    background: relation.assigned ? '#ffffff' : '#f9fafb',
+                    padding: '12px 16px',
+                    background: relation.assigned ? 'white' : 'var(--acme-bg-soft)',
+                    opacity: relation.assigned ? 1 : 0.7
                   }}
                 >
-                  <div>
-                    <strong>{relation.zone_name || 'Zona nueva sin nombre'}</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: relation.assigned ? 'var(--acme-purple)' : 'var(--acme-border)' }} />
+                    <span style={{ fontWeight: 700, fontSize: '13px', color: relation.assigned ? 'var(--acme-text)' : 'var(--acme-text-faint)' }}>
+                      {relation.zone_name || 'Zona sin nombre'}
+                    </span>
                   </div>
-                  <FieldGroup label="Tarifa para esta sucursal">
-                    <NumberField
-                      value={relation.fee_override}
+                  <TextField
+                    disabled={!relation.assigned}
+                    value={relation.fee_override}
+                    onChange={(event) => updateBranchZone(relation.zone_id, { fee_override: event.target.value })}
+                    placeholder="Dejar vacío para usar base"
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={() => toggleBranchZone(relation.zone_id, !relation.assigned)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        border: 'none',
+                        cursor: 'pointer',
+                        background: relation.assigned ? 'rgba(77,20,140,0.1)' : 'rgba(0,0,0,0.05)',
+                        color: relation.assigned ? 'var(--acme-purple)' : 'var(--acme-text-faint)',
+                      }}
+                    >
+                      {relation.assigned ? 'ASIGNADA' : 'INACTIVA'}
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <CheckboxField
+                      label=""
+                      checked={relation.is_active}
                       disabled={!relation.assigned}
-                      onChange={(event) => updateBranchZone(relation.zone_id, { fee_override: event.target.value })}
+                      onChange={(event) => updateBranchZone(relation.zone_id, { is_active: event.target.checked })}
                     />
-                  </FieldGroup>
-                  <CheckboxField
-                    label="Asignada"
-                    checked={relation.assigned}
-                    onChange={(event) => toggleBranchZone(relation.zone_id, event.target.checked)}
-                  />
-                  <CheckboxField
-                    label="Activa"
-                    checked={relation.is_active}
-                    onChange={(event) => updateBranchZone(relation.zone_id, { is_active: event.target.checked })}
-                  />
+                  </div>
                 </div>
               ))}
             </div>

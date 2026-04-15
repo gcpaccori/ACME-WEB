@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { AppRoutes } from '../../core/constants/routes';
 import headerLogo from '../../images/logo/logo-acme.jpeg';
@@ -11,6 +12,20 @@ function isActive(pathname: string, route: string) {
 export function PublicLayout() {
   const location = useLocation();
   const publicStore = usePublicStore();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location]);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isMenuOpen]);
 
   return (
     <div className="page-shell" style={{ fontFamily: "'Nunito', sans-serif" }}>
@@ -202,69 +217,145 @@ export function PublicLayout() {
           opacity: .97;
         }
 
+        /* ==== MOBILE DRAWER ==== */
+        .acme-mobile-menu-btn {
+          display: none;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #1a0a2e;
+          padding: 8px;
+          border-radius: 8px;
+          line-height: 0;
+        }
+        .acme-mobile-menu-btn:hover { background: rgba(77,20,140,0.06); }
+
+        .acme-mobile-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.45);
+          backdrop-filter: blur(4px);
+          z-index: 998;
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .acme-mobile-overlay.open { opacity: 1; visibility: visible; }
+
+        /* Drawer slides from the RIGHT edge inward */
+        .acme-mobile-drawer {
+          position: fixed;
+          top: 0;
+          right: 0;
+          width: min(320px, 85vw);
+          height: 100dvh;
+          height: 100vh;
+          background: #fff;
+          z-index: 999;
+          box-shadow: -12px 0 40px rgba(0,0,0,0.15);
+          display: flex;
+          flex-direction: column;
+          transform: translateX(100%);
+          transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
+          overflow: hidden;
+        }
+        .acme-mobile-drawer.open { transform: translateX(0); }
+
+        .acme-mobile-drawer-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 18px 20px;
+          border-bottom: 1px solid #f0e8ff;
+          flex-shrink: 0;
+        }
+        .acme-mobile-drawer-header img { height: 36px; object-fit: contain; }
+
+        .acme-mobile-drawer-close {
+          width: 38px; height: 38px;
+          border-radius: 10px;
+          background: #f0e8ff;
+          border: none;
+          cursor: pointer;
+          color: #4d148c;
+          font-size: 22px;
+          display: flex; align-items: center; justify-content: center;
+          line-height: 1;
+          transition: background 0.2s;
+          flex-shrink: 0;
+        }
+        .acme-mobile-drawer-close:hover { background: #e0d0ff; }
+
+        .acme-mobile-drawer-content {
+          padding: 16px 16px 32px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          overflow-y: auto;
+          flex: 1;
+        }
+
+        .acme-mobile-nav-link {
+          display: block;
+          font-size: 1.05rem;
+          font-weight: 700;
+          color: #1a0a2e;
+          text-decoration: none;
+          padding: 13px 16px;
+          border-radius: 12px;
+          transition: background 0.18s, color 0.18s;
+        }
+        .acme-mobile-nav-link:hover { background: #f5f0ff; color: #4d148c; }
+        .acme-mobile-nav-link.active { background: #f0e8ff; color: #4d148c; }
+
+        .acme-mobile-divider {
+          height: 1px;
+          background: #f0e8ff;
+          margin: 8px 0;
+        }
+
+        /* ==== RESPONSIVE BREAKPOINTS ==== */
         @media (max-width: 1180px) {
           .public-header-shell {
             height: auto !important;
-            padding: 12px 18px !important;
-            gap: 12px;
-            flex-wrap: wrap;
+            padding: 10px 16px !important;
           }
-
-          .public-header-nav {
-            order: 3;
-            width: 100%;
-            flex-wrap: wrap;
-          }
-
-          .public-header-actions {
-            margin-left: auto;
-          }
+          .public-header-nav { display: none !important; }
+          .public-header-actions > .acme-nav-link:not(.acme-cart-link) { display: none !important; }
+          .acme-mobile-menu-btn { display: flex !important; }
+          .public-header-actions { margin-left: auto; }
         }
 
         @media (max-width: 980px) {
-          .acme-footer-top {
-            padding: 44px 28px 38px;
-          }
-
-          .acme-footer-bottom {
-            padding: 16px 28px;
-          }
-
-          .acme-footer-grid {
-            grid-template-columns: 1fr;
-            gap: 34px;
-          }
+          .acme-footer-top { padding: 44px 28px 38px; }
+          .acme-footer-bottom { padding: 16px 28px; justify-content: center; }
+          .acme-footer-grid { grid-template-columns: 1fr; gap: 40px; }
+          .acme-footer-brand .acme-footer-text,
+          .acme-footer-col-title { text-align: center; margin-left: auto; margin-right: auto; }
+          .acme-footer-socials { justify-content: center; }
+          .acme-footer-links { align-items: center; }
+          .acme-footer-logo { justify-content: center; display: flex; }
         }
 
         @media (max-width: 640px) {
           .public-header-shell {
-            margin: 0 12px !important;
-            max-width: calc(100vw - 24px) !important;
+            margin: 0 10px !important;
+            max-width: calc(100vw - 20px) !important;
           }
-
-          .public-header-nav,
-          .public-header-actions {
-            display: flex;
-            width: 100%;
-            overflow-x: auto;
-            padding-bottom: 4px;
-          }
-
-          .acme-powered-btn {
-            width: 100%;
-            justify-content: center;
-          }
+          .acme-powered-btn { width: 100%; justify-content: center; }
         }
       `}</style>
 
       <header
         className="public-header-shell"
         style={{
-          position: 'sticky',
-          top: '12px',
+          position: 'fixed',
+          top: '10px',
+          left: '8px',
+          right: '8px',
           zIndex: 100,
-          background: '#ffffff',
-          backdropFilter: 'blur(10px)',
+          background: 'rgba(255,255,255,0.97)',
+          backdropFilter: 'blur(12px)',
           borderRadius: '20px',
           border: '1px solid var(--acme-border)',
           padding: '0 22px',
@@ -273,8 +364,6 @@ export function PublicLayout() {
           alignItems: 'center',
           justifyContent: 'space-between',
           boxShadow: 'var(--acme-shadow-md)',
-          margin: '0 24px',
-          maxWidth: 'calc(100vw - 48px)',
           gap: '14px',
         }}
       >
@@ -283,24 +372,12 @@ export function PublicLayout() {
         </Link>
 
         <nav className="public-header-nav" style={{ display: 'flex', gap: '6px', alignItems: 'center', minWidth: 0, flex: 1 }}>
-          <Link to={AppRoutes.public.home} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.home) ? ' active' : ''}`}>
-            Inicio
-          </Link>
-          <Link to={AppRoutes.public.howItWorks} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.howItWorks) ? ' active' : ''}`}>
-            Como funciona
-          </Link>
-          <Link to={AppRoutes.public.marketplace} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.marketplace) ? ' active' : ''}`}>
-            Pide ahora
-          </Link>
-          <Link to={AppRoutes.public.businesses} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.businesses) ? ' active' : ''}`}>
-            Para negocios
-          </Link>
-          <Link to={AppRoutes.public.hazteDriver} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.hazteDriver) ? ' active' : ''}`}>
-            HAZTE DRIVER
-          </Link>
-          <Link to={AppRoutes.public.contact} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.contact) ? ' active' : ''}`}>
-            Contacto
-          </Link>
+          <Link to={AppRoutes.public.home} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.home) ? ' active' : ''}`}>Inicio</Link>
+          <Link to={AppRoutes.public.howItWorks} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.howItWorks) ? ' active' : ''}`}>Como funciona</Link>
+          <Link to={AppRoutes.public.marketplace} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.marketplace) ? ' active' : ''}`}>Pide ahora</Link>
+          <Link to={AppRoutes.public.businesses} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.businesses) ? ' active' : ''}`}>Para negocios</Link>
+          <Link to={AppRoutes.public.hazteDriver} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.hazteDriver) ? ' active' : ''}`}>HAZTE DRIVER</Link>
+          <Link to={AppRoutes.public.contact} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.contact) ? ' active' : ''}`}>Contacto</Link>
         </nav>
 
         <div className="public-header-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
@@ -317,6 +394,7 @@ export function PublicLayout() {
             </svg>
             {publicStore.cartCount > 0 ? <span className="acme-cart-badge">{publicStore.cartCount}</span> : null}
           </Link>
+
           <Link to={AppRoutes.public.account} className={`acme-nav-link${isActive(location.pathname, AppRoutes.public.account) ? ' active' : ''}`}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -324,13 +402,49 @@ export function PublicLayout() {
             </svg>
             {publicStore.sessionUser ? 'Mi cuenta' : 'Ingreso'}
           </Link>
+          
           <Link to={AppRoutes.public.portalLogin} className="acme-nav-link acme-nav-portal">
             Portal para locales
           </Link>
+
+          <button className="acme-mobile-menu-btn" onClick={() => setIsMenuOpen(true)}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
         </div>
       </header>
 
-      <main style={{ marginTop: '-78px' }}>
+      <div className={`acme-mobile-overlay${isMenuOpen ? ' open' : ''}`} onClick={() => setIsMenuOpen(false)} />
+      <div className={`acme-mobile-drawer${isMenuOpen ? ' open' : ''}`} role="dialog" aria-modal="true" aria-label="Menú de navegación">
+        <div className="acme-mobile-drawer-header">
+          <img src={headerLogo} alt="ACME Logo" />
+          <button className="acme-mobile-drawer-close" onClick={() => setIsMenuOpen(false)} aria-label="Cerrar menú">✕</button>
+        </div>
+        <div className="acme-mobile-drawer-content">
+          <Link to={AppRoutes.public.home} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.home) ? ' active' : ''}`}>🏠 Inicio</Link>
+          <Link to={AppRoutes.public.howItWorks} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.howItWorks) ? ' active' : ''}`}>❓ Como funciona</Link>
+          <Link to={AppRoutes.public.marketplace} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.marketplace) ? ' active' : ''}`}>🛒 Pide ahora</Link>
+          <Link to={AppRoutes.public.businesses} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.businesses) ? ' active' : ''}`}>🏪 Para negocios</Link>
+          <Link to={AppRoutes.public.hazteDriver} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.hazteDriver) ? ' active' : ''}`}>🛵 HAZTE DRIVER</Link>
+          <Link to={AppRoutes.public.contact} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.contact) ? ' active' : ''}`}>📩 Contacto</Link>
+          <div className="acme-mobile-divider" />
+          <Link to={AppRoutes.public.account} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.account) ? ' active' : ''}`}>
+            👤 {publicStore.sessionUser ? 'Mi cuenta' : 'Ingreso'}
+          </Link>
+          <Link
+            to={AppRoutes.public.portalLogin}
+            className="acme-mobile-nav-link"
+            style={{ background: '#ff6200', color: '#fff', textAlign: 'center', marginTop: '4px', borderRadius: '14px' }}
+          >
+            Portal para locales
+          </Link>
+        </div>
+      </div>
+
+      <main>
         <Outlet />
       </main>
 

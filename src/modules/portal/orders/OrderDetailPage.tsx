@@ -52,8 +52,8 @@ export function OrderDetailPage() {
 
   return (
     <div style={{ display: 'grid', gap: '20px' }}>
-      <div>
-        <button onClick={() => navigate(-1)} style={{ padding: '10px 16px' }}>Volver</button>
+      <div style={{ marginBottom: '10px' }}>
+        <button onClick={() => navigate(-1)} className="btn btn--secondary btn--sm">Volver</button>
       </div>
       {loading ? (
         <LoadingScreen />
@@ -91,7 +91,7 @@ export function OrderDetailPage() {
                   key={nextStatus}
                   disabled={actionLoading}
                   onClick={() => handleStatusChange(nextStatus)}
-                  style={{ padding: '10px 16px' }}
+                  className="btn btn--primary btn--sm"
                 >
                   Marcar como {ORDER_STATUS_LABELS[nextStatus]}
                 </button>

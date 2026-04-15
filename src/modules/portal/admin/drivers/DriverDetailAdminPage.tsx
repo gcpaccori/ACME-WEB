@@ -317,7 +317,7 @@ export function DriverDetailAdminPage() {
       ]}
     >
       <div>
-        <button type="button" onClick={() => navigate(-1)} style={{ padding: '10px 16px' }}>
+        <button type="button" onClick={() => navigate(-1)} className="btn btn--secondary btn--sm">
           Volver
         </button>
       </div>
@@ -328,19 +328,19 @@ export function DriverDetailAdminPage() {
         status={{ label: detail.status || 'sin estado', tone: getDriverTone(detail.status) }}
         actions={
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button type="button" onClick={openRootModal} style={{ padding: '10px 14px' }}>
+            <button type="button" onClick={openRootModal} className="btn btn--secondary btn--sm">
               Editar ficha
             </button>
-            <button type="button" onClick={openStateModal} style={{ padding: '10px 14px' }}>
+            <button type="button" onClick={openStateModal} className="btn btn--secondary btn--sm">
               Editar estado
             </button>
-            <button type="button" onClick={() => openShiftModal()} style={{ padding: '10px 14px' }}>
+            <button type="button" onClick={() => openShiftModal()} className="btn btn--secondary btn--sm">
               Agregar turno
             </button>
-            <button type="button" onClick={() => openCashModal()} style={{ padding: '10px 14px' }}>
+            <button type="button" onClick={() => openCashModal()} className="btn btn--secondary btn--sm">
               Registrar cobranza
             </button>
-            <button type="button" onClick={() => setVehicleTypesDrawerOpen(true)} style={{ padding: '10px 14px' }}>
+            <button type="button" onClick={() => setVehicleTypesDrawerOpen(true)} className="btn btn--secondary btn--sm">
               Ver tipos de vehiculo
             </button>
           </div>
@@ -382,7 +382,7 @@ export function DriverDetailAdminPage() {
             title="Estado en vivo"
             description="driver_current_state se usa como tablero operativo en vivo y no como CRUD suelto."
             actions={
-              <button type="button" onClick={openStateModal} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={openStateModal} className="btn btn--secondary btn--sm">
                 Editar estado
               </button>
             }
@@ -464,7 +464,7 @@ export function DriverDetailAdminPage() {
             title="Documentos"
             description="driver_documents se administra dentro de la ficha para validar onboarding y vigencias."
             actions={
-              <button type="button" onClick={() => openDocumentModal()} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={() => openDocumentModal()} className="btn btn--secondary btn--sm">
                 Agregar documento
               </button>
             }
@@ -504,7 +504,7 @@ export function DriverDetailAdminPage() {
                   align: 'right',
                   width: '140px',
                   render: (record) => (
-                    <button type="button" onClick={() => openDocumentModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                    <button type="button" onClick={() => openDocumentModal(record)} className="btn btn--ghost btn--sm">
                       Editar
                     </button>
                   ),
@@ -521,7 +521,7 @@ export function DriverDetailAdminPage() {
             title="Vehiculos"
             description="vehicles y vehicle_types viven juntos para controlar el vehiculo activo y el historial del repartidor."
             actions={
-              <button type="button" onClick={() => openVehicleModal()} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={() => openVehicleModal()} className="btn btn--secondary btn--sm">
                 Agregar vehiculo
               </button>
             }
@@ -553,7 +553,7 @@ export function DriverDetailAdminPage() {
                   align: 'right',
                   width: '140px',
                   render: (record) => (
-                    <button type="button" onClick={() => openVehicleModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                    <button type="button" onClick={() => openVehicleModal(record)} className="btn btn--ghost btn--sm">
                       Editar
                     </button>
                   ),
@@ -566,7 +566,7 @@ export function DriverDetailAdminPage() {
             title="Turnos"
             description="driver_shifts se usa para organizar disponibilidad y cierre operativo del repartidor."
             actions={
-              <button type="button" onClick={() => openShiftModal()} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={() => openShiftModal()} className="btn btn--secondary btn--sm">
                 Agregar turno
               </button>
             }
@@ -585,7 +585,7 @@ export function DriverDetailAdminPage() {
                   align: 'right',
                   width: '140px',
                   render: (record) => (
-                    <button type="button" onClick={() => openShiftModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                    <button type="button" onClick={() => openShiftModal(record)} className="btn btn--ghost btn--sm">
                       Editar
                     </button>
                   ),
@@ -645,7 +645,7 @@ export function DriverDetailAdminPage() {
             title="Cobranza en efectivo"
             description="cash_collections vive en esta ficha para cuadrar efectivo por pedido y estado de liquidacion."
             actions={
-              <button type="button" onClick={() => openCashModal()} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={() => openCashModal()} className="btn btn--secondary btn--sm">
                 Registrar cobranza
               </button>
             }
@@ -676,7 +676,7 @@ export function DriverDetailAdminPage() {
                   align: 'right',
                   width: '140px',
                   render: (record) => (
-                    <button type="button" onClick={() => openCashModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                    <button type="button" onClick={() => openCashModal(record)} className="btn btn--ghost btn--sm">
                       Editar
                     </button>
                   ),
@@ -759,10 +759,10 @@ export function DriverDetailAdminPage() {
         onClose={() => setRootOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setRootOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setRootOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleRootSave} disabled={mutating || !rootForm.user_id} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleRootSave} disabled={mutating || !rootForm.user_id} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar ficha'}
             </button>
           </>
@@ -813,10 +813,10 @@ export function DriverDetailAdminPage() {
         onClose={() => setStateOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setStateOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setStateOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleStateSave} disabled={mutating} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleStateSave} disabled={mutating} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar estado'}
             </button>
           </>
@@ -847,10 +847,10 @@ export function DriverDetailAdminPage() {
         onClose={() => setDocumentOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setDocumentOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setDocumentOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleDocumentSave} disabled={mutating || !documentForm.document_type} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleDocumentSave} disabled={mutating || !documentForm.document_type} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar documento'}
             </button>
           </>
@@ -900,10 +900,10 @@ export function DriverDetailAdminPage() {
         onClose={() => setVehicleOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setVehicleOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setVehicleOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleVehicleSave} disabled={mutating || !vehicleForm.vehicle_type_id} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleVehicleSave} disabled={mutating || !vehicleForm.vehicle_type_id} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar vehiculo'}
             </button>
           </>
@@ -936,10 +936,10 @@ export function DriverDetailAdminPage() {
         onClose={() => setShiftOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setShiftOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setShiftOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleShiftSave} disabled={mutating || !shiftForm.start_at} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleShiftSave} disabled={mutating || !shiftForm.start_at} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar turno'}
             </button>
           </>
@@ -974,10 +974,10 @@ export function DriverDetailAdminPage() {
         onClose={() => setCashOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setCashOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setCashOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleCashSave} disabled={mutating || !cashForm.order_id} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleCashSave} disabled={mutating || !cashForm.order_id} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar cobranza'}
             </button>
           </>

@@ -57,56 +57,48 @@ export function PortalLayout() {
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
   const closeSidebar = () => setSidebarOpen(false);
 
+  const hasContextBar = showMerchantSelector || showBranchSelector || portal.availableScopeTypes.length > 1;
+
   return (
     <div className={`portal-shell ${sidebarOpen ? 'portal-shell--sidebarOpen' : ''} ${isMinimized ? 'portal-shell--minimized' : ''}`}>
+      {/* Mobile overlay */}
       <div className="portal-overlay" onClick={closeSidebar} />
 
+      {/* Sidebar */}
       <PortalSidebar onItemClick={closeSidebar} isMinimized={isMinimized} onToggleMinimize={toggleMinimize} />
 
+      {/* Main area */}
       <div className="portal-main-area">
+        {/* Top header */}
         <PortalHeader onMenuClick={toggleSidebar} />
 
+        {/* Context bar: scope / merchant / branch selectors */}
+        {hasContextBar && (
+          <div className="portal-context-bar">
+            {portal.availableScopeTypes.length > 1 && (
+              <div className="portal-context-bar__scope-pills">
+                {portal.availableScopeTypes.map((scopeType) => (
+                  <button
+                    key={scopeType}
+                    type="button"
+                    onClick={() => portal.setCurrentScopeType(scopeType)}
+                    className={`portal-context-bar__scope-btn ${portal.currentScopeType === scopeType ? 'portal-context-bar__scope-btn--active' : ''}`}
+                  >
+                    {getScopeLabel(scopeType)}
+                  </button>
+                ))}
+              </div>
+            )}
 
-        {/* Global Context Bar (Scope / Merchant / Branch) */}
-        <div style={{ padding: '16px 24px 0', borderBottom: '1px solid var(--acme-border)', backgroundColor: 'var(--acme-surface)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', paddingBottom: '16px' }}>
-            <div style={{ display: 'flex', gap: '8px', background: 'var(--acme-surface-muted)', padding: '4px', borderRadius: '10px' }}>
-              {portal.availableScopeTypes.map((scopeType) => (
-                <button
-                  key={scopeType}
-                  type="button"
-                  onClick={() => portal.setCurrentScopeType(scopeType)}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: portal.currentScopeType === scopeType ? 'var(--acme-surface)' : 'transparent',
-                    color: portal.currentScopeType === scopeType ? 'var(--acme-purple)' : 'var(--acme-text-muted)',
-                    boxShadow: portal.currentScopeType === scopeType ? 'var(--acme-shadow-sm)' : 'none',
-                    fontWeight: 700,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  {getScopeLabel(scopeType)}
-                </button>
-              ))}
-            </div>
+            {(showMerchantSelector || showBranchSelector) && portal.availableScopeTypes.length > 1 && (
+              <div className="portal-context-bar__divider" />
+            )}
 
             {showMerchantSelector && (
               <select
                 value={portal.currentMerchant?.id ?? ''}
-                onChange={(event) => portal.setCurrentMerchantId(event.target.value)}
-                style={{
-                  padding: '10px 14px',
-                  borderRadius: '10px',
-                  border: '1px solid var(--acme-border)',
-                  background: 'var(--acme-surface)',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  minWidth: '200px'
-                }}
+                onChange={(e) => portal.setCurrentMerchantId(e.target.value)}
+                className="portal-context-select"
               >
                 <option value="">Selecciona un negocio</option>
                 {portal.businessAssignments.map((assignment) => (
@@ -120,16 +112,8 @@ export function PortalLayout() {
             {showBranchSelector && (
               <select
                 value={portal.currentBranch?.id ?? ''}
-                onChange={(event) => portal.setCurrentBranchId(event.target.value)}
-                style={{
-                  padding: '10px 14px',
-                  borderRadius: '10px',
-                  border: '1px solid var(--acme-border)',
-                  background: 'var(--acme-surface)',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  minWidth: '200px'
-                }}
+                onChange={(e) => portal.setCurrentBranchId(e.target.value)}
+                className="portal-context-select"
               >
                 <option value="">Selecciona una sucursal</option>
                 {portal.branches.map((branch) => (
@@ -140,28 +124,30 @@ export function PortalLayout() {
               </select>
             )}
           </div>
+        )}
+
+        {/* Scrollable content area */}
+        <div className="portal-scroll-area">
+          <main className="portal-content">
+            {needsMerchantSelection ? (
+              <section className="portal-emptyState">
+                <strong>Selecciona un negocio para continuar</strong>
+                <span>
+                  En capa {getScopeLabel(portal.currentScopeType).toLowerCase()} debes elegir un comercio desde el selector superior antes de acceder a los módulos.
+                </span>
+              </section>
+            ) : null}
+
+            {needsBranchSelection ? (
+              <section className="portal-emptyState">
+                <strong>Selecciona una sucursal</strong>
+                <span>Esta capa necesita una sucursal operativa antes de mostrar pedidos, turno y estado local.</span>
+              </section>
+            ) : null}
+
+            {!needsMerchantSelection && !needsBranchSelection && <Outlet />}
+          </main>
         </div>
-
-        <main className="portal-content">
-          {needsMerchantSelection ? (
-            <section className="portal-emptyState">
-              <strong>Selecciona un negocio para continuar</strong>
-              <span>
-                En capa {getScopeLabel(portal.currentScopeType).toLowerCase()} no se debe entrar automaticamente a un comercio.
-                Primero elige uno desde el selector superior.
-              </span>
-            </section>
-          ) : null}
-
-          {needsBranchSelection ? (
-            <section className="portal-emptyState">
-              <strong>Selecciona una sucursal</strong>
-              <span>Esta capa necesita una sucursal operativa antes de mostrar pedidos, turno y estado local.</span>
-            </section>
-          ) : null}
-
-          {(!needsMerchantSelection && !needsBranchSelection) && <Outlet />}
-        </main>
       </div>
     </div>
   );

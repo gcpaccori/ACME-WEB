@@ -74,8 +74,9 @@ export function ProductsAdminPage() {
       actions={
         <Link
           to={AppRoutes.portal.admin.productNew}
-          style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff', fontWeight: 600 }}
+          className="btn btn--primary"
         >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Nuevo producto
         </Link>
       }
@@ -89,44 +90,57 @@ export function ProductsAdminPage() {
           <AdminDataTable
             rows={products}
             getRowId={(product) => product.id}
-            emptyMessage="No hay productos registrados."
+            emptyMessage="No hay productos registrados en el catálogo global."
             columns={[
               {
                 id: 'name',
                 header: 'Producto',
                 render: (product) => (
-                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                     <div style={productThumbStyle(product.image_url)} />
-                    <div style={{ display: 'grid', gap: '6px' }}>
-                      <strong>{product.name}</strong>
-                      <span style={{ color: '#6b7280' }}>{product.category_name}</span>
+                    <div className="module-info">
+                      <strong style={{ fontWeight: 800 }}>{product.name}</strong>
+                      <span style={{ color: 'var(--acme-text-faint)', fontSize: '12px' }}>{product.category_name}</span>
                     </div>
                   </div>
                 ),
               },
               {
                 id: 'sku',
-                header: 'SKU',
-                render: (product) => product.sku || 'Sin SKU',
+                header: 'SKU / Código',
+                render: (product) => (
+                  <span style={{ fontFamily: 'monospace', fontSize: '13px', fontWeight: 600, color: 'var(--acme-text-muted)' }}>
+                    {product.sku || 'N/A'}
+                  </span>
+                ),
               },
               {
                 id: 'price',
                 header: 'Precio base',
-                render: (product) => `S/ ${product.base_price.toFixed(2)}`,
+                render: (product) => (
+                  <strong style={{ color: 'var(--acme-text-muted)' }}>
+                    S/ {product.base_price.toFixed(2)}
+                  </strong>
+                ),
               },
               {
                 id: 'status',
                 header: 'Estado',
-                render: (product) => <StatusPill label={product.is_active ? 'Activo' : 'Inactivo'} tone={product.is_active ? 'success' : 'warning'} />,
+                render: (product) => (
+                  <StatusPill 
+                    label={product.is_active ? 'HABILITADO' : 'DESACTIVADO'} 
+                    tone={product.is_active ? 'success' : 'neutral'} 
+                  />
+                ),
               },
               {
                 id: 'action',
-                header: 'Accion',
+                header: '',
                 align: 'right',
-                width: '140px',
+                width: '120px',
                 render: (product) => (
-                  <Link to={`/portal/admin/catalog/products/${product.id}`} style={{ color: '#2563eb', fontWeight: 700 }}>
-                    Editar
+                  <Link to={`${AppRoutes.portal.admin.products}/${product.id}`} className="btn btn--sm btn--ghost" style={{ color: 'var(--acme-purple)' }}>
+                    Gestionar
                   </Link>
                 ),
               },

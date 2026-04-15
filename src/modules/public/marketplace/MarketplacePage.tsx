@@ -501,8 +501,19 @@ export function MarketplacePage() {
   }, [activeMerchant, availableProducts]);
 
   const showcaseProducts = useMemo(() => availableProducts.slice(0, 4), [availableProducts]);
-  const sidebarMerchants = filteredMerchants.filter((merchant) => merchant.id !== activeMerchant?.id);
+  const activeMerchantIndex = filteredMerchants.findIndex((m) => m.id === activeMerchantId);
   const resultCountLabel = `${filteredMerchants.length} negocio${filteredMerchants.length === 1 ? '' : 's'} visibles`;
+
+  const goToMerchant = (index: number) => {
+    const merchant = filteredMerchants[index];
+    if (!merchant) return;
+    startTransition(() => {
+      setActiveMerchantId(merchant.id);
+      setActiveBranchId(merchant.branches[0]?.id ?? null);
+      setActiveCategoryId('all');
+      scrollToId('mp-stage-top');
+    });
+  };
 
   const openProduct = (product: PublicMarketplaceProduct) => {
     setSelectedProduct(product);
@@ -630,63 +641,97 @@ export function MarketplacePage() {
           <div className="mp-shell">
             <aside className="mp-sidebar">
               <div className="mp-sidebar-card">
-                <button type="button" className="mp-sidebar-now" onClick={() => scrollToId('mp-stage-top')}>
-                  <div className="mp-sidebar-now__thumb" style={thumbStyle(merchantImage)} />
-                  <div className="mp-sidebar-now__body">
-                    <span className="mp-sidebar-caption">Restaurante activo</span>
-                    <strong>{activeMerchant.trade_name}</strong>
-                    <span>{shortAddress(activeBranch)}</span>
-                  </div>
-                </button>
 
+                {/* ── Desktop header ── */}
                 <div className="mp-sidebar-list-head">
                   <div>
-                    <span className="mp-sidebar-caption">Otros negocios</span>
-                    <strong className="mp-sidebar-title">Cambia de local sin perder el contexto.</strong>
+                    <span className="mp-sidebar-caption">Locales disponibles</span>
+                    <strong className="mp-sidebar-title">Elige dónde pedir hoy</strong>
                   </div>
-                  <span className="mp-sidebar-pill">{sidebarMerchants.length}</span>
+                  <span className="mp-sidebar-pill">{filteredMerchants.length}</span>
                 </div>
 
-                <div className="mp-sidebar-list">
-                  {sidebarMerchants.length > 0 ? (
-                    sidebarMerchants.map((merchant) => {
-                      const merchantImageUrl = merchant.logo_url || merchantHeroImage(merchant);
-                      return (
-                        <button
-                          key={merchant.id}
-                          type="button"
-                          className="mp-sidebar-item"
-                          onClick={() =>
-                            startTransition(() => {
-                              setActiveMerchantId(merchant.id);
-                              setActiveBranchId(merchant.branches[0]?.id ?? null);
-                              setActiveCategoryId('all');
-                              scrollToId('mp-stage-top');
-                            })
-                          }
-                        >
-                          <div className="mp-sidebar-item__thumb" style={thumbStyle(merchantImageUrl)} />
-                          <div className="mp-sidebar-item__body">
-                            <div className="mp-sidebar-item__topline">
-                              <strong>{merchant.trade_name}</strong>
-                              <span>{merchant.products.length}</span>
-                            </div>
-                            <p>{merchant.featured_product_names.slice(0, 2).join(' / ') || 'Carta lista para vender mejor.'}</p>
-                            <div className="mp-sidebar-item__meta">
-                              <span>{merchant.branches[0]?.district || 'Huancayo'}</span>
-                              <span>{merchant.branches.length} sucursales</span>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })
-                  ) : (
-                    <div className="mp-sidebar-empty">
-                      <strong>Solo queda este negocio en tu busqueda.</strong>
-                      <span>Prueba otro termino para volver a abrir mas opciones en la barra lateral.</span>
+                {/* ── Mobile carousel navigator ── */}
+                <div className="mp-carousel-nav">
+                  <button
+                    type="button"
+                    className="mp-carousel-btn"
+                    aria-label="Anterior local"
+                    disabled={filteredMerchants.length <= 1}
+                    onClick={() => goToMerchant((activeMerchantIndex - 1 + filteredMerchants.length) % filteredMerchants.length)}
+                  >
+                    ‹
+                  </button>
+
+                  <div className="mp-carousel-info">
+                    <div className="mp-carousel-thumb" style={thumbStyle(merchantImage)} />
+                    <div className="mp-carousel-text">
+                      <strong className="mp-carousel-name">{activeMerchant.trade_name}</strong>
+                      <span className="mp-carousel-hint">Desliza o usa las flechas para cambiar</span>
                     </div>
-                  )}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="mp-carousel-btn"
+                    aria-label="Siguiente local"
+                    disabled={filteredMerchants.length <= 1}
+                    onClick={() => goToMerchant((activeMerchantIndex + 1) % filteredMerchants.length)}
+                  >
+                    ›
+                  </button>
                 </div>
+
+                {/* Dots indicator (mobile only) */}
+                {filteredMerchants.length > 1 && (
+                  <div className="mp-carousel-dots">
+                    {filteredMerchants.slice(0, 10).map((m, i) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        className={`mp-carousel-dot${m.id === activeMerchantId ? ' mp-carousel-dot--active' : ''}`}
+                        aria-label={m.trade_name}
+                        onClick={() => goToMerchant(i)}
+                      />
+                    ))}
+                    {filteredMerchants.length > 10 && (
+                      <span className="mp-carousel-more">+{filteredMerchants.length - 10}</span>
+                    )}
+                  </div>
+                )}
+
+                {/* ── Desktop full merchant list ── */}
+                <div className="mp-sidebar-list">
+                  {filteredMerchants.map((merchant) => {
+                    const merchantImageUrl = merchant.logo_url || merchantHeroImage(merchant);
+                    const isActive = merchant.id === activeMerchantId;
+                    const isOpen = merchant.branches[0]?.is_open && merchant.branches[0]?.accepting_orders;
+                    return (
+                      <button
+                        key={merchant.id}
+                        type="button"
+                        className={`mp-sidebar-item${isActive ? ' mp-sidebar-item--active' : ''}`}
+                        onClick={() => goToMerchant(filteredMerchants.indexOf(merchant))}
+                      >
+                        <div className="mp-sidebar-item__thumb" style={thumbStyle(merchantImageUrl)} />
+                        <div className="mp-sidebar-item__body">
+                          <div className="mp-sidebar-item__topline">
+                            <strong>{merchant.trade_name}</strong>
+                            <span className={`mp-sidebar-status${isOpen ? ' mp-sidebar-status--open' : ''}`}>
+                              {isOpen ? '●' : '○'}
+                            </span>
+                          </div>
+                          <p>{merchant.featured_product_names.slice(0, 2).join(' · ') || 'Carta disponible'}</p>
+                          <div className="mp-sidebar-item__meta">
+                            <span>{merchant.branches[0]?.district || 'Huancavelica'}</span>
+                            <span>{merchant.products.length} platos</span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
               </div>
             </aside>
 

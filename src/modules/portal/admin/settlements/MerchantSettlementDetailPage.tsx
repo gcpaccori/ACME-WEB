@@ -96,7 +96,7 @@ export function MerchantSettlementDetailPage() {
       ]}
     >
       <div>
-        <button type="button" onClick={() => navigate(-1)} style={{ padding: '10px 16px' }}>
+        <button type="button" onClick={() => navigate(-1)} className="btn btn--secondary btn--sm">
           Volver
         </button>
       </div>

@@ -197,7 +197,7 @@ export function ConversationDetailAdminPage() {
       ]}
     >
       <div>
-        <button type="button" onClick={() => navigate(-1)} style={{ padding: '10px 16px' }}>
+        <button type="button" onClick={() => navigate(-1)} className="btn btn--secondary btn--sm">
           Volver
         </button>
       </div>
@@ -208,13 +208,13 @@ export function ConversationDetailAdminPage() {
         status={{ label: detail.status || 'sin estado', tone: getStatusTone(detail.status) }}
         actions={
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button type="button" onClick={() => setStatusOpen(true)} style={{ padding: '10px 14px' }}>
+            <button type="button" onClick={() => setStatusOpen(true)} className="btn btn--secondary btn--sm">
               Cambiar estado
             </button>
-            <button type="button" onClick={() => setParticipantOpen(true)} style={{ padding: '10px 14px' }}>
+            <button type="button" onClick={() => setParticipantOpen(true)} className="btn btn--secondary btn--sm">
               Agregar participante
             </button>
-            <button type="button" onClick={() => setMessageOpen(true)} style={{ padding: '10px 14px', background: '#111827', color: '#ffffff', borderRadius: '10px' }}>
+            <button type="button" onClick={() => setMessageOpen(true)} className="btn btn--primary btn--sm">
               Nuevo mensaje
             </button>
           </div>
@@ -278,7 +278,7 @@ export function ConversationDetailAdminPage() {
         <AdminTabPanel>
           <SectionCard title="Hilo" description="messages y message_reads se muestran en orden temporal para operar el caso.">
             <div>
-              <button type="button" onClick={handleMarkRead} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={handleMarkRead} className="btn btn--secondary btn--sm">
                 Marcar todo como leido
               </button>
             </div>
@@ -332,10 +332,10 @@ export function ConversationDetailAdminPage() {
         onClose={() => setStatusOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setStatusOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setStatusOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleStatusSave} style={{ padding: '12px 16px', background: '#111827', color: '#ffffff', borderRadius: '10px' }}>
+            <button type="button" onClick={handleStatusSave} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar'}
             </button>
           </>
@@ -353,10 +353,10 @@ export function ConversationDetailAdminPage() {
         onClose={() => setParticipantOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setParticipantOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setParticipantOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleParticipantSave} style={{ padding: '12px 16px', background: '#111827', color: '#ffffff', borderRadius: '10px' }}>
+            <button type="button" onClick={handleParticipantSave} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Agregar'}
             </button>
           </>
@@ -385,10 +385,10 @@ export function ConversationDetailAdminPage() {
         onClose={() => setMessageOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setMessageOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setMessageOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleMessageSave} style={{ padding: '12px 16px', background: '#111827', color: '#ffffff', borderRadius: '10px' }}>
+            <button type="button" onClick={handleMessageSave} className="btn btn--primary">
               {mutating ? 'Enviando...' : 'Enviar'}
             </button>
           </>

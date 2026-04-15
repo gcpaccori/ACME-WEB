@@ -99,6 +99,24 @@ function patchBranchSelection(current: StaffAdminForm, branchId: string, checked
   };
 }
 
+function UserAvatar({ name, email }: { name: string; email: string }) {
+  const initials = (name || email || '?').substring(0, 2).toUpperCase();
+  return (
+    <div className="module-icon-box" style={{ 
+      width: '44px', 
+      height: '44px', 
+      borderRadius: '50%', 
+      background: 'linear-gradient(135deg, var(--acme-purple), var(--acme-blue))',
+      color: 'white',
+      fontSize: '14px',
+      fontWeight: 800,
+      flex: '0 0 auto'
+    }}>
+      {initials}
+    </div>
+  );
+}
+
 export function StaffAdminPage() {
   const portal = useContext(PortalContext);
   const merchantId = portal.merchant?.id;
@@ -333,8 +351,9 @@ export function StaffAdminPage() {
           <button
             type="button"
             onClick={openCreateModal}
-            style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff', fontWeight: 600 }}
+            className="btn btn--primary"
           >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Agregar personal
           </button>
         </div>
@@ -350,27 +369,31 @@ export function StaffAdminPage() {
           <AdminDataTable
             rows={records}
             getRowId={(record) => record.id}
-            emptyMessage="No hay personal interno registrado todavia."
+            emptyMessage="No hay personal interno registrado todavía."
             columns={[
               {
                 id: 'person',
-                header: 'Persona',
+                header: 'Colaborador',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <strong>{getPersonLabel(record)}</strong>
-                    <span style={{ color: '#6b7280' }}>{record.email || 'Sin email'}</span>
-                    <span style={{ color: '#6b7280' }}>{record.phone || 'Sin telefono'}</span>
+                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                    <UserAvatar name={record.full_name} email={record.email} />
+                    <div className="module-info">
+                      <strong style={{ fontWeight: 800 }}>{getPersonLabel(record)}</strong>
+                      <span style={{ color: 'var(--acme-text-faint)', fontSize: '12px' }}>{record.email || 'Sin correo vinculado'}</span>
+                    </div>
                   </div>
                 ),
               },
               {
                 id: 'operations',
-                header: 'Operacion',
+                header: 'Rol y Asignación',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <span>{record.role || 'Sin rol operativo'}</span>
-                    <span style={{ color: '#6b7280' }}>
-                      {record.branch_labels.length > 0 ? record.branch_labels.join(', ') : 'Sin sucursales'}
+                  <div style={{ display: 'grid', gap: '4px' }}>
+                    <span style={{ fontWeight: 600, color: 'var(--acme-purple)', fontSize: '13px', textTransform: 'uppercase' }}>
+                      {record.role || 'Sin rol operativo'}
+                    </span>
+                    <span style={{ color: 'var(--acme-text-faint)', fontSize: '12px' }}>
+                      {record.branch_labels.length > 0 ? record.branch_labels.join(', ') : 'Sin sucursales asignadas'}
                     </span>
                   </div>
                 ),
@@ -379,23 +402,20 @@ export function StaffAdminPage() {
                 id: 'state',
                 header: 'Estado',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '8px' }}>
-                    <StatusPill label={record.is_active ? 'Activo' : 'Inactivo'} tone={record.is_active ? 'success' : 'warning'} />
-                    <StatusPill
-                      label={record.branch_labels.length > 0 ? 'Asignado a sucursal' : 'Sin sucursal'}
-                      tone={record.branch_labels.length > 0 ? 'info' : 'warning'}
-                    />
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <StatusPill label={record.is_active ? 'ACTIVO' : 'SUSPENDIDO'} tone={record.is_active ? 'success' : 'neutral'} />
+                    {record.branch_labels.length > 0 && <StatusPill label="EN SEDE" tone="info" />}
                   </div>
                 ),
               },
               {
                 id: 'action',
-                header: 'Accion',
+                header: '',
                 align: 'right',
-                width: '140px',
+                width: '120px',
                 render: (record) => (
-                  <button type="button" onClick={() => pickRecord(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
-                    Editar
+                  <button type="button" onClick={() => pickRecord(record)} className="btn btn--sm btn--ghost" style={{ color: 'var(--acme-purple)' }}>
+                    Gestionar
                   </button>
                 ),
               },
@@ -418,27 +438,40 @@ export function StaffAdminPage() {
           {activeTab === 'profile' ? (
             <AdminTabPanel>
               <SectionCard
-                title="Perfil base"
-                description="Aqui se sincroniza la ficha del usuario en profiles y se muestra el ultimo acceso. Seguridad avanzada se administra fuera de esta vista."
-              >
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+                title="Perfil del Colaborador"
+                description="Información básica de contacto y estado de acceso a las herramientas del comercio.">
+                <div className="form-grid">
                   <FieldGroup label="Nombre completo">
-                    <TextField value={form.full_name} onChange={(event) => setForm((current) => (current ? { ...current, full_name: event.target.value } : current))} />
+                    <TextField 
+                      value={form.full_name} 
+                      onChange={(event) => setForm((current) => (current ? { ...current, full_name: event.target.value } : current))} 
+                      placeholder="Nombre del personal..."
+                    />
                   </FieldGroup>
-                  <FieldGroup label="Email de contacto">
+                  <FieldGroup label="Correo institucional / registro">
                     <TextField value={form.email} disabled />
                   </FieldGroup>
-                  <FieldGroup label="Telefono">
-                    <TextField value={form.phone} onChange={(event) => setForm((current) => (current ? { ...current, phone: event.target.value } : current))} />
+                  <FieldGroup label="Teléfono de contacto">
+                    <TextField 
+                      value={form.phone} 
+                      onChange={(event) => setForm((current) => (current ? { ...current, phone: event.target.value } : current))} 
+                      placeholder="+51 ..."
+                    />
                   </FieldGroup>
                 </div>
-                <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', alignItems: 'center' }}>
-                  <CheckboxField
-                    label="Usuario activo"
-                    checked={form.is_active}
-                    onChange={(event) => setForm((current) => (current ? { ...current, is_active: event.target.checked } : current))}
-                  />
-                  <StatusPill label={`Ultimo ingreso: ${formatLastLogin(selected.last_login_at)}`} tone="neutral" />
+                
+                <div className="form-grid" style={{ marginTop: '20px' }}>
+                  <div className="scope-card" style={{ cursor: 'pointer', padding: '16px' }} onClick={() => setForm(c => (c ? {...c, is_active: !c.is_active} : c))}>
+                    <CheckboxField
+                      label="El colaborador tiene permiso de acceso activo"
+                      checked={form.is_active}
+                      onChange={() => {}}
+                    />
+                  </div>
+                  <div className="stat-card" style={{ padding: '14px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--acme-text-faint)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actividad Reciente</div>
+                    <div style={{ marginTop: '4px', fontWeight: 600 }}>{formatLastLogin(selected.last_login_at)}</div>
+                  </div>
                 </div>
               </SectionCard>
             </AdminTabPanel>
@@ -447,18 +480,17 @@ export function StaffAdminPage() {
           {activeTab === 'assignments' ? (
             <AdminTabPanel>
               <SectionCard
-                title="Asignaciones operativas"
-                description="El rol operativo se guarda en merchant_staff y las sucursales en merchant_staff_branches."
-              >
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-                  <FieldGroup label="Rol operativo">
+                title="Asignaciones y Roles"
+                description="Define qué puede hacer el personal y en qué sucursales tiene permiso para operar.">
+                <div className="form-grid">
+                  <FieldGroup label="Rol operativo en el negocio">
                     <SelectField
                       value={form.role}
                       onChange={(event) => setForm((current) => (current ? { ...current, role: event.target.value } : current))}
                       options={staffRoleOptions}
                     />
                   </FieldGroup>
-                  <FieldGroup label="Sucursal principal">
+                  <FieldGroup label="Sede principal de reporte">
                     <SelectField
                       value={form.primary_branch_id}
                       onChange={(event) => setForm((current) => (current ? { ...current, primary_branch_id: event.target.value } : current))}
@@ -466,19 +498,26 @@ export function StaffAdminPage() {
                     />
                   </FieldGroup>
                 </div>
-                <div style={{ display: 'grid', gap: '10px' }}>
-                  <strong>Sucursales asignadas</strong>
-                  <div style={{ display: 'grid', gap: '10px' }}>
-                    {portal.branches.map((branch) => (
-                      <CheckboxField
-                        key={branch.id}
-                        label={branch.name}
-                        checked={form.branch_ids.includes(branch.id)}
-                        onChange={(event) =>
-                          setForm((current) => (current ? patchBranchSelection(current, branch.id, event.target.checked) : current))
-                        }
-                      />
-                    ))}
+                <div style={{ display: 'grid', gap: '14px', marginTop: '24px' }}>
+                  <strong style={{ fontSize: '14px', color: 'var(--acme-text-muted)' }}>Asignación de Sedes</strong>
+                  <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
+                    {portal.branches.map((branch) => {
+                      const isChecked = form.branch_ids.includes(branch.id);
+                      return (
+                        <div 
+                          key={branch.id} 
+                          className="scope-card" 
+                          style={{ cursor: 'pointer', padding: '16px', border: isChecked ? '2px solid var(--acme-purple)' : undefined }}
+                          onClick={() => setForm(c => (c ? patchBranchSelection(c, branch.id, !isChecked) : c))}
+                        >
+                          <CheckboxField
+                            label={branch.name}
+                            checked={isChecked}
+                            onChange={() => {}}
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </SectionCard>
@@ -500,92 +539,105 @@ export function StaffAdminPage() {
         onClose={closeCreateModal}
         actions={
           <>
-            <button type="button" onClick={closeCreateModal} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={closeCreateModal} className="btn btn--secondary">
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleCreate}
               disabled={!createDirty || !createForm.user_id || createSaving}
-              style={{
-                padding: '12px 16px',
-                borderRadius: '10px',
-                background: '#111827',
-                color: '#ffffff',
-                opacity: !createDirty || !createForm.user_id || createSaving ? 0.65 : 1,
-              }}
+              className="btn btn--primary"
             >
               {createSaving ? 'Guardando...' : 'Agregar personal'}
             </button>
           </>
         }
       >
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-          <FieldGroup label="Perfil existente" hint="Por ahora el alta vincula cuentas ya registradas en la plataforma.">
-            <SelectField
-              value={createForm.user_id}
-              onChange={(event) => handleCreateProfileChange(event.target.value)}
-              options={selectableProfiles}
-            />
-          </FieldGroup>
-          <FieldGroup label="Email de contacto">
-            <TextField value={createForm.email} disabled />
-          </FieldGroup>
-          <FieldGroup label="Nombre completo">
-            <TextField
-              value={createForm.full_name}
-              onChange={(event) => setCreateForm((current) => ({ ...current, full_name: event.target.value }))}
-            />
-          </FieldGroup>
-          <FieldGroup label="Telefono">
-            <TextField
-              value={createForm.phone}
-              onChange={(event) => setCreateForm((current) => ({ ...current, phone: event.target.value }))}
-            />
-          </FieldGroup>
-          <FieldGroup label="Rol operativo">
-            <SelectField
-              value={createForm.role}
-              onChange={(event) => setCreateForm((current) => ({ ...current, role: event.target.value }))}
-              options={staffRoleOptions}
-            />
-          </FieldGroup>
-          <FieldGroup label="Sucursal principal">
-            <SelectField
-              value={createForm.primary_branch_id}
-              onChange={(event) => setCreateForm((current) => ({ ...current, primary_branch_id: event.target.value }))}
-              options={availableCreatePrimaryBranchOptions}
-            />
-          </FieldGroup>
-        </div>
-
-        <CheckboxField
-          label="Usuario activo"
-          checked={createForm.is_active}
-          onChange={(event) => setCreateForm((current) => ({ ...current, is_active: event.target.checked }))}
-        />
-
-        <div style={{ display: 'grid', gap: '10px' }}>
-          <strong>Sucursales asignadas</strong>
-          <div style={{ display: 'grid', gap: '10px' }}>
-            {portal.branches.map((branch) => (
-              <CheckboxField
-                key={branch.id}
-                label={branch.name}
-                checked={createForm.branch_ids.includes(branch.id)}
-                onChange={(event) =>
-                  setCreateForm((current) => patchBranchSelection(current, branch.id, event.target.checked))
-                }
+        <div style={{ display: 'grid', gap: '24px' }}>
+          <div className="form-grid">
+            <FieldGroup label="Seleccionar perfil existente" hint="Busca por nombre o correo de cuentas registradas.">
+              <SelectField
+                value={createForm.user_id}
+                onChange={(event) => handleCreateProfileChange(event.target.value)}
+                options={selectableProfiles}
               />
-            ))}
+            </FieldGroup>
+            <FieldGroup label="Correo (Solo lectura)">
+              <TextField value={createForm.email} disabled />
+            </FieldGroup>
           </div>
-        </div>
 
-        {assignableProfiles.length === 0 ? (
-          <div style={{ color: '#6b7280' }}>
-            No hay perfiles disponibles para vincular. Primero se necesita una cuenta creada en la plataforma.
+          <div className="form-grid">
+            <FieldGroup label="Nombre completo">
+              <TextField
+                value={createForm.full_name}
+                onChange={(event) => setCreateForm((current) => ({ ...current, full_name: event.target.value }))}
+                placeholder="Nombre del personal..."
+              />
+            </FieldGroup>
+            <FieldGroup label="Teléfono">
+              <TextField
+                value={createForm.phone}
+                onChange={(event) => setCreateForm((current) => ({ ...current, phone: event.target.value }))}
+                placeholder="+51 ..."
+              />
+            </FieldGroup>
           </div>
-        ) : null}
+
+          <div className="form-grid">
+            <FieldGroup label="Rol operativo">
+              <SelectField
+                value={createForm.role}
+                onChange={(event) => setCreateForm((current) => ({ ...current, role: event.target.value }))}
+                options={staffRoleOptions}
+              />
+            </FieldGroup>
+            <FieldGroup label="Sede de reporte principal">
+              <SelectField
+                value={createForm.primary_branch_id}
+                onChange={(event) => setCreateForm((current) => ({ ...current, primary_branch_id: event.target.value }))}
+                options={availableCreatePrimaryBranchOptions}
+              />
+            </FieldGroup>
+          </div>
+
+          <div className="scope-card" style={{ padding: '16px', cursor: 'pointer' }} onClick={() => setCreateForm(c => ({...c, is_active: !c.is_active}))}>
+            <CheckboxField
+              label="Habilitar acceso inmediato para este colaborador"
+              checked={createForm.is_active}
+              onChange={() => {}}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gap: '14px' }}>
+            <strong style={{ fontSize: '14px', color: 'var(--acme-text-muted)' }}>Asignar Sedes de Trabajo</strong>
+            <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
+              {portal.branches.map((branch) => {
+                const isChecked = createForm.branch_ids.includes(branch.id);
+                return (
+                  <div 
+                    key={branch.id} 
+                    className="scope-card" 
+                    style={{ cursor: 'pointer', padding: '16px', border: isChecked ? '2px solid var(--acme-purple)' : undefined }}
+                    onClick={() => setCreateForm(c => patchBranchSelection(c, branch.id, !isChecked))}
+                  >
+                    <CheckboxField
+                      label={branch.name}
+                      checked={isChecked}
+                      onChange={() => {}}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {assignableProfiles.length === 0 ? (
+            <div style={{ padding: '20px', background: 'rgba(239, 68, 68, 0.05)', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.1)', color: 'var(--acme-red)', fontSize: '13px' }}>
+              No hay perfiles adicionales registrados en la plataforma para vincular a este comercio.
+            </div>
+          ) : null}
+        </div>
       </AdminModalForm>
 
       {selected && form ? (
@@ -595,4 +647,7 @@ export function StaffAdminPage() {
       ) : null}
     </AdminPageFrame>
   );
+}
+function PlusIcon() {
+  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
 }

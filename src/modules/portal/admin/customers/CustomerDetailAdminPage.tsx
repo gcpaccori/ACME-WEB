@@ -5,6 +5,7 @@ import { AdminEntityHeader } from '../../../../components/admin/AdminEntityHeade
 import { CheckboxField, FieldGroup, NumberField, SelectField } from '../../../../components/admin/AdminFields';
 import { AdminInlineRelationTable } from '../../../../components/admin/AdminInlineRelationTable';
 import { AdminModalForm } from '../../../../components/admin/AdminModalForm';
+import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 import { AdminPageFrame, FormStatusBar, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { AdminTabPanel, AdminTabs } from '../../../../components/admin/AdminTabs';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
@@ -61,6 +62,8 @@ export function CustomerDetailAdminPage() {
   const [addressForm, setAddressForm] = useState<CustomerAddressForm>(adminCustomersService.createEmptyAddressForm());
 
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState<{ title: string; description: string; onConfirm: () => void } | null>(null);
   const [paymentForm, setPaymentForm] = useState<CustomerPaymentMethodForm>(adminCustomersService.createEmptyPaymentMethodForm());
 
   const loadDetail = async () => {
@@ -130,12 +133,19 @@ export function CustomerDetailAdminPage() {
   };
 
   const handleAddressDelete = async (relationId: string) => {
-    if (!window.confirm('Eliminar esta direccion del cliente?')) return;
-    await runMutation(async () => {
-      const result = await adminCustomersService.deleteCustomerAddress(relationId);
-      if (result.error) throw result.error;
-      setSuccessMessage('Direccion eliminada');
+    setConfirmConfig({
+      title: '¿Eliminar dirección?',
+      description: 'Esta acción eliminará permanentemente la dirección del historial del cliente.',
+      onConfirm: async () => {
+        setConfirmOpen(false);
+        await runMutation(async () => {
+          const result = await adminCustomersService.deleteCustomerAddress(relationId);
+          if (result.error) throw result.error;
+          setSuccessMessage('Direccion eliminada');
+        });
+      }
     });
+    setConfirmOpen(true);
   };
 
   const handlePaymentSave = async () => {
@@ -149,12 +159,19 @@ export function CustomerDetailAdminPage() {
   };
 
   const handlePaymentDelete = async (paymentRelationId: string) => {
-    if (!window.confirm('Eliminar este metodo guardado?')) return;
-    await runMutation(async () => {
-      const result = await adminCustomersService.deleteCustomerPaymentMethod(paymentRelationId);
-      if (result.error) throw result.error;
-      setSuccessMessage('Metodo eliminado');
+    setConfirmConfig({
+      title: '¿Eliminar método de pago?',
+      description: 'Esta acción desvinculará el método de pago de la cuenta del cliente.',
+      onConfirm: async () => {
+        setConfirmOpen(false);
+        await runMutation(async () => {
+          const result = await adminCustomersService.deleteCustomerPaymentMethod(paymentRelationId);
+          if (result.error) throw result.error;
+          setSuccessMessage('Metodo eliminado');
+        });
+      }
     });
+    setConfirmOpen(true);
   };
 
   if (!merchantId) {
@@ -191,7 +208,7 @@ export function CustomerDetailAdminPage() {
       ]}
     >
       <div>
-        <button type="button" onClick={() => navigate(-1)} style={{ padding: '10px 16px' }}>
+        <button type="button" onClick={() => navigate(-1)} className="btn btn--secondary btn--sm">
           Volver
         </button>
       </div>
@@ -201,7 +218,7 @@ export function CustomerDetailAdminPage() {
         description={`${detail.email || 'Sin email'} / ${detail.phone || 'Sin telefono'} / ${detail.default_role || 'customer'}`}
         status={{ label: detail.is_active ? 'Activo' : 'Inactivo', tone: detail.is_active ? 'success' : 'warning' }}
         actions={
-          <button type="button" onClick={openProfileModal} style={{ padding: '10px 14px' }}>
+          <button type="button" onClick={openProfileModal} className="btn btn--secondary btn--sm">
             Editar perfil
           </button>
         }
@@ -261,7 +278,7 @@ export function CustomerDetailAdminPage() {
             title="Direcciones"
             description="customer_addresses y addresses viven juntas en esta ficha para que el soporte no navegue a ciegas."
             actions={
-              <button type="button" onClick={() => openAddressModal()} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={() => openAddressModal()} className="btn btn--secondary btn--sm">
                 Agregar direccion
               </button>
             }
@@ -303,10 +320,10 @@ export function CustomerDetailAdminPage() {
                   width: '180px',
                   render: (record) => (
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                      <button type="button" onClick={() => openAddressModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                      <button type="button" onClick={() => openAddressModal(record)} className="btn btn--ghost btn--sm">
                         Editar
                       </button>
-                      <button type="button" onClick={() => handleAddressDelete(record.relation_id)} style={{ color: '#b91c1c', fontWeight: 700 }}>
+                      <button type="button" onClick={() => handleAddressDelete(record.relation_id)} className="btn btn--ghost btn--sm" style={{ color: 'var(--acme-red)' }}>
                         Eliminar
                       </button>
                     </div>
@@ -324,7 +341,7 @@ export function CustomerDetailAdminPage() {
             title="Metodos guardados"
             description="customer_payment_methods se expone como detalle comercial y de soporte del cliente."
             actions={
-              <button type="button" onClick={() => openPaymentModal()} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={() => openPaymentModal()} className="btn btn--secondary btn--sm">
                 Agregar metodo
               </button>
             }
@@ -357,10 +374,10 @@ export function CustomerDetailAdminPage() {
                   width: '180px',
                   render: (record) => (
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                      <button type="button" onClick={() => openPaymentModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                      <button type="button" onClick={() => openPaymentModal(record)} className="btn btn--ghost btn--sm">
                         Editar
                       </button>
-                      <button type="button" onClick={() => handlePaymentDelete(record.id)} style={{ color: '#b91c1c', fontWeight: 700 }}>
+                      <button type="button" onClick={() => handlePaymentDelete(record.id)} className="btn btn--ghost btn--sm" style={{ color: 'var(--acme-red)' }}>
                         Eliminar
                       </button>
                     </div>
@@ -496,10 +513,10 @@ export function CustomerDetailAdminPage() {
         onClose={() => setProfileOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setProfileOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setProfileOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleProfileSave} disabled={mutating} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleProfileSave} disabled={mutating} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar perfil'}
             </button>
           </>
@@ -527,10 +544,10 @@ export function CustomerDetailAdminPage() {
         onClose={() => setAddressOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setAddressOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setAddressOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleAddressSave} disabled={mutating || !addressForm.line1} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleAddressSave} disabled={mutating || !addressForm.line1} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar direccion'}
             </button>
           </>
@@ -582,10 +599,10 @@ export function CustomerDetailAdminPage() {
         onClose={() => setPaymentOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setPaymentOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setPaymentOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handlePaymentSave} disabled={mutating || !paymentForm.payment_method_id} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handlePaymentSave} disabled={mutating || !paymentForm.payment_method_id} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar metodo'}
             </button>
           </>
@@ -629,6 +646,14 @@ export function CustomerDetailAdminPage() {
           onChange={(event) => setPaymentForm((current) => ({ ...current, is_default: event.target.checked }))}
         />
       </AdminModalForm>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title={confirmConfig?.title || '¿Estás seguro?'}
+        description={confirmConfig?.description || 'Esta acción no se puede deshacer.'}
+        onConfirm={() => confirmConfig?.onConfirm()}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </AdminPageFrame>
   );
 }

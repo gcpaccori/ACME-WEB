@@ -142,13 +142,24 @@ export function SystemAdminPage() {
         { label: 'Modo', value: 'Control global', tone: 'warning' },
       ]}
       actions={
-        <button type="button" onClick={() => openSettingModal()} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff', fontWeight: 700 }}>
+        <button type="button" onClick={() => openSettingModal()} className="btn btn--primary">
           Nueva configuracion
         </button>
       }
     >
-      <SectionCard title="Buscar" description="Filtra configuraciones, auditorias y eventos por clave, actor o accion.">
-        <TextField value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar..." />
+      <SectionCard title="Terminal de Control Global" description="Monitoreo de trazas, telemetría y configuración del núcleo de la plataforma.">
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--acme-text-faint)', zIndex: 1, pointerEvents: 'none' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          </div>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Escribir comando o filtrar por clave, actor o acción..."
+            className="input-field"
+            style={{ paddingLeft: '48px', width: '100%', border: '1px solid var(--acme-bg-soft)', borderRadius: '12px', padding: '12px 12px 12px 48px' }}
+          />
+        </div>
       </SectionCard>
 
       <FormStatusBar dirty={false} saving={mutating} error={error} successMessage={successMessage} />
@@ -157,48 +168,55 @@ export function SystemAdminPage() {
         <LoadingScreen />
       ) : (
         <>
-          <SectionCard title="Resumen global" description="Lectura transversal de plataforma sobre settings, auditorias y eventos de uso.">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
-              {[
-                { label: 'Settings', value: String(overview?.settings.length ?? 0) },
-                { label: 'Auditoria global', value: String(overview?.audit_logs.length ?? 0) },
-                { label: 'Auditoria negocio', value: String(overview?.merchant_audit_logs.length ?? 0) },
-                { label: 'Eventos analytics', value: String(overview?.analytics_events.length ?? 0) },
-              ].map((item) => (
-                <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
-                  <strong>{item.value}</strong>
+          <div className="stat-grid" style={{ marginBottom: '24px' }}>
+            {[
+              { label: 'Configuraciones', value: String(overview?.settings.length ?? 0), color: 'var(--acme-blue)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> },
+              { label: 'Auditoría Global', value: String(overview?.audit_logs.length ?? 0), color: 'var(--acme-purple)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
+              { label: 'Eventos Telemetría', value: String(overview?.analytics_events.length ?? 0), color: 'var(--acme-green)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> },
+              { label: 'Logs de Negocio', value: String(overview?.merchant_audit_logs.length ?? 0), color: 'var(--acme-red)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+            ].map((item) => (
+              <div key={item.label} className="stat-card">
+                <div className="stat-card__badge" style={{ background: item.color }} />
+                <div className="stat-card__header">
+                  <span className="stat-card__label">{item.label}</span>
+                  <div className="stat-card__icon-box">{item.icon}</div>
                 </div>
-              ))}
-            </div>
-          </SectionCard>
+                <strong className="stat-card__value">{item.value}</strong>
+              </div>
+            ))}
+          </div>
 
-          <SectionCard title="Configuracion global" description="system_settings deja de presentarse como configuracion del negocio y se gobierna solo desde plataforma.">
+          <SectionCard title="Configuración del Núcleo" description="Modifica las variables dinámicas que gobiernan el comportamiento global del sistema.">
             <AdminDataTable
               rows={filteredSettings}
               getRowId={(record) => record.id}
-              emptyMessage="No hay configuraciones registradas."
+              emptyMessage="No se encontraron configuraciones del sistema."
               columns={[
                 {
                   id: 'key',
-                  header: 'Clave',
+                  header: 'Variable / Descripción',
                   render: (record) => (
-                    <div style={{ display: 'grid', gap: '6px' }}>
-                      <strong>{record.key}</strong>
-                      <span style={{ color: '#6b7280' }}>{record.description || 'Sin descripcion'}</span>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <div className="module-icon-box" style={{ width: '40px', height: '40px', background: 'var(--acme-bg-soft)', color: 'var(--acme-blue)' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                      </div>
+                      <div className="module-info">
+                        <code style={{ fontWeight: 800, color: 'var(--acme-blue)', fontSize: '13px' }}>{record.key}</code>
+                        <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>{record.description || 'Configuración general de sistema'}</span>
+                      </div>
                     </div>
                   ),
                 },
-                { id: 'value', header: 'Valor', render: (record) => <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontSize: '12px' }}>{previewJson(record.value_json)}</pre> },
-                { id: 'updated', header: 'Actualizada', render: (record) => formatDateTime(record.updated_at || record.created_at) },
+                { id: 'value', header: 'Valor (JSON)', render: (record) => <code style={{ fontSize: '11px', background: 'var(--acme-bg-soft)', padding: '4px 8px', borderRadius: '6px', color: 'var(--acme-text-muted)' }}>{previewJson(record.value_json)}</code> },
+                { id: 'updated', header: 'Último Cambio', render: (record) => <span style={{ fontSize: '11px', color: 'var(--acme-text-faint)' }}>{formatDateTime(record.updated_at || record.created_at)}</span> },
                 {
                   id: 'action',
-                  header: 'Accion',
+                  header: '',
                   align: 'right',
                   width: '140px',
                   render: (record) => (
-                    <button type="button" onClick={() => openSettingModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
-                      Editar
+                    <button type="button" onClick={() => openSettingModal(record)} className="btn btn--sm btn--ghost" style={{ color: 'var(--acme-blue)', fontWeight: 700 }}>
+                      Configurar
                     </button>
                   ),
                 },
@@ -279,33 +297,41 @@ export function SystemAdminPage() {
 
       <AdminModalForm
         open={settingOpen}
-        title={settingForm.id ? 'Editar configuracion' : 'Nueva configuracion'}
-        description="Define una clave global con un JSON valido."
+        title={settingForm.id ? 'Configurar Variable de Sistema' : 'Nueva Configuración Core'}
+        description="Asegúrate de que el valor JSON sea válido. Los cambios impactan a toda la arquitectura en tiempo real."
         onClose={() => setSettingOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setSettingOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setSettingOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleSettingSave} style={{ padding: '12px 16px', background: '#111827', color: '#ffffff', borderRadius: '10px' }}>
-              {mutating ? 'Guardando...' : 'Guardar'}
+            <button type="button" onClick={handleSettingSave} disabled={mutating || !settingForm.key} className="btn btn--primary">
+              {mutating ? 'Guardando...' : 'Aplicar Cambios'}
             </button>
           </>
         }
       >
-        <FieldGroup label="Clave">
-          <TextField value={settingForm.key} onChange={(event) => setSettingForm((current) => ({ ...current, key: event.target.value }))} placeholder="platform_fees" />
-        </FieldGroup>
-        <FieldGroup label="Descripcion">
-          <TextField
-            value={settingForm.description}
-            onChange={(event) => setSettingForm((current) => ({ ...current, description: event.target.value }))}
-            placeholder="Describe el uso de esta configuracion"
-          />
-        </FieldGroup>
-        <FieldGroup label="JSON">
-          <TextAreaField value={settingForm.value_json_text} onChange={(event) => setSettingForm((current) => ({ ...current, value_json_text: event.target.value }))} />
-        </FieldGroup>
+        <div style={{ display: 'grid', gap: '20px' }}>
+          <div className="form-grid">
+            <FieldGroup label="Clave Única" hint="Ej: platform_fees, max_delivery_radius">
+              <TextField value={settingForm.key} onChange={(event) => setSettingForm((current) => ({ ...current, key: event.target.value }))} placeholder="platform_key_name" />
+            </FieldGroup>
+            <FieldGroup label="Meta-Descripción" hint="Uso y alcance de esta variable.">
+              <TextField
+                value={settingForm.description}
+                onChange={(event) => setSettingForm((current) => ({ ...current, description: event.target.value }))}
+                placeholder="Explica qué controla esta clave..."
+              />
+            </FieldGroup>
+          </div>
+          <FieldGroup label="Definición de Valor (JSON)" hint="Estructura de datos que consumirá el backend.">
+            <TextAreaField 
+              value={settingForm.value_json_text} 
+              onChange={(event) => setSettingForm((current) => ({ ...current, value_json_text: event.target.value }))} 
+              style={{ minHeight: '200px', fontFamily: 'monospace', fontSize: '13px' }}
+            />
+          </FieldGroup>
+        </div>
       </AdminModalForm>
     </AdminPageFrame>
   );

@@ -334,7 +334,7 @@ export function OrderDetailAdminPage() {
       ]}
     >
       <div>
-        <button type="button" onClick={() => navigate(-1)} style={{ padding: '10px 16px' }}>
+        <button type="button" onClick={() => navigate(-1)} className="btn btn--secondary btn--sm">
           Volver
         </button>
       </div>
@@ -346,15 +346,15 @@ export function OrderDetailAdminPage() {
         actions={
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             {nextStatuses.map((nextStatus) => (
-              <button key={nextStatus} type="button" onClick={() => openStatusDialog(nextStatus)} style={{ padding: '10px 14px' }}>
+              <button key={nextStatus} type="button" onClick={() => openStatusDialog(nextStatus)} className="btn btn--secondary btn--sm">
                 Marcar {getAdminOrderStatusLabel(nextStatus)}
               </button>
             ))}
-            <button type="button" onClick={() => openAssignmentModal()} style={{ padding: '10px 14px' }}>
+            <button type="button" onClick={() => openAssignmentModal()} className="btn btn--secondary btn--sm">
               Asignar reparto
             </button>
             {normalizeAdminOrderStatus(order.status) !== 'cancelled' ? (
-              <button type="button" onClick={() => setCancellationOpen(true)} style={{ padding: '10px 14px', color: '#b91c1c' }}>
+              <button type="button" onClick={() => setCancellationOpen(true)} className="btn btn--ghost btn--sm" style={{ color: 'var(--acme-red)' }}>
                 Cancelar pedido
               </button>
             ) : null}
@@ -423,7 +423,7 @@ export function OrderDetailAdminPage() {
             title="Entrega"
             description="Snapshot editable del pedido para soporte o correcciones operativas."
             actions={
-              <button type="button" onClick={openDeliveryModal} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={openDeliveryModal} className="btn btn--secondary btn--sm">
                 {order.delivery_detail ? 'Editar entrega' : 'Completar entrega'}
               </button>
             }
@@ -528,7 +528,7 @@ export function OrderDetailAdminPage() {
             title="Asignaciones de reparto"
             description="Esta tabla concentra order_assignments y el estado operativo de cada intento de reparto."
             actions={
-              <button type="button" onClick={() => openAssignmentModal()} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={() => openAssignmentModal()} className="btn btn--secondary btn--sm">
                 Nueva asignacion
               </button>
             }
@@ -577,7 +577,7 @@ export function OrderDetailAdminPage() {
                   align: 'right',
                   width: '140px',
                   render: (assignment) => (
-                    <button type="button" onClick={() => openAssignmentModal(assignment)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                    <button type="button" onClick={() => openAssignmentModal(assignment)} className="btn btn--ghost btn--sm">
                       Actualizar
                     </button>
                   ),
@@ -620,7 +620,7 @@ export function OrderDetailAdminPage() {
             title="Incidencias"
             description="order_incidents se usa para soporte, disputas y seguimiento postventa."
             actions={
-              <button type="button" onClick={() => openIncidentModal()} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={() => openIncidentModal()} className="btn btn--secondary btn--sm">
                 Registrar incidencia
               </button>
             }
@@ -649,7 +649,7 @@ export function OrderDetailAdminPage() {
                   align: 'right',
                   width: '140px',
                   render: (incident) => (
-                    <button type="button" onClick={() => openIncidentModal(incident)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                    <button type="button" onClick={() => openIncidentModal(incident)} className="btn btn--ghost btn--sm">
                       Editar
                     </button>
                   ),
@@ -668,7 +668,7 @@ export function OrderDetailAdminPage() {
                   setEvidenceForm(adminOrdersService.createEmptyEvidenceForm());
                   setEvidenceOpen(true);
                 }}
-                style={{ padding: '10px 14px' }}
+                className="btn btn--secondary btn--sm"
               >
                 Registrar evidencia
               </button>
@@ -707,7 +707,7 @@ export function OrderDetailAdminPage() {
             title="Pagos"
             description="payments concentra intentos o cobros asociados al pedido."
             actions={
-              <button type="button" onClick={() => openPaymentModal()} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={() => openPaymentModal()} className="btn btn--secondary btn--sm">
                 Registrar pago
               </button>
             }
@@ -736,7 +736,7 @@ export function OrderDetailAdminPage() {
                   align: 'right',
                   width: '140px',
                   render: (payment) => (
-                    <button type="button" onClick={() => openPaymentModal(payment)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                    <button type="button" onClick={() => openPaymentModal(payment)} className="btn btn--ghost btn--sm">
                       Editar
                     </button>
                   ),
@@ -755,7 +755,7 @@ export function OrderDetailAdminPage() {
                   setTransactionForm(adminOrdersService.createEmptyTransactionForm());
                   setTransactionOpen(true);
                 }}
-                style={{ padding: '10px 14px' }}
+                className="btn btn--secondary btn--sm"
               >
                 Registrar transaccion
               </button>
@@ -785,7 +785,7 @@ export function OrderDetailAdminPage() {
                   setRefundForm(adminOrdersService.createEmptyRefundForm());
                   setRefundOpen(true);
                 }}
-                style={{ padding: '10px 14px' }}
+                className="btn btn--secondary btn--sm"
               >
                 Registrar refund
               </button>
@@ -830,10 +830,10 @@ export function OrderDetailAdminPage() {
         onClose={() => setDeliveryOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setDeliveryOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setDeliveryOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleDeliverySave} disabled={mutating} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleDeliverySave} disabled={mutating} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar entrega'}
             </button>
           </>
@@ -883,10 +883,10 @@ export function OrderDetailAdminPage() {
         onClose={() => setAssignmentOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setAssignmentOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setAssignmentOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleAssignmentSave} disabled={mutating || !assignmentForm.driver_id} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleAssignmentSave} disabled={mutating || !assignmentForm.driver_id} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar asignacion'}
             </button>
           </>
@@ -956,10 +956,10 @@ export function OrderDetailAdminPage() {
         onClose={() => setIncidentOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setIncidentOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setIncidentOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleIncidentSave} disabled={mutating || !incidentForm.incident_type} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleIncidentSave} disabled={mutating || !incidentForm.incident_type} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar incidencia'}
             </button>
           </>
@@ -1005,10 +1005,10 @@ export function OrderDetailAdminPage() {
         onClose={() => setEvidenceOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setEvidenceOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setEvidenceOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleEvidenceSave} disabled={mutating || !evidenceForm.evidence_type} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleEvidenceSave} disabled={mutating || !evidenceForm.evidence_type} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar evidencia'}
             </button>
           </>
@@ -1045,10 +1045,10 @@ export function OrderDetailAdminPage() {
         onClose={() => setPaymentOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setPaymentOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setPaymentOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handlePaymentSave} disabled={mutating || !paymentForm.payment_method_id} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handlePaymentSave} disabled={mutating || !paymentForm.payment_method_id} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar pago'}
             </button>
           </>
@@ -1092,10 +1092,10 @@ export function OrderDetailAdminPage() {
         onClose={() => setTransactionOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setTransactionOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setTransactionOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleTransactionSave} disabled={mutating || !transactionForm.payment_id} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleTransactionSave} disabled={mutating || !transactionForm.payment_id} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar transaccion'}
             </button>
           </>
@@ -1150,10 +1150,10 @@ export function OrderDetailAdminPage() {
         onClose={() => setRefundOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setRefundOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setRefundOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleRefundSave} disabled={mutating || !refundForm.amount} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleRefundSave} disabled={mutating || !refundForm.amount} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar refund'}
             </button>
           </>

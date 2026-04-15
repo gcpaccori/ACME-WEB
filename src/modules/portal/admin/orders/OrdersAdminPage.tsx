@@ -114,45 +114,23 @@ export function OrdersAdminPage() {
       ]}
     >
       <SectionCard title="Vista por cola" description="Usa los filtros para entrar rapido a la carga operativa real del turno.">
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="filter-bar">
           {[
-            { id: 'active', label: 'Activos', count: counters.active },
-            { id: 'issues', label: 'Incidencias', count: counters.issues },
-            { id: 'finished', label: 'Cerrados', count: counters.finished },
-            { id: 'all', label: 'Todos', count: counters.all },
-          ].map((item) => {
-            const active = filter === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setFilter(item.id as OrderFilter)}
-                style={{
-                  padding: '10px 14px',
-                  borderRadius: '999px',
-                  border: `1px solid ${active ? '#c7d2fe' : '#e5e7eb'}`,
-                  background: active ? '#eef2ff' : '#ffffff',
-                  color: active ? '#3730a3' : '#374151',
-                  display: 'inline-flex',
-                  gap: '8px',
-                  alignItems: 'center',
-                  fontWeight: 600,
-                }}
-              >
-                <span>{item.label}</span>
-                <span
-                  style={{
-                    padding: '2px 8px',
-                    borderRadius: '999px',
-                    background: active ? '#c7d2fe' : '#f3f4f6',
-                    fontSize: '12px',
-                  }}
-                >
-                  {item.count}
-                </span>
-              </button>
-            );
-          })}
+            { id: 'active',   label: 'Activos',     count: counters.active },
+            { id: 'issues',   label: 'Incidencias', count: counters.issues },
+            { id: 'finished', label: 'Cerrados',    count: counters.finished },
+            { id: 'all',      label: 'Todos',       count: counters.all },
+          ].map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setFilter(item.id as OrderFilter)}
+              className={`filter-chip ${filter === item.id ? 'filter-chip--active' : ''}`}
+            >
+              {item.label}
+              <span className="filter-chip__count">{item.count}</span>
+            </button>
+          ))}
         </div>
 
         {loading ? (

@@ -107,8 +107,9 @@ export function CategoriesAdminPage() {
         { label: 'Estado', value: dirty ? 'Cambios pendientes' : 'Sin cambios', tone: dirty ? 'warning' : 'success' },
       ]}
       actions={
-        <button type="button" onClick={startNew} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff', fontWeight: 600 }}>
-          Nueva categoria
+        <button type="button" onClick={startNew} className="btn btn--primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nueva categoría
         </button>
       }
     >
@@ -119,31 +120,48 @@ export function CategoriesAdminPage() {
           <AdminDataTable
             rows={categories}
             getRowId={(category) => category.id ?? category.name}
-            emptyMessage="No hay categorias registradas."
+            emptyMessage="No hay categorías registradas para este comercio."
             columns={[
               {
                 id: 'name',
-                header: 'Categoria',
-                render: (category) => <strong>{category.name}</strong>,
+                header: 'Nombre de categoría',
+                render: (category) => (
+                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                    <div className="module-icon-box" style={{ width: '36px', height: '36px' }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <strong>{category.name}</strong>
+                  </div>
+                ),
               },
               {
                 id: 'sort',
-                header: 'Orden',
-                render: (category) => category.sort_order,
+                header: 'Prioridad / Orden',
+                render: (category) => (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontWeight: 600 }}>#{category.sort_order}</span>
+                    <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>(Posición)</span>
+                  </div>
+                ),
               },
               {
                 id: 'status',
-                header: 'Estado',
-                render: (category) => <StatusPill label={category.is_active ? 'Activa' : 'Inactiva'} tone={category.is_active ? 'success' : 'warning'} />,
+                header: 'Visibilidad',
+                render: (category) => (
+                  <StatusPill 
+                    label={category.is_active ? 'VISIBLE' : 'OCULTO'} 
+                    tone={category.is_active ? 'success' : 'neutral'} 
+                  />
+                ),
               },
               {
                 id: 'action',
-                header: 'Accion',
+                header: '',
                 align: 'right',
                 width: '140px',
                 render: (category) => (
-                  <button type="button" onClick={() => editCategory(category)} style={{ color: '#2563eb', fontWeight: 700 }}>
-                    Editar
+                  <button type="button" onClick={() => editCategory(category)} className="btn btn--sm btn--ghost" style={{ color: 'var(--acme-purple)' }}>
+                    Configurar
                   </button>
                 ),
               },
@@ -161,39 +179,46 @@ export function CategoriesAdminPage() {
         onClose={closeModal}
         actions={
           <>
-            <button type="button" onClick={closeModal} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={closeModal} className="btn btn--secondary">
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleSave}
               disabled={!dirty || saving}
-              style={{
-                padding: '12px 16px',
-                borderRadius: '10px',
-                background: '#111827',
-                color: '#ffffff',
-                opacity: !dirty || saving ? 0.65 : 1,
-              }}
+              className="btn btn--primary"
             >
-              {saving ? 'Guardando...' : 'Guardar categoria'}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              {saving ? 'Guardando...' : 'Guardar categoría'}
             </button>
           </>
         }
       >
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-          <FieldGroup label="Nombre">
-            <TextField value={selected.name} onChange={(event) => setSelected((current) => ({ ...current, name: event.target.value }))} />
-          </FieldGroup>
-          <FieldGroup label="Orden">
-            <NumberField value={selected.sort_order} onChange={(event) => setSelected((current) => ({ ...current, sort_order: event.target.value }))} />
-          </FieldGroup>
+        <div style={{ display: 'grid', gap: '20px' }}>
+          <div className="form-grid">
+            <FieldGroup label="Nombre de la categoría" hint="Ej: Platos de Fondo, Bebidas, Entradas.">
+              <TextField 
+                value={selected.name} 
+                onChange={(event) => setSelected((current) => ({ ...current, name: event.target.value }))} 
+                placeholder="Nombre descriptivo..."
+              />
+            </FieldGroup>
+            <FieldGroup label="Orden de visualización" hint="Menor número aparece primero en el menú.">
+              <NumberField 
+                value={selected.sort_order} 
+                onChange={(event) => setSelected((current) => ({ ...current, sort_order: event.target.value }))} 
+              />
+            </FieldGroup>
+          </div>
+          
+          <div className="scope-card" style={{ cursor: 'pointer', padding: '16px' }} onClick={() => setSelected(c => ({...c, is_active: !c.is_active}))}>
+            <CheckboxField
+              label="Categoría activa y visible en el menú público"
+              checked={selected.is_active}
+              onChange={() => {}}
+            />
+          </div>
         </div>
-        <CheckboxField
-          label="Categoria activa"
-          checked={selected.is_active}
-          onChange={(event) => setSelected((current) => ({ ...current, is_active: event.target.checked }))}
-        />
       </AdminModalForm>
     </AdminPageFrame>
   );

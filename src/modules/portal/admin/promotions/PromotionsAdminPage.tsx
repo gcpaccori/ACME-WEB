@@ -156,32 +156,47 @@ export function PromotionsAdminPage() {
             setSuccessMessage(null);
             setCreateOpen(true);
           }}
-          style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff', fontWeight: 700 }}
+          className="btn btn--primary"
         >
-          Nueva promocion
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nueva promoción
         </button>
       }
     >
-      <SectionCard title="Lectura comercial" description="Panel rapido para entender si el negocio tiene campanas activas, suficiente cobertura y uso real.">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
+      <SectionCard title="Campaña Comercial" description="Resumen consolidado del alcance y efectividad de tus promociones vigentes.">
+        <div className="stat-grid">
           {[
-            { label: 'Promociones', value: String(summary.promotions) },
-            { label: 'Activas', value: String(summary.activePromotions) },
-            { label: 'Vencidas', value: String(summary.expiredPromotions) },
-            { label: 'Cupones', value: String(summary.coupons) },
-            { label: 'Targets', value: String(summary.targets) },
-            { label: 'Redenciones', value: String(summary.redemptions) },
+            { label: 'Total Campañas', value: String(summary.promotions), color: 'var(--acme-purple)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> },
+            { label: 'Promos Activas', value: String(summary.activePromotions), color: 'var(--acme-green)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
+            { label: 'Vencidas', value: String(summary.expiredPromotions), color: 'var(--acme-red)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> },
+            { label: 'Cupones Emis.', value: String(summary.coupons), color: 'var(--acme-blue)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 5v2"/><path d="M15 11v2"/><path d="M15 17v2"/><path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"/></svg> },
+            { label: 'Targets', value: String(summary.targets), color: 'var(--acme-purple)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> },
+            { label: 'Uso Real', value: String(summary.redemptions), color: 'var(--acme-blue)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg> },
           ].map((item) => (
-            <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-              <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
-              <strong>{item.value}</strong>
+            <div key={item.label} className="stat-card">
+              <div className="stat-card__badge" style={{ background: item.color }} />
+              <div className="stat-card__header">
+                <span className="stat-card__label">{item.label}</span>
+                <div className="stat-card__icon-box">{item.icon}</div>
+              </div>
+              <strong className="stat-card__value">{item.value}</strong>
             </div>
           ))}
         </div>
       </SectionCard>
 
-      <SectionCard title="Buscar promocion" description="Filtra por nombre, tipo, descuento o alcance comercial.">
-        <TextField value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar promocion..." />
+      <SectionCard title="Filtrado rápido" description="Busca por nombre, tipo de descuento o alcance para gestionar tus campañas.">
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--acme-text-faint)', zIndex: 1, pointerEvents: 'none' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <TextField 
+            value={query} 
+            onChange={(event) => setQuery(event.target.value)} 
+            placeholder="Escribe el nombre de la promoción o tipo de descuento..." 
+            style={{ paddingLeft: '48px' }}
+          />
+        </div>
       </SectionCard>
 
       <SectionCard title="Promociones del comercio" description="Se muestran las promociones segmentadas para el comercio actual.">
@@ -191,48 +206,60 @@ export function PromotionsAdminPage() {
           <AdminDataTable
             rows={filteredRecords}
             getRowId={(record) => record.id}
-            emptyMessage="Todavia no hay promociones configuradas para este comercio."
+            emptyMessage="No se encontraron promociones con el filtro aplicado."
             columns={[
               {
                 id: 'promotion',
-                header: 'Promocion',
+                header: 'Campaña / Tipo',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <strong>{record.name || 'Promocion'}</strong>
-                    <span style={{ color: '#6b7280' }}>{record.promo_type || 'sin tipo'} / {record.discount_type || 'sin descuento'}</span>
+                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                    <div className="module-icon-box" style={{ width: '44px', height: '44px', background: 'var(--acme-bg-soft)', color: 'var(--acme-purple)' }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5v2"/><path d="M15 11v2"/><path d="M15 17v2"/><path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2z"/></svg>
+                    </div>
+                    <div className="module-info">
+                      <strong style={{ fontWeight: 800 }}>{record.name || 'Campaña sin nombre'}</strong>
+                      <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {record.promo_type === 'automatic' ? 'Automática' : record.promo_type === 'coupon' ? 'Cupón Requerido' : 'Campaña Especial'}
+                      </span>
+                    </div>
                   </div>
                 ),
               },
               {
                 id: 'discount',
-                header: 'Descuento',
+                header: 'Oferta',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <strong>{getDiscountLabel(record)}</strong>
-                    <span style={{ color: '#6b7280' }}>
-                      Minimo {record.min_order_amount == null ? 'sin minimo' : formatMoney(record.min_order_amount)}
+                  <div style={{ display: 'grid', gap: '2px' }}>
+                    <strong style={{ color: 'var(--acme-purple)', fontSize: '16px' }}>{getDiscountLabel(record)}</strong>
+                    <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>
+                      {record.min_order_amount ? `Min. ${formatMoney(record.min_order_amount)}` : 'Sin mínimo'}
                     </span>
                   </div>
                 ),
               },
               {
                 id: 'scope',
-                header: 'Segmentacion',
+                header: 'Alcance',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <span>{record.scope_summary || 'Sin targets'}</span>
-                    <span style={{ color: '#6b7280' }}>{record.target_count} targets / {record.coupon_count} cupones</span>
+                  <div style={{ display: 'grid', gap: '2px' }}>
+                    <span style={{ fontWeight: 600, fontSize: '13px' }}>{record.scope_summary || 'Global'}</span>
+                    <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>
+                      {record.target_count} locales · {record.coupon_count} cupones
+                    </span>
                   </div>
                 ),
               },
               {
                 id: 'activity',
-                header: 'Uso',
+                header: 'Vigencia y Uso',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <span>{record.redemption_count} redenciones</span>
-                    <span style={{ color: '#6b7280' }}>
-                      {record.starts_at ? formatDateTime(record.starts_at) : 'Sin inicio'} - {record.ends_at ? formatDateTime(record.ends_at) : 'Sin fin'}
+                  <div style={{ display: 'grid', gap: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontWeight: 700, color: 'var(--acme-blue)' }}>{record.redemption_count}</span>
+                      <span style={{ fontSize: '11px', color: 'var(--acme-text-faint)' }}>canjes</span>
+                    </div>
+                    <span style={{ fontSize: '10px', color: 'var(--acme-text-faint)', whiteSpace: 'nowrap' }}>
+                      {record.ends_at ? `Expira: ${new Date(record.ends_at).toLocaleDateString()}` : 'Sin límite'}
                     </span>
                   </div>
                 ),
@@ -240,16 +267,25 @@ export function PromotionsAdminPage() {
               {
                 id: 'status',
                 header: 'Estado',
-                render: (record) => <StatusPill label={getPromotionStatusLabel(record)} tone={getPromotionTone(record)} />,
+                render: (record) => (
+                  <StatusPill 
+                    label={getPromotionStatusLabel(record).toUpperCase()} 
+                    tone={getPromotionTone(record)} 
+                  />
+                ),
               },
               {
                 id: 'action',
-                header: 'Accion',
+                header: '',
                 align: 'right',
-                width: '160px',
+                width: '140px',
                 render: (record) => (
-                  <Link to={AppRoutes.portal.admin.promotionDetail.replace(':promotionId', record.id)} style={{ color: '#2563eb', fontWeight: 700 }}>
-                    Abrir ficha
+                  <Link 
+                    to={AppRoutes.portal.admin.promotionDetail.replace(':promotionId', record.id)} 
+                    className="btn btn--sm btn--ghost" 
+                    style={{ color: 'var(--acme-purple)', fontWeight: 700 }}
+                  >
+                    Detalles
                   </Link>
                 ),
               },
@@ -267,74 +303,90 @@ export function PromotionsAdminPage() {
         onClose={resetCreateForm}
         actions={
           <>
-            <button type="button" onClick={resetCreateForm} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={resetCreateForm} className="btn btn--secondary">
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleCreate}
               disabled={saving || !createForm.name}
-              style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff', opacity: saving || !createForm.name ? 0.65 : 1 }}
+              className="btn btn--primary"
             >
               {saving ? 'Guardando...' : 'Crear promocion'}
             </button>
           </>
         }
       >
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-          <FieldGroup label="Nombre">
-            <TextField value={createForm.name} onChange={(event) => setCreateForm((current) => ({ ...current, name: event.target.value }))} />
-          </FieldGroup>
-          <FieldGroup label="Tipo de promo">
-            <SelectField
-              value={createForm.promo_type}
-              onChange={(event) => setCreateForm((current) => ({ ...current, promo_type: event.target.value }))}
-              options={[
-                { value: 'automatic', label: 'Automatica' },
-                { value: 'coupon', label: 'Con cupon' },
-                { value: 'campaign', label: 'Campana' },
-              ]}
-            />
-          </FieldGroup>
-          <FieldGroup label="Tipo de descuento">
-            <SelectField
-              value={createForm.discount_type}
-              onChange={(event) => setCreateForm((current) => ({ ...current, discount_type: event.target.value }))}
-              options={[
-                { value: 'percent', label: 'Porcentaje' },
-                { value: 'fixed', label: 'Monto fijo' },
-                { value: 'free_delivery', label: 'Envio gratis' },
-              ]}
-            />
-          </FieldGroup>
-          <FieldGroup label="Valor del descuento">
-            <NumberField value={createForm.discount_value} onChange={(event) => setCreateForm((current) => ({ ...current, discount_value: event.target.value }))} />
-          </FieldGroup>
-          <FieldGroup label="Monto minimo">
-            <NumberField value={createForm.min_order_amount} onChange={(event) => setCreateForm((current) => ({ ...current, min_order_amount: event.target.value }))} />
-          </FieldGroup>
-          <FieldGroup label="Descuento maximo">
-            <NumberField value={createForm.max_discount} onChange={(event) => setCreateForm((current) => ({ ...current, max_discount: event.target.value }))} />
-          </FieldGroup>
-          <FieldGroup label="Inicia">
-            <TextField type="datetime-local" value={createForm.starts_at} onChange={(event) => setCreateForm((current) => ({ ...current, starts_at: event.target.value }))} />
-          </FieldGroup>
-          <FieldGroup label="Termina">
-            <TextField type="datetime-local" value={createForm.ends_at} onChange={(event) => setCreateForm((current) => ({ ...current, ends_at: event.target.value }))} />
-          </FieldGroup>
-          <FieldGroup label="Limite total">
-            <NumberField value={createForm.usage_limit_total} onChange={(event) => setCreateForm((current) => ({ ...current, usage_limit_total: event.target.value }))} />
-          </FieldGroup>
-          <FieldGroup label="Limite por usuario">
-            <NumberField value={createForm.usage_limit_per_user} onChange={(event) => setCreateForm((current) => ({ ...current, usage_limit_per_user: event.target.value }))} />
-          </FieldGroup>
-        </div>
+        <div style={{ display: 'grid', gap: '24px' }}>
+          <div className="form-grid">
+            <FieldGroup label="Nombre de la campaña" hint="Ej: Black Friday 20%, Promo Navidad">
+              <TextField value={createForm.name} onChange={(event) => setCreateForm((current) => ({ ...current, name: event.target.value }))} placeholder="Escribe el nombre..." />
+            </FieldGroup>
+            <FieldGroup label="Tipo de promoción">
+              <SelectField
+                value={createForm.promo_type}
+                onChange={(event) => setCreateForm((current) => ({ ...current, promo_type: event.target.value }))}
+                options={[
+                  { value: 'automatic', label: 'Aplicación Automática' },
+                  { value: 'coupon', label: 'Uso de Cupón' },
+                  { value: 'campaign', label: 'Campaña Segmentada' },
+                ]}
+              />
+            </FieldGroup>
+          </div>
 
-        <CheckboxField
-          label="Promocion activa"
-          checked={createForm.is_active}
-          onChange={(event) => setCreateForm((current) => ({ ...current, is_active: event.target.checked }))}
-        />
+          <div className="form-grid">
+            <FieldGroup label="Tipo de beneficio">
+              <SelectField
+                value={createForm.discount_type}
+                onChange={(event) => setCreateForm((current) => ({ ...current, discount_type: event.target.value }))}
+                options={[
+                  { value: 'percent', label: 'Porcentaje (%)' },
+                  { value: 'fixed', label: 'Monto Fijo (S/.)' },
+                  { value: 'free_delivery', label: 'Envío Gratis' },
+                ]}
+              />
+            </FieldGroup>
+            <FieldGroup label="Valor del beneficio">
+              <NumberField value={createForm.discount_value} onChange={(event) => setCreateForm((current) => ({ ...current, discount_value: event.target.value }))} placeholder="0" />
+            </FieldGroup>
+          </div>
+
+          <div className="form-grid">
+            <FieldGroup label="Monto mínimo compra" hint="0 para sin mínimo.">
+              <NumberField value={createForm.min_order_amount} onChange={(event) => setCreateForm((current) => ({ ...current, min_order_amount: event.target.value }))} placeholder="0.00" />
+            </FieldGroup>
+            <FieldGroup label="Tope de descuento" hint="Solo para porcentajes.">
+              <NumberField value={createForm.max_discount} onChange={(event) => setCreateForm((current) => ({ ...current, max_discount: event.target.value }))} placeholder="Opcional" />
+            </FieldGroup>
+          </div>
+
+          <div className="form-grid">
+            <FieldGroup label="Fecha/Hora Inicio">
+              <TextField type="datetime-local" value={createForm.starts_at} onChange={(event) => setCreateForm((current) => ({ ...current, starts_at: event.target.value }))} />
+            </FieldGroup>
+            <FieldGroup label="Fecha/Hora Fin">
+              <TextField type="datetime-local" value={createForm.ends_at} onChange={(event) => setCreateForm((current) => ({ ...current, ends_at: event.target.value }))} />
+            </FieldGroup>
+          </div>
+
+          <div className="form-grid">
+            <FieldGroup label="Límite total usos">
+              <NumberField value={createForm.usage_limit_total} onChange={(event) => setCreateForm((current) => ({ ...current, usage_limit_total: event.target.value }))} placeholder="Sin límite" />
+            </FieldGroup>
+            <FieldGroup label="Límite por cliente">
+              <NumberField value={createForm.usage_limit_per_user} onChange={(event) => setCreateForm((current) => ({ ...current, usage_limit_per_user: event.target.value }))} placeholder="1" />
+            </FieldGroup>
+          </div>
+
+          <div className="scope-card" style={{ padding: '16px', cursor: 'pointer' }} onClick={() => setCreateForm(c => ({...c, is_active: !c.is_active}))}>
+            <CheckboxField
+              label="Habilitar promoción inmediatamente al crear"
+              checked={createForm.is_active}
+              onChange={() => {}}
+            />
+          </div>
+        </div>
       </AdminModalForm>
     </AdminPageFrame>
   );

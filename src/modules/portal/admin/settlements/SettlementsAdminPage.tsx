@@ -171,89 +171,110 @@ export function SettlementsAdminPage() {
             setSuccessMessage(null);
             openRuleModal();
           }}
-          style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff', fontWeight: 700 }}
+          className="btn btn--primary"
         >
           Nueva regla
         </button>
       }
     >
-      <SectionCard title="Buscar" description="Filtra reglas y liquidaciones por estado, alcance o periodo.">
-        <TextField value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar..." />
+      <SectionCard title="Terminal de Conciliación" description="Monitoreo global de cierres comerciales, comisiones de reparto y balances financieros.">
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--acme-text-faint)', zIndex: 1, pointerEvents: 'none' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Buscar por estado, periodo, comercio o repartidor..."
+            className="input-field"
+            style={{ paddingLeft: '48px', width: '100%', border: '1px solid var(--acme-bg-soft)', borderRadius: '12px', padding: '12px 12px 12px 48px' }}
+          />
+        </div>
       </SectionCard>
 
       {loading ? (
         <LoadingScreen />
       ) : (
         <>
-          <SectionCard title="Resumen financiero" description="Vista rapida de reglas activas y volumen de cierres visibles en el admin.">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
-              {[
-                { label: 'Reglas', value: String(overview?.commission_rules.length ?? 0) },
-                { label: 'Reglas activas', value: String((overview?.commission_rules ?? []).filter((rule) => rule.is_active).length) },
-                { label: 'Liquidaciones comercio', value: String(overview?.merchant_settlements.length ?? 0) },
-                { label: 'Liquidaciones reparto', value: String(overview?.driver_settlements.length ?? 0) },
-                {
-                  label: 'Neto comercio',
-                  value: formatMoney((overview?.merchant_settlements ?? []).reduce((sum, record) => sum + record.net_payable, 0)),
-                },
-                {
-                  label: 'Neto reparto',
-                  value: formatMoney((overview?.driver_settlements ?? []).reduce((sum, record) => sum + record.net_payable, 0)),
-                },
-              ].map((item) => (
-                <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
-                  <strong>{item.value}</strong>
+          <div className="stat-grid" style={{ marginBottom: '24px' }}>
+            {[
+              { label: 'Neto Comercio', value: formatMoney((overview?.merchant_settlements ?? []).reduce((sum, record) => sum + record.net_payable, 0)), color: 'var(--acme-blue)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> },
+              { label: 'Neto Reparto', value: formatMoney((overview?.driver_settlements ?? []).reduce((sum, record) => sum + record.net_payable, 0)), color: 'var(--acme-purple)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+              { label: 'Reglas Activas', value: String((overview?.commission_rules ?? []).filter((rule) => rule.is_active).length), color: 'var(--acme-green)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
+              { label: 'Liquidaciones', value: String((overview?.merchant_settlements.length ?? 0) + (overview?.driver_settlements.length ?? 0)), color: 'var(--acme-red)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> },
+            ].map((item) => (
+              <div key={item.label} className="stat-card">
+                <div className="stat-card__badge" style={{ background: item.color }} />
+                <div className="stat-card__header">
+                  <span className="stat-card__label">{item.label}</span>
+                  <div className="stat-card__icon-box">{item.icon}</div>
                 </div>
-              ))}
-            </div>
-          </SectionCard>
+                <strong className="stat-card__value">{item.value}</strong>
+              </div>
+            ))}
+          </div>
 
-          <SectionCard title="Reglas de comision" description="commission_rules se administra aqui con alcance humano por comercio, sucursal o repartidor.">
+          <SectionCard title="Reglas de Comisión Vigentes" description="Matriz institucional de cargos por servicio aplicados a comercios y reparto.">
             <AdminDataTable
               rows={filteredRules}
               getRowId={(record) => record.id}
-              emptyMessage="No hay reglas de comision configuradas."
+              emptyMessage="No se encontraron reglas de comisión activas."
               columns={[
                 {
                   id: 'scope',
-                  header: 'Alcance',
+                  header: 'Alcance Operativo',
                   render: (record) => (
-                    <div style={{ display: 'grid', gap: '6px' }}>
-                      <strong>{record.scope_label || 'Sin alcance'}</strong>
-                      <span style={{ color: '#6b7280' }}>{record.scope_type || 'sin tipo'}</span>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <div className="module-icon-box" style={{ width: '40px', height: '40px', background: 'var(--acme-bg-soft)', color: 'var(--acme-purple)' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                      </div>
+                      <div className="module-info">
+                        <strong style={{ fontWeight: 800 }}>{record.scope_label || 'Global'}</strong>
+                        <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>{record.scope_type.toUpperCase()}</span>
+                      </div>
                     </div>
                   ),
                 },
-                { id: 'payer', header: 'Paga', render: (record) => record.who_pays || 'sin actor' },
+                { 
+                  id: 'payer', 
+                  header: 'Contribuyente', 
+                  render: (record) => (
+                    <StatusPill label={(record.who_pays || 'SISTEMA').toUpperCase()} tone="info" />
+                  ) 
+                },
                 {
                   id: 'value',
-                  header: 'Regla',
+                  header: 'Tasa / Valor',
                   render: (record) => (
-                    <div style={{ display: 'grid', gap: '6px' }}>
-                      <strong>{getRuleValueLabel(record)}</strong>
-                      <span style={{ color: '#6b7280' }}>{record.rule_type || 'sin tipo'}</span>
+                    <div style={{ display: 'grid', gap: '2px' }}>
+                      <strong style={{ fontSize: '15px', color: 'var(--acme-purple)' }}>{getRuleValueLabel(record)}</strong>
+                      <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>{record.rule_type === 'percent' ? 'Variable' : 'Costo Fijo'}</span>
                     </div>
                   ),
                 },
                 {
                   id: 'window',
-                  header: 'Vigencia',
-                  render: (record) => `${record.starts_at ? formatDateTime(record.starts_at) : 'Sin inicio'} - ${record.ends_at ? formatDateTime(record.ends_at) : 'Sin fin'}`,
+                  header: 'Vigencia de Aplicación',
+                  render: (record) => (
+                    <div style={{ display: 'grid', gap: '2px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 600 }}>Desde: {record.starts_at ? new Date(record.starts_at).toLocaleDateString() : 'Inmediata'}</span>
+                      <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>Hasta: {record.ends_at ? new Date(record.ends_at).toLocaleDateString() : 'Indefinida'}</span>
+                    </div>
+                  )
                 },
                 {
                   id: 'status',
                   header: 'Estado',
-                  render: (record) => <StatusPill label={record.is_active ? 'Activa' : 'Inactiva'} tone={record.is_active ? 'success' : 'warning'} />,
+                  render: (record) => <StatusPill label={record.is_active ? 'ACTIVA' : 'INACTIVA'} tone={record.is_active ? 'success' : 'warning'} />,
                 },
                 {
                   id: 'action',
-                  header: 'Accion',
+                  header: '',
                   align: 'right',
                   width: '140px',
                   render: (record) => (
-                    <button type="button" onClick={() => openRuleModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
-                      Editar
+                    <button type="button" onClick={() => openRuleModal(record)} className="btn btn--sm btn--ghost" style={{ color: 'var(--acme-purple)', fontWeight: 700 }}>
+                      Configurar
                     </button>
                   ),
                 },
@@ -344,75 +365,88 @@ export function SettlementsAdminPage() {
 
       <AdminModalForm
         open={ruleOpen}
-        title={ruleForm.id ? 'Editar regla de comision' : 'Nueva regla de comision'}
-        description="La regla se guarda con alcance contextual para evitar configuracion financiera ciega."
+        title={ruleForm.id ? 'Configurar Regla de Comisión' : 'Nueva Definición Financiera'}
+        description="Define los parámetros de cobro que el motor de liquidación aplicará a los cierres de caja y reparto."
         onClose={() => setRuleOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setRuleOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setRuleOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleRuleSave}
               disabled={saving || !ruleForm.rule_type || !ruleForm.who_pays || !(ruleForm.scope_type === 'merchant' || ruleForm.scope_id)}
-              style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff', opacity: saving || !ruleForm.rule_type || !ruleForm.who_pays || !(ruleForm.scope_type === 'merchant' || ruleForm.scope_id) ? 0.65 : 1 }}
+              className="btn btn--primary"
             >
-              {saving ? 'Guardando...' : 'Guardar regla'}
+              {saving ? 'Guardando...' : 'Aplicar Regla'}
             </button>
           </>
         }
       >
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-          <FieldGroup label="Alcance">
-            <SelectField
-              value={ruleForm.scope_type}
-              onChange={(event) =>
-                setRuleForm((current) => ({
-                  ...current,
-                  scope_type: event.target.value,
-                  scope_id: event.target.value === 'merchant' ? merchantId : '',
-                }))
-              }
-              options={scopeOptions}
-            />
-          </FieldGroup>
-          <FieldGroup label="Destino">
-            <SelectField value={ruleForm.scope_type === 'merchant' ? merchantId : ruleForm.scope_id} onChange={(event) => setRuleForm((current) => ({ ...current, scope_id: event.target.value }))} options={currentScopeOptions} />
-          </FieldGroup>
-          <FieldGroup label="Paga">
-            <SelectField
-              value={ruleForm.who_pays}
-              onChange={(event) => setRuleForm((current) => ({ ...current, who_pays: event.target.value }))}
-              options={[
-                { value: 'merchant', label: 'Comercio' },
-                { value: 'driver', label: 'Repartidor' },
-                { value: 'platform', label: 'Plataforma' },
-                { value: 'customer', label: 'Cliente' },
-              ]}
-            />
-          </FieldGroup>
-          <FieldGroup label="Tipo de regla">
-            <SelectField
-              value={ruleForm.rule_type}
-              onChange={(event) => setRuleForm((current) => ({ ...current, rule_type: event.target.value }))}
-              options={[
-                { value: 'percent', label: 'Porcentaje' },
-                { value: 'fixed', label: 'Monto fijo' },
-              ]}
-            />
-          </FieldGroup>
-          <FieldGroup label="Valor">
-            <NumberField value={ruleForm.value} onChange={(event) => setRuleForm((current) => ({ ...current, value: event.target.value }))} />
-          </FieldGroup>
-          <FieldGroup label="Inicia">
-            <TextField type="datetime-local" value={ruleForm.starts_at} onChange={(event) => setRuleForm((current) => ({ ...current, starts_at: event.target.value }))} />
-          </FieldGroup>
-          <FieldGroup label="Termina">
-            <TextField type="datetime-local" value={ruleForm.ends_at} onChange={(event) => setRuleForm((current) => ({ ...current, ends_at: event.target.value }))} />
-          </FieldGroup>
+        <div style={{ display: 'grid', gap: '24px' }}>
+          <div className="form-grid">
+            <FieldGroup label="Nivel de Alcance" hint="Define a qué entidad se aplica esta regla.">
+              <SelectField
+                value={ruleForm.scope_type}
+                onChange={(event) =>
+                  setRuleForm((current) => ({
+                    ...current,
+                    scope_type: event.target.value,
+                    scope_id: event.target.value === 'merchant' ? merchantId : '',
+                  }))
+                }
+                options={scopeOptions}
+              />
+            </FieldGroup>
+            <FieldGroup label="Entidad Específica" hint="El sujeto pasivo de la comisión.">
+              <SelectField value={ruleForm.scope_type === 'merchant' ? merchantId : ruleForm.scope_id} onChange={(event) => setRuleForm((current) => ({ ...current, scope_id: event.target.value }))} options={currentScopeOptions} />
+            </FieldGroup>
+          </div>
+
+          <div className="form-grid">
+            <FieldGroup label="Quién Contribuye" hint="Actor que asume el costo del servicio.">
+              <SelectField
+                value={ruleForm.who_pays}
+                onChange={(event) => setRuleForm((current) => ({ ...current, who_pays: event.target.value }))}
+                options={[
+                  { value: 'merchant', label: 'Comercio (Ventas)' },
+                  { value: 'driver', label: 'Repartidor (Comisiones)' },
+                  { value: 'platform', label: 'Plataforma (Subsidio)' },
+                  { value: 'customer', label: 'Cliente (Fee de Servicio)' },
+                ]}
+              />
+            </FieldGroup>
+            <FieldGroup label="Modelo de Cobro">
+              <SelectField
+                value={ruleForm.rule_type}
+                onChange={(event) => setRuleForm((current) => ({ ...current, rule_type: event.target.value }))}
+                options={[
+                  { value: 'percent', label: 'Porcentaje (%)' },
+                  { value: 'fixed', label: 'Monto Fijo (S/.)' },
+                ]}
+              />
+            </FieldGroup>
+          </div>
+
+          <div className="form-grid">
+            <FieldGroup label="Valor de la Regla">
+              <NumberField value={ruleForm.value} onChange={(event) => setRuleForm((current) => ({ ...current, value: event.target.value }))} placeholder="0.00" />
+            </FieldGroup>
+            <div className="scope-card" style={{ padding: '16px', background: ruleForm.is_active ? 'rgba(34, 197, 94, 0.05)' : undefined, cursor: 'pointer', alignSelf: 'center' }} onClick={() => setRuleForm(c => ({...c, is_active: !c.is_active}))}>
+              <CheckboxField label="Regla Habilitada" checked={ruleForm.is_active} onChange={() => {}} />
+            </div>
+          </div>
+
+          <div className="form-grid">
+            <FieldGroup label="Vencimiento / Refresh" hint="Deja vacío para vigencia permanente.">
+              <TextField type="datetime-local" value={ruleForm.ends_at} onChange={(event) => setRuleForm((current) => ({ ...current, ends_at: event.target.value }))} />
+            </FieldGroup>
+            <div style={{ display: 'flex', alignItems: 'center', color: 'var(--acme-text-faint)', fontSize: '12px', padding: '12px' }}>
+              Las liquidaciones en curso no se verán afectadas hasta el próximo periodo de cierre.
+            </div>
+          </div>
         </div>
-        <CheckboxField label="Regla activa" checked={ruleForm.is_active} onChange={(event) => setRuleForm((current) => ({ ...current, is_active: event.target.checked }))} />
       </AdminModalForm>
     </AdminPageFrame>
   );

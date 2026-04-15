@@ -182,14 +182,25 @@ export function PaymentsAdminPage() {
       ]}
       actions={
         isPlatformScope ? (
-          <button type="button" onClick={() => openMethodModal()} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff', fontWeight: 700 }}>
+          <button type="button" onClick={() => openMethodModal()} className="btn btn--primary">
             Nuevo metodo
           </button>
         ) : undefined
       }
     >
-      <SectionCard title="Buscar" description="Filtra por pedido, comercio, metodo, provider, referencia, caja o estado.">
-        <TextField value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar pagos..." />
+      <SectionCard title="Monitor Financiero" description="Búsqueda global de transacciones por pedido, referencia externa, comercio o estado de liquidación.">
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--acme-text-faint)', zIndex: 1, pointerEvents: 'none' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Buscar por # Orden, ID transacción, comercio o cliente..."
+            className="input-field"
+            style={{ paddingLeft: '48px', width: '100%', border: '1px solid var(--acme-bg-soft)', borderRadius: '12px', padding: '12px 12px 12px 48px' }}
+          />
+        </div>
       </SectionCard>
 
       <FormStatusBar dirty={false} saving={saving} error={error} successMessage={successMessage} />
@@ -207,12 +218,12 @@ export function PaymentsAdminPage() {
         >
           <AdminTabs
             tabs={[
-              { id: 'summary', label: 'Resumen' },
+              { id: 'summary', label: 'Dashboard' },
               { id: 'payments', label: 'Cobros', badge: String(overview?.summary.payments ?? 0) },
-              { id: 'transactions', label: 'Transacciones', badge: String(overview?.summary.transactions ?? 0) },
+              { id: 'transactions', label: 'Pasarela', badge: String(overview?.summary.transactions ?? 0) },
               { id: 'refunds', label: 'Refunds', badge: String(overview?.summary.refunds ?? 0) },
-              { id: 'cash', label: 'Caja', badge: String(overview?.summary.cash_collections ?? 0) },
-              ...(isPlatformScope ? [{ id: 'methods', label: 'Metodos', badge: String(overview?.payment_methods.length ?? 0) }] : []),
+              { id: 'cash', label: 'Caja Reg.', badge: String(overview?.summary.cash_collections ?? 0) },
+              ...(isPlatformScope ? [{ id: 'methods', label: 'Config Metodos', badge: String(overview?.payment_methods.length ?? 0) }] : []),
             ]}
             activeTabId={activeTab}
             onChange={(tabId) => setActiveTab(tabId as PaymentsTab)}
@@ -220,21 +231,34 @@ export function PaymentsAdminPage() {
 
           {activeTab === 'summary' ? (
             <AdminTabPanel>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
+              <div className="stat-grid">
                 {[
-                  { label: 'Cobros', value: String(overview?.summary.payments ?? 0) },
-                  { label: 'Transacciones', value: String(overview?.summary.transactions ?? 0) },
-                  { label: 'Refunds', value: String(overview?.summary.refunds ?? 0) },
-                  { label: 'Caja', value: String(overview?.summary.cash_collections ?? 0) },
-                  { label: 'Metodos activos', value: String(overview?.summary.active_methods ?? 0) },
-                  { label: 'Volumen cobrado', value: formatMoney(overview?.summary.gross_amount ?? 0) },
-                  { label: 'Volumen refund', value: formatMoney(overview?.summary.refunded_amount ?? 0) },
-                  { label: 'Caja pendiente', value: formatMoney(overview?.summary.pending_cash_amount ?? 0) },
-                  { label: 'Caja liquidada', value: formatMoney(overview?.summary.settled_cash_amount ?? 0) },
+                  { label: 'Volumen Bruto', value: formatMoney(overview?.summary.gross_amount ?? 0), color: 'var(--acme-blue)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
+                  { label: 'Monto Refunds', value: formatMoney(overview?.summary.refunded_amount ?? 0), color: 'var(--acme-red)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 10h10a5 5 0 0 1 5 5v2"/><polyline points="10 3 3 10 10 17"/></svg> },
+                  { label: 'Caja Pendiente', value: formatMoney(overview?.summary.pending_cash_amount ?? 0), color: 'var(--acme-purple)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg> },
+                  { label: 'Cobros Totales', value: String(overview?.summary.payments ?? 0), color: 'var(--acme-green)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.56-6.17H5.91"/></svg> },
                 ].map((item) => (
-                  <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                    <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
-                    <strong>{item.value}</strong>
+                  <div key={item.label} className="stat-card">
+                    <div className="stat-card__badge" style={{ background: item.color }} />
+                    <div className="stat-card__header">
+                      <span className="stat-card__label">{item.label}</span>
+                      <div className="stat-card__icon-box">{item.icon}</div>
+                    </div>
+                    <strong className="stat-card__value">{item.value}</strong>
+                  </div>
+                ))}
+              </div>
+
+              <div className="stat-grid" style={{ marginTop: '20px', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+                 {[
+                  { label: 'Transacciones', value: String(overview?.summary.transactions ?? 0) },
+                  { label: 'Refunds Solicitados', value: String(overview?.summary.refunds ?? 0) },
+                  { label: 'Caja Liquidada', value: formatMoney(overview?.summary.settled_cash_amount ?? 0) },
+                  { label: 'Metodos Activos', value: String(overview?.summary.active_methods ?? 0) },
+                ].map(sub => (
+                  <div key={sub.label} className="stat-card" style={{ padding: '14px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--acme-text-faint)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{sub.label}</div>
+                    <div style={{ marginTop: '4px', fontWeight: 800, fontSize: '16px' }}>{sub.value}</div>
                   </div>
                 ))}
               </div>
@@ -246,32 +270,62 @@ export function PaymentsAdminPage() {
               <AdminDataTable
                 rows={filteredPayments}
                 getRowId={(record) => record.id}
-                emptyMessage="No hay cobros visibles en la base."
+                emptyMessage="No hay cobros registrados."
                 columns={[
                   {
                     id: 'payment',
-                    header: 'Cobro',
+                    header: 'Referencia / Método',
                     render: (record) => (
-                      <div style={{ display: 'grid', gap: '6px' }}>
-                        <strong>{record.payment_method_label}</strong>
-                        <span style={{ color: '#6b7280' }}>{record.order_code ? `Pedido #${record.order_code}` : 'Sin pedido'}</span>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div className="module-icon-box" style={{ width: '40px', height: '40px', background: 'var(--acme-bg-soft)', color: 'var(--acme-blue)' }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                        </div>
+                        <div className="module-info">
+                          <strong style={{ fontWeight: 800 }}>{record.payment_method_label}</strong>
+                          <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>{record.order_code ? `Pedido #${record.order_code}` : 'Recarga/Otros'}</span>
+                        </div>
                       </div>
                     ),
                   },
                   {
                     id: 'scope',
-                    header: 'Negocio',
+                    header: 'Origen',
                     render: (record) => (
-                      <div style={{ display: 'grid', gap: '6px' }}>
-                        <span>{record.merchant_label}</span>
-                        <span style={{ color: '#6b7280' }}>{record.branch_label}</span>
+                      <div style={{ display: 'grid', gap: '2px' }}>
+                        <span style={{ fontWeight: 600, fontSize: '13px' }}>{record.merchant_label}</span>
+                        <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>{record.branch_label}</span>
                       </div>
                     ),
                   },
-                  { id: 'customer', header: 'Cliente', render: (record) => record.customer_label || 'Sin cliente' },
-                  { id: 'amount', header: 'Monto', align: 'right', render: (record) => formatMoney(record.amount, record.currency) },
-                  { id: 'status', header: 'Estado', render: (record) => <StatusPill label={record.status || 'pending'} tone={getPaymentTone(record.status)} /> },
-                  { id: 'date', header: 'Solicitado', render: (record) => formatDateTime(record.requested_at) },
+                  { 
+                    id: 'customer', 
+                    header: 'Cliente', 
+                    render: (record) => (
+                      <span style={{ fontSize: '13px' }}>{record.customer_label || 'Invitado'}</span>
+                    ) 
+                  },
+                  { 
+                    id: 'amount', 
+                    header: 'Monto', 
+                    align: 'right', 
+                    render: (record) => (
+                      <strong style={{ fontSize: '15px' }}>{formatMoney(record.amount, record.currency)}</strong>
+                    ) 
+                  },
+                  { 
+                    id: 'status', 
+                    header: 'Estado', 
+                    render: (record) => (
+                      <StatusPill label={(record.status || 'PENDING').toUpperCase()} tone={getPaymentTone(record.status)} />
+                    ) 
+                  },
+                  { 
+                    id: 'date', 
+                    header: 'Fecha', 
+                    render: (record) => (
+                      <span style={{ fontSize: '11px', color: 'var(--acme-text-faint)' }}>{formatDateTime(record.requested_at)}</span>
+                    ) 
+                  },
                 ]}
               />
             </AdminTabPanel>
@@ -371,48 +425,51 @@ export function PaymentsAdminPage() {
               <AdminDataTable
                 rows={filteredMethods}
                 getRowId={(record) => record.id}
-                emptyMessage="No hay payment_methods disponibles."
+                emptyMessage="No se encontraron métodos de pago."
                 columns={[
                   {
                     id: 'method',
-                    header: 'Metodo',
+                    header: 'Método / Canal',
                     render: (record) => (
-                      <div style={{ display: 'grid', gap: '6px' }}>
-                        <strong>{record.name}</strong>
-                        <span style={{ color: '#6b7280' }}>{record.code}</span>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div className="module-icon-box" style={{ width: '40px', height: '40px', background: 'var(--acme-purple-soft)', color: 'var(--acme-purple)' }}>
+                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        </div>
+                        <div className="module-info">
+                          <strong style={{ fontWeight: 800 }}>{record.name}</strong>
+                          <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>{record.code}</span>
+                        </div>
                       </div>
                     ),
                   },
                   {
                     id: 'flags',
-                    header: 'Canal',
+                    header: 'Disponibilidad',
                     render: (record) => (
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        <StatusPill label={record.is_online ? 'Online' : 'Offline'} tone={record.is_online ? 'info' : 'neutral'} />
-                        <StatusPill label={record.is_active ? 'Activo' : 'Inactivo'} tone={record.is_active ? 'success' : 'warning'} />
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <StatusPill label={record.is_online ? 'DIGITAL' : 'FÍSICO'} tone={record.is_online ? 'info' : 'neutral'} />
+                        <StatusPill label={record.is_active ? 'ACTIVO' : 'INACTIVO'} tone={record.is_active ? 'success' : 'warning'} />
                       </div>
                     ),
                   },
                   {
                     id: 'usage',
-                    header: 'Uso',
+                    header: 'Volumen Histórico',
                     render: (record) => (
-                      <div style={{ display: 'grid', gap: '6px' }}>
-                        <span>{record.payments_count} cobros</span>
-                        <span style={{ color: '#6b7280' }}>
-                          {record.transactions_count} transacciones / {record.refunds_count} refunds
-                        </span>
+                      <div style={{ display: 'grid', gap: '2px' }}>
+                        <span style={{ fontWeight: 600, fontSize: '13px' }}>{record.payments_count} Cobros</span>
+                        <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>{record.refunds_count} Devoluciones</span>
                       </div>
                     ),
                   },
                   {
                     id: 'action',
-                    header: 'Accion',
+                    header: '',
                     align: 'right',
                     width: '140px',
                     render: (record) => (
-                      <button type="button" onClick={() => openMethodModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
-                        Editar
+                      <button type="button" onClick={() => openMethodModal(record)} className="btn btn--sm btn--ghost" style={{ color: 'var(--acme-purple)' }}>
+                        Configurar
                       </button>
                     ),
                   },
@@ -425,29 +482,38 @@ export function PaymentsAdminPage() {
 
       <AdminModalForm
         open={methodOpen}
-        title={methodForm.id ? 'Editar metodo de pago' : 'Nuevo metodo de pago'}
-        description="payment_methods se gobierna desde plataforma porque alimenta la operacion de todos los negocios."
+        title={methodForm.id ? 'Configurar Método de Pago' : 'Nuevo Método de Pago'}
+        description="Define las reglas de cobro que el sistema presentará a los clientes finales y repartidores."
         onClose={() => setMethodOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setMethodOpen(false)} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #d1d5db', background: '#ffffff' }}>
+            <button type="button" onClick={() => setMethodOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleMethodSave} disabled={saving || !methodForm.code.trim() || !methodForm.name.trim()} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
-              {saving ? 'Guardando...' : 'Guardar metodo'}
+            <button type="button" onClick={handleMethodSave} disabled={saving || !methodForm.code.trim() || !methodForm.name.trim()} className="btn btn--primary">
+              {saving ? 'Guardando...' : 'Guardar Cambios'}
             </button>
           </>
         }
       >
-        <div style={{ display: 'grid', gap: '16px' }}>
-          <FieldGroup label="Codigo">
-            <TextField value={methodForm.code} onChange={(event) => setMethodForm((current) => ({ ...current, code: event.target.value }))} />
-          </FieldGroup>
-          <FieldGroup label="Nombre">
-            <TextField value={methodForm.name} onChange={(event) => setMethodForm((current) => ({ ...current, name: event.target.value }))} />
-          </FieldGroup>
-          <CheckboxField label="Disponible online" checked={methodForm.is_online} onChange={(event) => setMethodForm((current) => ({ ...current, is_online: event.target.checked }))} />
-          <CheckboxField label="Activo en plataforma" checked={methodForm.is_active} onChange={(event) => setMethodForm((current) => ({ ...current, is_active: event.target.checked }))} />
+        <div style={{ display: 'grid', gap: '24px' }}>
+          <div className="form-grid">
+            <FieldGroup label="Código Identificador" hint="Ej: wallet_plin, cash_delivery">
+              <TextField value={methodForm.code} onChange={(event) => setMethodForm((current) => ({ ...current, code: event.target.value }))} placeholder="codigo_metodo" />
+            </FieldGroup>
+            <FieldGroup label="Nombre Comercial" hint="Nombre visible para el cliente">
+              <TextField value={methodForm.name} onChange={(event) => setMethodForm((current) => ({ ...current, name: event.target.value }))} placeholder="Ej: Plin / Yape" />
+            </FieldGroup>
+          </div>
+
+          <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+            <div className="scope-card" style={{ padding: '16px', cursor: 'pointer' }} onClick={() => setMethodForm(c => ({...c, is_online: !c.is_online}))}>
+              <CheckboxField label="Disponible para Pago Online" checked={methodForm.is_online} onChange={() => {}} />
+            </div>
+            <div className="scope-card" style={{ padding: '16px', cursor: 'pointer' }} onClick={() => setMethodForm(c => ({...c, is_active: !c.is_active}))}>
+              <CheckboxField label="Método Habilitado" checked={methodForm.is_active} onChange={() => {}} />
+            </div>
+          </div>
         </div>
       </AdminModalForm>
     </AdminPageFrame>

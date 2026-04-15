@@ -9,14 +9,16 @@ export interface SelectOption {
 export function FieldGroup({
   label,
   hint,
+  style,
   children,
 }: {
   label: string;
   hint?: string;
+  style?: React.CSSProperties;
   children: ReactNode;
 }) {
   return (
-    <label style={{ display: 'grid', gap: '8px' }}>
+    <label style={{ display: 'grid', gap: '8px', ...style }}>
       <span style={{ fontSize: '13px', fontWeight: 700, color: '#374151' }}>{label}</span>
       {children}
       {hint ? <span style={{ fontSize: '12px', color: '#6b7280' }}>{hint}</span> : null}

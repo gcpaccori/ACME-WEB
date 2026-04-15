@@ -158,15 +158,10 @@ export function ModifiersAdminPage() {
             <button
               onClick={handleDelete}
               disabled={saving}
-              style={{
-                padding: '12px 16px',
-                borderRadius: '10px',
-                border: '1px solid #fecaca',
-                background: '#ffffff',
-                color: '#b91c1c',
-                opacity: saving ? 0.65 : 1,
-              }}
+              className="btn btn--secondary"
+              style={{ color: 'var(--acme-red)', borderColor: 'rgba(239, 68, 68, 0.2)' }}
             >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
               Eliminar grupo
             </button>
           ) : null}
@@ -185,34 +180,44 @@ export function ModifiersAdminPage() {
             columns={[
               {
                 id: 'name',
-                header: 'Grupo',
+                header: 'Grupo de modificación',
                 render: (group) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <strong>{group.name}</strong>
-                    <span style={{ color: '#6b7280' }}>
-                      {group.is_required ? 'Obligatorio' : 'Opcional'} · Min {group.min_select} · Max {group.max_select}
-                    </span>
+                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                    <div className="module-icon-box" style={{ width: '40px', height: '40px' }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    </div>
+                    <div className="module-info">
+                      <strong style={{ fontWeight: 800 }}>{group.name}</strong>
+                      <span style={{ color: 'var(--acme-text-faint)', fontSize: '12px' }}>
+                        {group.is_required ? 'Requerido' : 'Opcional'} · Selecciona entre {group.min_select} y {group.max_select}
+                      </span>
+                    </div>
                   </div>
                 ),
               },
               {
                 id: 'options',
                 header: 'Opciones',
-                render: (group) => group.options.length,
+                render: (group) => (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontWeight: 600 }}>{group.options.length}</span>
+                    <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>items</span>
+                  </div>
+                ),
               },
               {
                 id: 'status',
                 header: 'Estado',
-                render: (group) => <StatusPill label={group.is_active ? 'Activo' : 'Inactivo'} tone={group.is_active ? 'success' : 'warning'} />,
+                render: (group) => <StatusPill label={group.is_active ? 'HABILITADO' : 'OCULTO'} tone={group.is_active ? 'success' : 'neutral'} />,
               },
               {
                 id: 'action',
-                header: 'Accion',
+                header: '',
                 align: 'right',
                 width: '140px',
                 render: (group) => (
-                  <button type="button" onClick={() => editGroup(group)} style={{ color: '#2563eb', fontWeight: 700 }}>
-                    Editar
+                  <button type="button" onClick={() => editGroup(group)} className="btn btn--sm btn--ghost" style={{ color: 'var(--acme-purple)' }}>
+                    Editar detalles
                   </button>
                 ),
               },
@@ -232,35 +237,42 @@ export function ModifiersAdminPage() {
 
       {activeTab === 'group' ? (
         <AdminTabPanel>
-          <SectionCard title={selected.id ? 'Editar grupo' : 'Nuevo grupo'} description="Cada grupo se guarda con sus opciones sin pedir claves manuales.">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-              <FieldGroup label="Nombre del grupo">
-                <TextField value={selected.name} onChange={(event) => setSelected((current) => ({ ...current, name: event.target.value }))} />
+          <SectionCard title={selected.id ? 'Reglas del grupo' : 'Nuevo grupo maestro'} description="Define el comportamiento del grupo y cómo interactúa el cliente con las opciones.">
+            <div className="form-grid">
+              <FieldGroup label="Nombre identificador" hint="Ej: Extras de pizza, Tamaño de bebida.">
+                <TextField value={selected.name} onChange={(event) => setSelected((current) => ({ ...current, name: event.target.value }))} placeholder="Nombre del grupo..." />
               </FieldGroup>
-              <FieldGroup label="Minimo de seleccion">
-                <NumberField
-                  value={selected.min_select}
-                  onChange={(event) => setSelected((current) => ({ ...current, min_select: event.target.value }))}
-                />
-              </FieldGroup>
-              <FieldGroup label="Maximo de seleccion">
-                <NumberField
-                  value={selected.max_select}
-                  onChange={(event) => setSelected((current) => ({ ...current, max_select: event.target.value }))}
-                />
-              </FieldGroup>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <FieldGroup label="Mínimo selección" hint="0 = Opcional">
+                  <NumberField
+                    value={selected.min_select}
+                    onChange={(event) => setSelected((current) => ({ ...current, min_select: event.target.value }))}
+                  />
+                </FieldGroup>
+                <FieldGroup label="Máximo selección" hint="Límite permitido">
+                  <NumberField
+                    value={selected.max_select}
+                    onChange={(event) => setSelected((current) => ({ ...current, max_select: event.target.value }))}
+                  />
+                </FieldGroup>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap' }}>
-              <CheckboxField
-                label="Grupo obligatorio"
-                checked={selected.is_required}
-                onChange={(event) => setSelected((current) => ({ ...current, is_required: event.target.checked }))}
-              />
-              <CheckboxField
-                label="Grupo activo"
-                checked={selected.is_active}
-                onChange={(event) => setSelected((current) => ({ ...current, is_active: event.target.checked }))}
-              />
+            
+            <div className="form-grid" style={{ marginTop: '20px' }}>
+              <div className="scope-card" style={{ cursor: 'pointer', padding: '16px' }} onClick={() => setSelected(c => ({...c, is_required: !c.is_required}))}>
+                <CheckboxField
+                  label="Marcar como grupo obligatorio para el cliente"
+                  checked={selected.is_required}
+                  onChange={() => {}}
+                />
+              </div>
+              <div className="scope-card" style={{ cursor: 'pointer', padding: '16px' }} onClick={() => setSelected(c => ({...c, is_active: !c.is_active}))}>
+                <CheckboxField
+                  label="Grupo visible y disponible en el catálogo"
+                  checked={selected.is_active}
+                  onChange={() => {}}
+                />
+              </div>
             </div>
           </SectionCard>
         </AdminTabPanel>
@@ -268,47 +280,45 @@ export function ModifiersAdminPage() {
 
       {activeTab === 'options' ? (
         <AdminTabPanel>
-          <SectionCard title="Opciones del grupo" description="Las opciones se guardan en `modifier_options` y quedan listas para asignarse a productos.">
-            {selected.options.length === 0 ? <div style={{ color: '#6b7280' }}>Aun no hay opciones en este grupo.</div> : null}
-            <div style={{ display: 'grid', gap: '12px' }}>
+          <SectionCard title="Opciones disponibles" description="Carga los diferentes ítems que pertenecen a este grupo con sus precios adicionales.">
+            {selected.options.length === 0 ? (
+              <div style={{ padding: '40px', textAlign: 'center', background: 'var(--acme-bg-soft)', borderRadius: '16px', border: '2px dashed var(--acme-border)', color: 'var(--acme-text-muted)' }}>
+                No hay opciones registradas. El grupo debe tener al menos una opción para ser funcional.
+              </div>
+            ) : null}
+            
+            <div style={{ display: 'grid', gap: '16px', marginTop: selected.options.length > 0 ? '12px' : '0' }}>
               {selected.options.map((option, index) => (
-                <div
-                  key={option.id ?? `option-${index}`}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr)) auto',
-                    gap: '12px',
-                    padding: '14px',
-                    borderRadius: '14px',
-                    border: '1px solid #e5e7eb',
-                    background: '#f9fafb',
-                  }}
-                >
-                  <FieldGroup label="Nombre">
-                    <TextField value={option.name} onChange={(event) => updateOption(index, { name: event.target.value })} />
-                  </FieldGroup>
-                  <FieldGroup label="Delta de precio">
-                    <NumberField value={option.price_delta} onChange={(event) => updateOption(index, { price_delta: event.target.value })} />
-                  </FieldGroup>
-                  <FieldGroup label="Orden">
-                    <NumberField value={option.sort_order} onChange={(event) => updateOption(index, { sort_order: event.target.value })} />
-                  </FieldGroup>
-                  <div style={{ display: 'flex', gap: '12px', alignItems: 'end', justifyContent: 'space-between' }}>
-                    <CheckboxField
-                      label="Activa"
-                      checked={option.is_active}
-                      onChange={(event) => updateOption(index, { is_active: event.target.checked })}
-                    />
-                    <button type="button" onClick={() => removeOption(index)}>
-                      Quitar
-                    </button>
+                <div key={option.id ?? `option-${index}`} className="scope-card" style={{ padding: '20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 80px auto', gap: '20px', alignItems: 'start' }}>
+                    <FieldGroup label="Nombre de la opción">
+                      <TextField value={option.name} onChange={(event) => updateOption(index, { name: event.target.value })} placeholder="Ej: Extra queso, Familiar, etc." />
+                    </FieldGroup>
+                    <FieldGroup label="Costo extra">
+                      <NumberField value={option.price_delta} onChange={(event) => updateOption(index, { price_delta: event.target.value })} />
+                    </FieldGroup>
+                    <FieldGroup label="Orden">
+                      <NumberField value={option.sort_order} onChange={(event) => updateOption(index, { sort_order: event.target.value })} />
+                    </FieldGroup>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', height: '100%', justifyContent: 'center' }}>
+                      <CheckboxField
+                        label="Activa"
+                        checked={option.is_active}
+                        onChange={(event) => updateOption(index, { is_active: event.target.checked })}
+                      />
+                      <button type="button" onClick={() => removeOption(index)} className="btn btn--ghost btn--sm" style={{ color: 'var(--acme-red)', padding: '4px', textDecoration: 'underline' }}>
+                        Quitar
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div>
-              <button type="button" onClick={addOption}>
-                Agregar opcion
+            
+            <div style={{ marginTop: '24px' }}>
+              <button type="button" onClick={addOption} className="btn btn--secondary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Agregar nueva opción
               </button>
             </div>
           </SectionCard>

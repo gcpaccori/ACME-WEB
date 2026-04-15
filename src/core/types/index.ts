@@ -141,6 +141,8 @@ export interface Category {
   id: string;
   name: string;
   merchant_id?: string;
+  description?: string;
+  sort_order?: number;
 }
 
 export interface Product {

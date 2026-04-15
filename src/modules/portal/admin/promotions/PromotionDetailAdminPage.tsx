@@ -9,6 +9,7 @@ import { AdminPageFrame, FormStatusBar, SectionCard, StatusPill } from '../../..
 import { AdminTabPanel, AdminTabs } from '../../../../components/admin/AdminTabs';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { TextField } from '../../../../components/ui/TextField';
+import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import {
@@ -123,6 +124,8 @@ export function PromotionDetailAdminPage() {
   const [targetForm, setTargetForm] = useState<PromotionTargetForm>(adminPromotionsService.createEmptyTargetForm());
 
   const [couponOpen, setCouponOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [targetToDelete, setTargetToDelete] = useState<PromotionTargetRecord | null>(null);
   const [couponForm, setCouponForm] = useState<PromotionCouponForm>(adminPromotionsService.createEmptyCouponForm());
 
   const loadDetail = async () => {
@@ -250,14 +253,21 @@ export function PromotionDetailAdminPage() {
     });
   };
 
-  const handleDeleteTarget = async (record: PromotionTargetRecord) => {
+  const handleDeleteTargetRequested = (record: PromotionTargetRecord) => {
     if (record.is_locked) return;
-    if (!window.confirm('Eliminar este target de la promocion?')) return;
+    setTargetToDelete(record);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteTarget = async () => {
+    if (!targetToDelete) return;
+    setDeleteConfirmOpen(false);
     await runMutation(async () => {
-      const result = await adminPromotionsService.deletePromotionTarget(record.id);
+      const result = await adminPromotionsService.deletePromotionTarget(targetToDelete.id);
       if (result.error) throw result.error;
       setSuccessMessage('Target eliminado');
     });
+    setTargetToDelete(null);
   };
 
   const handleCouponSave = async () => {
@@ -305,7 +315,7 @@ export function PromotionDetailAdminPage() {
       ]}
     >
       <div>
-        <button type="button" onClick={() => navigate(-1)} style={{ padding: '10px 16px' }}>
+        <button type="button" onClick={() => navigate(-1)} className="btn btn--secondary btn--sm">
           Volver
         </button>
       </div>
@@ -316,13 +326,13 @@ export function PromotionDetailAdminPage() {
         status={{ label: getPromotionStatusLabel(detail), tone: getPromotionTone(detail) }}
         actions={
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button type="button" onClick={openPromotionModal} style={{ padding: '10px 14px' }}>
+            <button type="button" onClick={openPromotionModal} className="btn btn--secondary btn--sm">
               Editar promocion
             </button>
-            <button type="button" onClick={() => openTargetModal()} style={{ padding: '10px 14px' }}>
+            <button type="button" onClick={() => openTargetModal()} className="btn btn--primary btn--sm">
               Agregar target
             </button>
-            <button type="button" onClick={() => openCouponModal()} style={{ padding: '10px 14px' }}>
+            <button type="button" onClick={() => openCouponModal()} className="btn btn--primary btn--sm">
               Agregar cupon
             </button>
           </div>
@@ -385,7 +395,7 @@ export function PromotionDetailAdminPage() {
             title="Targets de la promocion"
             description="promotion_targets se administra dentro de la ficha para evitar segmentacion ciega."
             actions={
-              <button type="button" onClick={() => openTargetModal()} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={() => openTargetModal()} className="btn btn--secondary btn--sm">
                 Agregar target
               </button>
             }
@@ -410,12 +420,12 @@ export function PromotionDetailAdminPage() {
                   render: (record) => (
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                       {!record.is_locked ? (
-                        <button type="button" onClick={() => openTargetModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                        <button type="button" onClick={() => openTargetModal(record)} className="btn btn--ghost btn--sm">
                           Editar
                         </button>
                       ) : null}
                       {!record.is_locked ? (
-                        <button type="button" onClick={() => handleDeleteTarget(record)} style={{ color: '#b91c1c', fontWeight: 700 }}>
+                        <button type="button" onClick={() => handleDeleteTargetRequested(record)} className="btn btn--ghost btn--sm" style={{ color: 'var(--acme-red)' }}>
                           Eliminar
                         </button>
                       ) : null}
@@ -450,7 +460,7 @@ export function PromotionDetailAdminPage() {
             title="Cupones"
             description="coupons vive dentro de la promocion para mantener consistencia entre campana y codigos."
             actions={
-              <button type="button" onClick={() => openCouponModal()} style={{ padding: '10px 14px' }}>
+              <button type="button" onClick={() => openCouponModal()} className="btn btn--secondary btn--sm">
                 Agregar cupon
               </button>
             }
@@ -492,7 +502,7 @@ export function PromotionDetailAdminPage() {
                   align: 'right',
                   width: '140px',
                   render: (record) => (
-                    <button type="button" onClick={() => openCouponModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                    <button type="button" onClick={() => openCouponModal(record)} className="btn btn--ghost btn--sm">
                       Editar
                     </button>
                   ),
@@ -559,10 +569,10 @@ export function PromotionDetailAdminPage() {
         onClose={() => setPromotionOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setPromotionOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setPromotionOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handlePromotionSave} disabled={mutating || !promotionForm.name} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handlePromotionSave} disabled={mutating || !promotionForm.name} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar promocion'}
             </button>
           </>
@@ -626,10 +636,10 @@ export function PromotionDetailAdminPage() {
         onClose={() => setTargetOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setTargetOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setTargetOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleTargetSave} disabled={mutating || !targetForm.target_type || !(targetForm.target_type === 'merchant' || targetForm.target_id)} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleTargetSave} disabled={mutating || !targetForm.target_type || !(targetForm.target_type === 'merchant' || targetForm.target_id)} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar target'}
             </button>
           </>
@@ -667,10 +677,10 @@ export function PromotionDetailAdminPage() {
         onClose={() => setCouponOpen(false)}
         actions={
           <>
-            <button type="button" onClick={() => setCouponOpen(false)} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={() => setCouponOpen(false)} className="btn btn--secondary">
               Cancelar
             </button>
-            <button type="button" onClick={handleCouponSave} disabled={mutating || !couponForm.code} style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}>
+            <button type="button" onClick={handleCouponSave} disabled={mutating || !couponForm.code} className="btn btn--primary">
               {mutating ? 'Guardando...' : 'Guardar cupon'}
             </button>
           </>
@@ -695,6 +705,16 @@ export function PromotionDetailAdminPage() {
         </div>
         <CheckboxField label="Cupon activo" checked={couponForm.is_active} onChange={(event) => setCouponForm((current) => ({ ...current, is_active: event.target.checked }))} />
       </AdminModalForm>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="¿Eliminar target?"
+        description="Esta acción eliminará la condición de la promoción. Esta acción no se puede deshacer."
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        onConfirm={confirmDeleteTarget}
+        onCancel={() => setDeleteConfirmOpen(false)}
+      />
     </AdminPageFrame>
   );
 }

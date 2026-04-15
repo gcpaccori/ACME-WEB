@@ -146,24 +146,22 @@ function renderAssignmentScopeButtons(params: {
   value: AssignmentScope;
   onChange: (scope: AssignmentScope) => void;
 }) {
-  const buttonStyle = (active: boolean): CSSProperties => ({
-    padding: '10px 12px',
-    borderRadius: '10px',
-    border: `1px solid ${active ? '#111827' : '#d1d5db'}`,
-    background: active ? '#111827' : '#ffffff',
-    color: active ? '#ffffff' : '#374151',
-    fontWeight: 700,
-    cursor: 'pointer',
-  });
-
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '8px' }}>
-      <button type="button" onClick={() => params.onChange('merchant')} style={buttonStyle(params.value === 'merchant')}>
-        Negocio completo
-      </button>
-      <button type="button" onClick={() => params.onChange('branches')} style={buttonStyle(params.value === 'branches')}>
-        Sucursales
-      </button>
+    <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+      <div 
+        className={`scope-card ${params.value === 'merchant' ? 'scope-card--active' : ''}`}
+        style={{ padding: '12px', cursor: 'pointer', textAlign: 'center' }}
+        onClick={() => params.onChange('merchant')}
+      >
+        <div style={{ fontWeight: 700, fontSize: '13px' }}>Todo el Negocio</div>
+      </div>
+      <div 
+        className={`scope-card ${params.value === 'branches' ? 'scope-card--active' : ''}`}
+        style={{ padding: '12px', cursor: 'pointer', textAlign: 'center' }}
+        onClick={() => params.onChange('branches')}
+      >
+        <div style={{ fontWeight: 700, fontSize: '13px' }}>Sedes Específicas</div>
+      </div>
     </div>
   );
 }
@@ -535,14 +533,25 @@ export function PlatformUsersPage() {
         <button
           type="button"
           onClick={openCreateModal}
-          style={{ padding: '12px 18px', borderRadius: '10px', background: '#111827', color: '#ffffff', fontWeight: 700, border: 'none', cursor: 'pointer' }}
+          className="btn btn--primary"
         >
-          + Agregar usuario
+          <PlusIcon /> Agregar usuario
         </button>
       }
     >
-      <SectionCard title="Buscar" description="Filtra por nombre, email, negocio, alcance, rol o sucursal.">
-        <TextField value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar usuario..." />
+      <SectionCard title="Directorio Maestro de Usuarios" description="Administra el personal de todos los comercios, sus alcances de sucursal y roles técnicos de plataforma.">
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--acme-text-faint)', zIndex: 1, pointerEvents: 'none' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Buscar por nombre, email, comercio, sucursal o rol..."
+            className="input-field"
+            style={{ paddingLeft: '48px', width: '100%', border: '1px solid var(--acme-bg-soft)', borderRadius: '12px', padding: '12px 12px 12px 48px' }}
+          />
+        </div>
       </SectionCard>
 
       <FormStatusBar dirty={editDirty || createDirty} saving={saving} error={error} successMessage={successMessage} />
@@ -554,32 +563,44 @@ export function PlatformUsersPage() {
           <AdminDataTable
             rows={filteredRecords}
             getRowId={(record) => record.staff_id}
-            emptyMessage="No hay usuarios asignados a negocios."
+            emptyMessage="No se encontraron usuarios asignados."
             columns={[
               {
                 id: 'user',
-                header: 'Usuario',
+                header: 'Colaborador',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '4px' }}>
-                    <strong>{getUserLabel(record)}</strong>
-                    <span style={{ color: '#6b7280', fontSize: '13px' }}>{record.email || 'Sin email'}</span>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div className="module-icon-box" style={{ 
+                      width: '40px', 
+                      height: '40px', 
+                      borderRadius: '50%', 
+                      background: 'var(--acme-bg-soft)', 
+                      color: 'var(--acme-purple)',
+                      fontWeight: 800,
+                      fontSize: '12px' 
+                    }}>
+                      {(record.full_name || record.email || '?').substring(0, 2).toUpperCase()}
+                    </div>
+                    <div className="module-info">
+                      <strong style={{ fontWeight: 800 }}>{getUserLabel(record)}</strong>
+                      <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>{record.email}</span>
+                    </div>
                   </div>
                 ),
               },
               {
                 id: 'merchant',
-                header: 'Asignacion',
+                header: 'Entidad y Alcance',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <span>{record.merchant_label}</span>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-                      <StatusPill label={record.assignment_scope === 'merchant' ? 'Negocio completo' : 'Sucursales'} tone="neutral" />
-                      <span style={{ color: '#6b7280', fontSize: '13px' }}>
-                        {record.assignment_scope === 'merchant'
-                          ? 'Acceso a todo el negocio'
-                          : record.branch_labels.length > 0
-                            ? record.branch_labels.join(', ')
-                            : 'Sin sucursal'}
+                  <div style={{ display: 'grid', gap: '4px' }}>
+                    <span style={{ fontWeight: 800, fontSize: '13px', color: 'var(--acme-text-muted)' }}>{record.merchant_label}</span>
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                      <StatusPill 
+                        label={record.assignment_scope === 'merchant' ? 'NEGOCIO' : 'SEDES'} 
+                        tone={record.assignment_scope === 'merchant' ? 'info' : 'neutral'} 
+                      />
+                      <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>
+                        {record.assignment_scope === 'merchant' ? 'Acceso Maestro' : record.branch_labels.join(', ')}
                       </span>
                     </div>
                   </div>
@@ -587,19 +608,19 @@ export function PlatformUsersPage() {
               },
               {
                 id: 'role',
-                header: 'Rol operativo',
+                header: 'Rol Op.',
                 render: (record) => (
-                  <StatusPill label={record.staff_role || 'Sin rol'} tone="info" />
+                  <StatusPill label={(record.staff_role || 'STAFF').toUpperCase()} tone="info" />
                 ),
               },
               {
                 id: 'platform_roles',
-                header: 'Roles plataforma',
+                header: 'Permisos Sistema',
                 render: (record) => (
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', maxWidth: '180px' }}>
                     {record.role_labels.length > 0
-                      ? record.role_labels.map((label) => <StatusPill key={label} label={label} tone="neutral" />)
-                      : <span style={{ color: '#9ca3af' }}>Sin roles</span>}
+                      ? record.role_labels.map((label) => <StatusPill key={label} label={label.toUpperCase()} tone="neutral" />)
+                      : <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px', fontStyle: 'italic' }}>Sin roles de sistema</span>}
                   </div>
                 ),
               },
@@ -607,29 +628,41 @@ export function PlatformUsersPage() {
                 id: 'status',
                 header: 'Estado',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <StatusPill label={record.is_active ? 'Activo' : 'Inactivo'} tone={record.is_active ? 'success' : 'danger'} />
-                    {record.must_change_password ? <StatusPill label="Cambio pendiente" tone="warning" /> : null}
-                  </div>
+                   <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                      <StatusPill label={record.is_active ? 'ACTIVO' : 'INACTIVO'} tone={record.is_active ? 'success' : 'danger'} />
+                      {record.must_change_password && <div title="Cambio de clave pendiente" style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--acme-orange)' }} />}
+                   </div>
                 ),
               },
               {
                 id: 'last_login',
-                header: 'Ultimo ingreso',
-                render: (record) => <span style={{ color: '#6b7280', fontSize: '13px' }}>{formatLastLogin(record.last_login_at)}</span>,
+                header: 'Último Acceso',
+                render: (record) => <span style={{ color: 'var(--acme-text-faint)', fontSize: '12px' }}>{formatLastLogin(record.last_login_at)}</span>,
               },
               {
                 id: 'action',
-                header: 'Accion',
+                header: '',
                 align: 'right',
-                width: '150px',
+                width: '140px',
                 render: (record) => (
                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                    <button type="button" onClick={() => openEditDrawer(record)} style={{ color: '#2563eb', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>
-                      Editar
+                    <button 
+                      type="button" 
+                      onClick={() => openEditDrawer(record)} 
+                      className="btn btn--ghost btn--sm" 
+                      style={{ color: 'var(--acme-purple)', padding: '6px' }}
+                      title="Editar usuario"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
-                    <button type="button" onClick={() => handleDelete(record.staff_id)} style={{ color: '#dc2626', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>
-                      Quitar
+                    <button 
+                      type="button" 
+                      onClick={() => handleDelete(record.staff_id)} 
+                      className="btn btn--ghost btn--sm" 
+                      style={{ color: 'var(--acme-red)', padding: '6px' }}
+                      title="Quitar acceso"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                     </button>
                   </div>
                 ),
@@ -642,160 +675,127 @@ export function PlatformUsersPage() {
       {/* --- Create Modal --- */}
       <AdminModalForm
         open={createModalOpen}
-        title="Agregar usuario a negocio"
-        description="Crea o vincula un usuario con contraseña temporal, negocio, sucursales y roles. El usuario debera cambiar su contraseña en el primer acceso."
+        title="Alta de Usuario Institucional"
+        description="Crea una cuenta para personal operativo. Podrás definir su alcance desde el negocio maestro hasta sedes puntuales."
         onClose={closeCreateModal}
         actions={
           <>
-            <button type="button" onClick={closeCreateModal} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={closeCreateModal} className="btn btn--secondary">
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleCreate}
               disabled={!createForm.email || !createForm.password || !createForm.merchantId || saving}
-              style={{
-                padding: '12px 16px',
-                borderRadius: '10px',
-                background: '#111827',
-                color: '#ffffff',
-                border: 'none',
-                fontWeight: 700,
-                cursor: 'pointer',
-                opacity: !createForm.email || !createForm.password || !createForm.merchantId || saving ? 0.65 : 1,
-              }}
+              className="btn btn--primary"
             >
-              {saving ? 'Creando...' : 'Crear usuario'}
+              {saving ? 'Creando...' : 'Finalizar Alta'}
             </button>
           </>
         }
       >
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-          <FieldGroup label="Email" hint="El correo con el que el usuario ingresara y recuperara su contraseña.">
-            <TextField
-              value={createForm.email}
-              onChange={(event) => setCreateForm((c) => ({ ...c, email: event.target.value }))}
-              placeholder="usuario@ejemplo.com"
-            />
-          </FieldGroup>
-          <FieldGroup label="Nombre completo">
-            <TextField
-              value={createForm.fullName}
-              onChange={(event) => setCreateForm((c) => ({ ...c, fullName: event.target.value }))}
-              placeholder="Nombre del usuario"
-            />
-          </FieldGroup>
-          <FieldGroup label="Telefono">
-            <TextField
-              value={createForm.phone}
-              onChange={(event) => setCreateForm((c) => ({ ...c, phone: event.target.value }))}
-              placeholder="Numero de contacto"
-            />
-          </FieldGroup>
-          <FieldGroup label="Contraseña temporal" hint="Minimo 8 caracteres. El usuario debera cambiarla.">
-            <TextField
-              type="password"
-              value={createForm.password}
-              onChange={(event) => setCreateForm((c) => ({ ...c, password: event.target.value }))}
-              placeholder="Contraseña temporal"
-            />
-          </FieldGroup>
-          <FieldGroup label="Negocio">
-            <SelectField
-              value={createForm.merchantId}
-              onChange={(event) => handleCreateMerchantChange(event.target.value)}
-              options={merchantOptions}
-            />
-          </FieldGroup>
-          <FieldGroup label="Alcance de trabajo" hint="Negocio completo para owner/manager; sucursales para equipos operativos.">
+        <div style={{ display: 'grid', gap: '24px' }}>
+          <div className="form-grid">
+            <FieldGroup label="Correo de Acceso" hint="Será su identificador único.">
+              <TextField
+                value={createForm.email}
+                onChange={(event) => setCreateForm((c) => ({ ...c, email: event.target.value }))}
+                placeholder="usuario@acme.pe"
+              />
+            </FieldGroup>
+            <FieldGroup label="Nombre Operativo">
+              <TextField
+                value={createForm.fullName}
+                onChange={(event) => setCreateForm((c) => ({ ...c, fullName: event.target.value }))}
+                placeholder="Nombre y Apellidos"
+              />
+            </FieldGroup>
+          </div>
+
+          <div className="form-grid">
+            <FieldGroup label="Teléfono">
+              <TextField
+                value={createForm.phone}
+                onChange={(event) => setCreateForm((c) => ({ ...c, phone: event.target.value }))}
+                placeholder="+51 ..."
+              />
+            </FieldGroup>
+            <FieldGroup label="Clave Temporal" hint="Mínimo 8 caracteres institucionales.">
+              <TextField
+                type="password"
+                value={createForm.password}
+                onChange={(event) => setCreateForm((c) => ({ ...c, password: event.target.value }))}
+                placeholder="••••••••"
+              />
+            </FieldGroup>
+          </div>
+
+          <div className="form-grid">
+            <FieldGroup label="Negocio Asignado">
+              <SelectField
+                value={createForm.merchantId}
+                onChange={(event) => handleCreateMerchantChange(event.target.value)}
+                options={merchantOptions}
+              />
+            </FieldGroup>
+            <FieldGroup label="Rol Operativo Interno">
+              <SelectField
+                value={createForm.staffRole}
+                onChange={(event) => setCreateForm((c) => ({ ...c, staffRole: event.target.value }))}
+                options={createStaffRoleOptions}
+              />
+            </FieldGroup>
+          </div>
+
+          <FieldGroup label="Alcance de Responsabilidad" hint="Define si el usuario ve todo el negocio o solo sedes específicas.">
             {renderAssignmentScopeButtons({
               value: createForm.assignmentScope,
               onChange: handleCreateScopeChange,
             })}
           </FieldGroup>
-          <FieldGroup label="Rol operativo">
-            <SelectField
-              value={createForm.staffRole}
-              onChange={(event) => setCreateForm((c) => ({ ...c, staffRole: event.target.value }))}
-              options={createStaffRoleOptions}
-            />
-          </FieldGroup>
-          {createForm.assignmentScope === 'branches' ? (
-            <FieldGroup label="Sucursal principal">
-              <SelectField
-                value={createForm.primaryBranchId}
-                onChange={(event) => setCreateForm((c) => ({ ...c, primaryBranchId: event.target.value }))}
-                options={createPrimaryBranchOptions}
-              />
-            </FieldGroup>
-          ) : null}
-        </div>
 
-        {createForm.assignmentScope === 'merchant' ? (
-          <div style={{ padding: '12px 14px', borderRadius: '12px', background: '#f9fafb', border: '1px solid #e5e7eb', color: '#4b5563', fontSize: '13px' }}>
-            Este usuario quedara asignado al negocio completo. No necesita sucursales marcadas para operar en ese alcance.
-          </div>
-        ) : createBranches.length > 0 ? (
-          <div style={{ display: 'grid', gap: '10px' }}>
-            <strong style={{ fontSize: '13px' }}>Sucursales asignadas</strong>
-            <div style={{ display: 'grid', gap: '8px' }}>
-              {createBranches.map((branch) => (
-                <CheckboxField
-                  key={branch.id}
-                  label={branch.name}
-                  checked={createForm.branchIds.includes(branch.id)}
-                  onChange={(event) =>
-                    setCreateForm((current) => {
-                      const nextBranchIds = patchBranchSelection(current.branchIds, branch.id, event.target.checked);
-                      return {
-                        ...current,
-                        branchIds: nextBranchIds,
-                        primaryBranchId: nextBranchIds.includes(current.primaryBranchId) ? current.primaryBranchId : nextBranchIds[0] ?? '',
-                      };
-                    })
-                  }
+          {createForm.assignmentScope === 'branches' && (
+            <div style={{ padding: '20px', background: 'var(--acme-bg-soft)', borderRadius: '14px', border: '1px solid var(--acme-bg-soft)' }}>
+               <FieldGroup label="Sucursal Principal de Reporte" style={{ marginBottom: '16px' }}>
+                <SelectField
+                  value={createForm.primaryBranchId}
+                  onChange={(event) => setCreateForm((c) => ({ ...c, primaryBranchId: event.target.value }))}
+                  options={createPrimaryBranchOptions}
                 />
-              ))}
+              </FieldGroup>
+              
+              <strong style={{ fontSize: '13px', display: 'block', marginBottom: '12px' }}>Todas las sedes autorizadas:</strong>
+              <div className="stat-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+                {createBranches.map((branch) => (
+                  <div 
+                    key={branch.id} 
+                    className="scope-card" 
+                    style={{ padding: '10px 14px', cursor: 'pointer', borderColor: createForm.branchIds.includes(branch.id) ? 'var(--acme-purple)' : undefined }}
+                    onClick={() => {
+                      const isChecked = createForm.branchIds.includes(branch.id);
+                      const nextIds = patchBranchSelection(createForm.branchIds, branch.id, !isChecked);
+                      setCreateForm(c => ({
+                        ...c,
+                        branchIds: nextIds,
+                        primaryBranchId: nextIds.includes(c.primaryBranchId) ? c.primaryBranchId : nextIds[0] ?? ''
+                      }));
+                    }}
+                  >
+                    <CheckboxField label={branch.name} checked={createForm.branchIds.includes(branch.id)} onChange={() => {}} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: 'grid', gap: '12px' }}>
+            <div className="scope-card" style={{ padding: '16px', background: createForm.isActive ? 'rgba(34, 197, 94, 0.05)' : undefined, cursor: 'pointer' }} onClick={() => setCreateForm(c => ({...c, isActive: !c.isActive}))}>
+              <CheckboxField label="Usuario Habilitado para Ingresar" checked={createForm.isActive} onChange={() => {}} />
+            </div>
+            <div className="scope-card" style={{ padding: '16px', background: createForm.mustChangePassword ? 'rgba(234, 179, 8, 0.05)' : undefined, cursor: 'pointer' }} onClick={() => setCreateForm(c => ({...c, mustChangePassword: !c.mustChangePassword}))}>
+              <CheckboxField label="Forzar Cambio de Clave en Primer Login" checked={createForm.mustChangePassword} onChange={() => {}} />
             </div>
           </div>
-        ) : createForm.merchantId ? (
-          <div style={{ color: '#6b7280', fontSize: '13px' }}>Este negocio no tiene sucursales registradas.</div>
-        ) : null}
-
-        <div style={{ display: 'grid', gap: '10px' }}>
-          <strong style={{ fontSize: '13px' }}>Permisos globales de plataforma (Opcional)</strong>
-          <div style={{ display: 'grid', gap: '8px' }}>
-            {roles
-              .filter((r) => ['admin', 'super_admin'].includes(r.code))
-              .map((role) => (
-                <CheckboxField
-                  key={role.id}
-                  label={`${role.name} (${role.code})`}
-                  checked={createForm.roleIds.includes(role.id)}
-                  onChange={(event) =>
-                    setCreateForm((c) => ({
-                      ...c,
-                      roleIds: event.target.checked
-                        ? Array.from(new Set([...c.roleIds, role.id]))
-                        : c.roleIds.filter((id) => id !== role.id),
-                    }))
-                  }
-                />
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gap: '10px' }}>
-          <CheckboxField
-            label="Usuario activo"
-            checked={createForm.isActive}
-            onChange={(event) => setCreateForm((c) => ({ ...c, isActive: event.target.checked }))}
-          />
-          <CheckboxField
-            label="Forzar cambio de contraseña en el primer ingreso"
-            checked={createForm.mustChangePassword}
-            onChange={(event) => setCreateForm((c) => ({ ...c, mustChangePassword: event.target.checked }))}
-          />
         </div>
       </AdminModalForm>
 
@@ -950,23 +950,14 @@ export function PlatformUsersPage() {
             />
 
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', paddingTop: '8px' }}>
-              <button type="button" onClick={() => setDrawerOpen(false)} style={{ padding: '12px 16px', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setDrawerOpen(false)} className="btn btn--secondary">
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={handleSaveEdit}
                 disabled={!editDirty || saving}
-                style={{
-                  padding: '12px 16px',
-                  background: '#111827',
-                  color: '#ffffff',
-                  borderRadius: '10px',
-                  border: 'none',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  opacity: !editDirty || saving ? 0.65 : 1,
-                }}
+                className="btn btn--primary"
               >
                 {saving ? 'Guardando...' : 'Guardar cambios'}
               </button>
@@ -976,4 +967,8 @@ export function PlatformUsersPage() {
       </AdminDrawer>
     </AdminPageFrame>
   );
+}
+
+function PlusIcon() {
+  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
 }

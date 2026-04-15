@@ -3,103 +3,148 @@ import { PortalContext } from '../../../modules/auth/session/PortalContext';
 import { ordersService } from '../../../core/services';
 import { OrderSummary } from '../../../core/types';
 import { LoadingScreen } from '../../../components/shared/LoadingScreen';
+import { toast } from '../../../core/utils/toast';
+
+const STATUS_LABEL: Record<string, string> = {
+  new: 'Nuevo',
+  accepted: 'Aceptado',
+  preparing: 'En preparación',
+  ready: 'Listo',
+};
 
 export function DashboardPage() {
   const portal = useContext(PortalContext);
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const load = async () => {
-      if (!portal.currentBranch) {
-        return;
-      }
-      setLoading(true);
-      const result = await ordersService.fetchOrders(portal.currentBranch.id, ['new', 'accepted', 'preparing', 'ready']);
-      setLoading(false);
-      if (result.error) {
-        setError(result.error.message);
-        return;
-      }
-      setOrders(result.data ?? []);
-    };
+  const load = async () => {
+    if (!portal.currentBranch) return;
+    setLoading(true);
+    const result = await ordersService.fetchOrders(portal.currentBranch.id, ['new', 'accepted', 'preparing', 'ready']);
+    setLoading(false);
+    if (result.error) {
+      toast.error('Error al cargar pedidos', result.error.message);
+      return;
+    }
+    setOrders(result.data ?? []);
+  };
 
-    load();
-  }, [portal.currentBranch]);
+  useEffect(() => { load(); }, [portal.currentBranch]);
 
   const summary = useMemo(() => {
-    const counts = {
-      new: 0,
-      accepted: 0,
-      preparing: 0,
-      ready: 0,
-    } as Record<string, number>;
-
-    orders.forEach((order) => {
-      counts[order.status] = (counts[order.status] ?? 0) + 1;
-    });
-
+    const counts = { new: 0, accepted: 0, preparing: 0, ready: 0 } as Record<string, number>;
+    orders.forEach((o) => { counts[o.status] = (counts[o.status] ?? 0) + 1; });
     return counts;
   }, [orders]);
 
   if (!portal.currentBranch) {
-    return <div>Selecciona una sucursal con acceso para ver el dashboard.</div>;
+    return (
+      <div className="empty-state">
+        <div className="empty-state__icon"><BranchIcon /></div>
+        <p className="empty-state__title">Sin sucursal seleccionada</p>
+        <p className="empty-state__desc">Selecciona una sucursal desde la barra superior para ver el dashboard operativo.</p>
+      </div>
+    );
   }
 
   return (
-    <div style={{ display: 'grid', gap: '32px' }}>
-      <div style={{ display: 'grid', gap: '8px' }}>
-        <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 800 }}>Dashboard</h1>
-        <p style={{ margin: 0, color: 'var(--acme-text-muted)', fontSize: '15px' }}>
-          Resumen operativo de la sucursal <span style={{ color: 'var(--acme-purple)', fontWeight: 700 }}>{portal.currentBranch.name}</span>
-        </p>
-      </div>
-
-      <div style={{ display: 'grid', gap: '20px', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
-        <div style={{ padding: '24px', background: 'var(--acme-surface)', borderRadius: 'var(--acme-radius-lg)', border: '1px solid var(--acme-border)', boxShadow: 'var(--acme-shadow-sm)' }}>
-          <div style={{ color: 'var(--acme-text-muted)', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Pedidos nuevos</div>
-          <div style={{ marginTop: '12px', fontSize: '32px', fontWeight: 800, color: 'var(--acme-purple)' }}>{summary.new}</div>
+    <div>
+      {/* Page header */}
+      <div className="page-header">
+        <div className="page-header__text">
+          <span className="page-header__eyebrow">
+            <DotIcon /> Operaciones en vivo
+          </span>
+          <h1 className="page-header__title">Dashboard</h1>
+          <p className="page-header__desc">
+            Vista general de <strong style={{ color: 'var(--acme-purple)', fontWeight: 800 }}>{portal.currentBranch.name}</strong> en tiempo real.
+          </p>
         </div>
-        <div style={{ padding: '24px', background: 'var(--acme-surface)', borderRadius: 'var(--acme-radius-lg)', border: '1px solid var(--acme-border)', boxShadow: 'var(--acme-shadow-sm)' }}>
-          <div style={{ color: 'var(--acme-text-muted)', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>En preparación</div>
-          <div style={{ marginTop: '12px', fontSize: '32px', fontWeight: 800, color: 'var(--acme-orange)' }}>{summary.preparing}</div>
-        </div>
-        <div style={{ padding: '24px', background: 'var(--acme-surface)', borderRadius: 'var(--acme-radius-lg)', border: '1px solid var(--acme-border)', boxShadow: 'var(--acme-shadow-sm)' }}>
-          <div style={{ color: 'var(--acme-text-muted)', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Listos para entrega</div>
-          <div style={{ marginTop: '12px', fontSize: '32px', fontWeight: 800, color: '#10b981' }}>{summary.ready}</div>
+        <div className="page-header__actions">
+          <button className="btn btn--secondary btn--sm" onClick={load} disabled={loading}>
+            <RefreshIcon /> {loading ? 'Cargando...' : 'Actualizar'}
+          </button>
         </div>
       </div>
 
-      <div style={{ padding: '28px', background: 'var(--acme-surface)', borderRadius: 'var(--acme-radius-lg)', border: '1px solid var(--acme-border)', boxShadow: 'var(--acme-shadow-md)' }}>
-        <h2 style={{ margin: '0 0 24px', fontSize: '18px', fontWeight: 700 }}>Pedidos recientes</h2>
+      {/* Stat cards */}
+      <div className="stat-grid">
+        <StatCard
+          label="Pedidos nuevos"
+          value={summary.new}
+          foot="Pendientes de aceptar"
+          iconColor="purple"
+          icon={<ShoppingBagIcon />}
+          delay={0}
+        />
+        <StatCard
+          label="Aceptados"
+          value={summary.accepted}
+          foot="Confirmados por el local"
+          iconColor="blue"
+          icon={<CheckCircleIcon />}
+          delay={60}
+        />
+        <StatCard
+          label="En preparación"
+          value={summary.preparing}
+          foot="En cocina ahora mismo"
+          iconColor="orange"
+          icon={<CookingIcon />}
+          delay={120}
+        />
+        <StatCard
+          label="Listos"
+          value={summary.ready}
+          foot="Esperando al repartidor"
+          iconColor="green"
+          icon={<PackageCheckIcon />}
+          delay={180}
+        />
+      </div>
+
+      {/* Recent orders */}
+      <div className="section-card">
+        <div className="section-card__header">
+          <div>
+            <h2 className="section-card__title">Pedidos en curso</h2>
+            <p className="section-card__subtitle">Actividad activa de la sucursal</p>
+          </div>
+          {orders.length > 0 && (
+            <span className="status-badge status-badge--new">
+              <span className="status-badge__dot" />
+              {orders.length} activos
+            </span>
+          )}
+        </div>
+
         {loading ? (
           <LoadingScreen />
-        ) : error ? (
-          <div style={{ color: '#ef4444', padding: '16px', borderRadius: '12px', background: '#fef2f2', border: '1px solid #fee2e2' }}>{error}</div>
         ) : orders.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--acme-text-muted)' }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px' }}>📦</div>
-            No hay pedidos recientes para esta sucursal.
+          <div className="empty-state" style={{ padding: '40px 20px' }}>
+            <div className="empty-state__icon"><PackageCheckIcon /></div>
+            <p className="empty-state__title">Sin pedidos activos</p>
+            <p className="empty-state__desc">No hay pedidos en curso para esta sucursal en este momento.</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '12px' }}>
-            {orders.slice(0, 5).map((order) => (
-              <div key={order.id} style={{ padding: '16px', borderRadius: '12px', background: 'var(--acme-surface-muted)', border: '1px solid var(--acme-border)', transition: 'transform 0.2s ease', cursor: 'pointer' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--acme-white)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', border: '1px solid var(--acme-border)' }}>
-                      👤
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: '15px' }}>{order.customer_name || 'Cliente'}</div>
-                      <div style={{ color: 'var(--acme-text-muted)', fontSize: '13px', textTransform: 'capitalize' }}>{order.status}</div>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--acme-purple)' }}>${order.total.toFixed(2)}</div>
-                    <div style={{ color: 'var(--acme-text-muted)', fontSize: '11px' }}>Hace un momento</div>
-                  </div>
+          <div className="data-list">
+            {orders.slice(0, 8).map((order, i) => (
+              <div key={order.id} className="data-item" style={{ animationDelay: `${i * 40}ms` }}>
+                <div className="data-item__icon" style={{ background: 'var(--acme-purple-light)', color: 'var(--acme-purple)' }}>
+                  <UserIcon />
+                </div>
+                <div className="data-item__body">
+                  <div className="data-item__title">{order.customer_name || 'Cliente'}</div>
+                  <div className="data-item__sub">#{order.id.slice(-8).toUpperCase()}</div>
+                </div>
+                <div className="data-item__end">
+                  <span className={`status-badge status-badge--${order.status}`}>
+                    <span className="status-badge__dot" />
+                    {STATUS_LABEL[order.status] ?? order.status}
+                  </span>
+                  <span style={{ fontSize: '15px', fontWeight: 900, color: 'var(--acme-purple)', minWidth: '72px', textAlign: 'right', letterSpacing: '-0.02em' }}>
+                    S/ {order.total.toFixed(2)}
+                  </span>
                 </div>
               </div>
             ))}
@@ -108,4 +153,51 @@ export function DashboardPage() {
       </div>
     </div>
   );
+}
+
+/* ——— Sub-component ——— */
+function StatCard({ label, value, foot, iconColor, icon, delay }: {
+  label: string;
+  value: number;
+  foot: string;
+  iconColor: 'purple' | 'blue' | 'orange' | 'green';
+  icon: React.ReactNode;
+  delay: number;
+}) {
+  return (
+    <div className="stat-card" style={{ animationDelay: `${delay}ms` }}>
+      <div className="stat-card__header">
+        <span className="stat-card__label">{label}</span>
+        <div className={`stat-card__icon stat-card__icon--${iconColor}`}>{icon}</div>
+      </div>
+      <div className={`stat-card__value stat-card__value--${iconColor}`}>{value}</div>
+      <div className="stat-card__foot">{foot}</div>
+    </div>
+  );
+}
+
+/* ——— Icons ——— */
+function DotIcon() {
+  return <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--acme-green)', display: 'inline-block', boxShadow: '0 0 0 2px rgba(16,185,129,0.25)' }} />;
+}
+function ShoppingBagIcon() {
+  return <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>;
+}
+function CheckCircleIcon() {
+  return <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+}
+function CookingIcon() {
+  return <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 6a6 6 0 0 1 6 6"/><path d="M12 10a2 2 0 0 1 2 2"/><path d="M2 12a10 10 0 0 0 10 10"/></svg>;
+}
+function PackageCheckIcon() {
+  return <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16.5 9.4l-9-5.19"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>;
+}
+function UserIcon() {
+  return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+}
+function BranchIcon() {
+  return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+}
+function RefreshIcon() {
+  return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>;
 }

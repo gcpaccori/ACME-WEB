@@ -156,25 +156,39 @@ export function BranchOperationalMenuPage() {
         { label: 'Modo', value: 'Operacion del menu', tone: 'warning' },
       ]}
     >
-      <SectionCard title="Lectura operativa" description="La sucursal opera products y product_branch_settings como una sola vista util, no como tablas sueltas.">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
+      <SectionCard title="Lectura operativa" description="Resumen consolidado del inventario activo y disponible para venta inmediata.">
+        <div className="stat-grid">
           {[
-            { label: 'Productos', value: String(summary.total) },
-            { label: 'Activos', value: String(summary.active) },
-            { label: 'Disponibles', value: String(summary.available) },
-            { label: 'Pausados', value: String(summary.paused) },
-            { label: 'Inactivos', value: String(summary.inactive) },
+            { label: 'Total productos', value: String(summary.total), color: 'var(--acme-purple)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> },
+            { label: 'Activos (Ficha)', value: String(summary.active), color: 'var(--acme-green)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
+            { label: 'En vitrina', value: String(summary.available), color: 'var(--acme-blue)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> },
+            { label: 'Pausas activas', value: String(summary.paused), color: 'var(--acme-red)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg> },
+            { label: 'Sin visibilidad', value: String(summary.inactive), color: 'var(--acme-text-muted)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> },
           ].map((item) => (
-            <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-              <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
-              <strong>{item.value}</strong>
+            <div key={item.label} className="stat-card">
+              <div className="stat-card__badge" style={{ background: item.color }} />
+              <div className="stat-card__header">
+                <span className="stat-card__label">{item.label}</span>
+                <div className="stat-card__icon-box">{item.icon}</div>
+              </div>
+              <strong className="stat-card__value">{item.value}</strong>
             </div>
           ))}
         </div>
       </SectionCard>
 
-      <SectionCard title="Buscar producto" description="Filtra por producto, categoria o motivo de pausa para operar rapido durante el turno.">
-        <TextField value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar producto..." />
+      <SectionCard title="Filtrado rápido" description="Busca por nombre, categoría o motivo para gestionar la disponibilidad durante el turno.">
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--acme-text-faint)', zIndex: 1, pointerEvents: 'none' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <TextField 
+            value={query} 
+            onChange={(event) => setQuery(event.target.value)} 
+            placeholder="Escribe el nombre de un plato, categoría o motivo..." 
+            style={{ paddingLeft: '48px' }}
+          />
+        </div>
       </SectionCard>
 
       <FormStatusBar dirty={false} saving={saving} error={error} successMessage={successMessage} />
@@ -186,55 +200,68 @@ export function BranchOperationalMenuPage() {
           <AdminDataTable
             rows={filteredRows}
             getRowId={(record) => record.id}
-            emptyMessage="No hay productos visibles para esta sucursal."
+            emptyMessage="No se encontraron productos con el filtro aplicado."
             columns={[
               {
                 id: 'product',
-                header: 'Producto',
+                header: 'Producto / Categoría',
                 render: (record) => (
-                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                     <div style={productThumbStyle(record.image_url)} />
-                    <div style={{ display: 'grid', gap: '6px' }}>
-                      <strong>{record.name}</strong>
-                      <span style={{ color: '#6b7280' }}>{record.category_name}</span>
+                    <div className="module-info">
+                      <strong style={{ fontWeight: 800 }}>{record.name}</strong>
+                      <span style={{ color: 'var(--acme-text-faint)', fontSize: '12px' }}>{record.category_name}</span>
                     </div>
                   </div>
                 ),
               },
               {
                 id: 'price',
-                header: 'Precio',
-                render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <span>Base: {formatMoney(record.base_price)}</span>
-                    <span style={{ color: '#6b7280' }}>Sucursal: {formatMoney(record.branch_price)}</span>
-                  </div>
-                ),
+                header: 'Precio Operativo',
+                render: (record) => {
+                  const hasOverride = record.branch_price !== record.base_price;
+                  return (
+                    <div style={{ display: 'grid', gap: '2px' }}>
+                      <span style={{ fontWeight: 700, color: hasOverride ? 'var(--acme-purple)' : 'inherit' }}>
+                        {formatMoney(record.branch_price)}
+                      </span>
+                      {hasOverride && (
+                        <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px', textDecoration: 'line-through' }}>
+                          Base: {formatMoney(record.base_price)}
+                        </span>
+                      )}
+                    </div>
+                  );
+                },
               },
               {
                 id: 'state',
-                header: 'Estado',
+                header: 'Disponibilidad',
                 render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <StatusPill label={record.is_active ? 'Activo' : 'Inactivo'} tone={record.is_active ? 'success' : 'danger'} />
-                    <StatusPill label={record.is_available ? 'Disponible' : 'No disponible'} tone={record.is_available ? 'info' : 'warning'} />
-                    {record.is_paused ? <StatusPill label="Pausado" tone="warning" /> : null}
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    <StatusPill label={record.is_available ? 'VITRINA' : 'OCULTO'} tone={record.is_available ? 'info' : 'neutral'} />
+                    {record.is_paused && <StatusPill label="PAUSADO" tone="danger" />}
+                    {!record.is_active && <StatusPill label="INACTIVO" tone="danger" />}
                   </div>
                 ),
               },
               {
                 id: 'pause_reason',
-                header: 'Motivo',
-                render: (record) => record.pause_reason || 'Sin pausa',
+                header: 'Nota Operativa',
+                render: (record) => (
+                  <span style={{ fontSize: '13px', color: record.is_paused ? 'var(--acme-red)' : 'var(--acme-text-muted)' }}>
+                    {record.pause_reason || 'Sin observaciones'}
+                  </span>
+                ),
               },
               {
                 id: 'action',
-                header: 'Accion',
+                header: '',
                 align: 'right',
-                width: '160px',
+                width: '140px',
                 render: (record) => (
-                  <button type="button" onClick={() => handleOpenModal(record)} style={{ color: '#2563eb', fontWeight: 700 }}>
-                    Configurar
+                  <button type="button" onClick={() => handleOpenModal(record)} className="btn btn--sm btn--ghost" style={{ color: 'var(--acme-purple)' }}>
+                    Ajustar
                   </button>
                 ),
               },
@@ -250,71 +277,83 @@ export function BranchOperationalMenuPage() {
         onClose={handleCloseModal}
         actions={
           <>
-            <button type="button" onClick={handleCloseModal} style={{ padding: '12px 16px' }}>
+            <button type="button" onClick={handleCloseModal} className="btn btn--secondary">
               Cancelar
             </button>
             <button
               type="button"
               onClick={handleSave}
               disabled={saving || !dirty}
-              style={{ padding: '12px 16px', borderRadius: '10px', background: '#111827', color: '#ffffff' }}
+              className="btn btn--primary"
             >
-              {saving ? 'Guardando...' : 'Guardar configuracion'}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              {saving ? 'Guardando...' : 'Guardar cambios'}
             </button>
           </>
         }
       >
         {selectedRecord ? (
-          <>
+          <div style={{ display: 'grid', gap: '24px' }}>
             <FormStatusBar dirty={dirty} saving={saving} error={error} successMessage={null} />
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-                <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '13px' }}>Producto</div>
-                  <strong>{selectedRecord.name}</strong>
-                  <div style={{ color: '#6b7280', marginTop: '8px' }}>{selectedRecord.category_name}</div>
+            
+            <div className="stat-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+              <div className="stat-card">
+                <div className="stat-card__badge" style={{ background: 'var(--acme-purple)' }} />
+                <div className="stat-card__header">
+                  <span className="stat-card__label">Producto Seleccionado</span>
+                  <div style={productThumbStyle(selectedRecord.image_url)} />
                 </div>
-                <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '13px' }}>Imagen</div>
-                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '10px' }}>
-                    <div style={productThumbStyle(selectedRecord.image_url)} />
-                    <div style={{ color: '#6b7280', fontSize: '13px' }}>
-                      {selectedRecord.image_url ? 'Este plato ya tiene imagen asociada.' : 'Este plato no tiene imagen cargada.'}
-                    </div>
+                <strong className="stat-card__value" style={{ fontSize: '18px', marginTop: '12px' }}>{selectedRecord.name}</strong>
+                <p className="stat-card__help">{selectedRecord.category_name}</p>
+              </div>
+              <div className="stat-card">
+                <div className="stat-card__badge" style={{ background: 'var(--acme-text-muted)' }} />
+                <div className="stat-card__header">
+                  <span className="stat-card__label">Precio Base Global</span>
+                  <div className="stat-card__icon-box">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                   </div>
                 </div>
-                <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '13px' }}>Precio base</div>
-                  <strong>{formatMoney(selectedRecord.base_price)}</strong>
-                <div style={{ color: '#6b7280', marginTop: '8px' }}>Puedes dejar el override vacio para usar el precio global.</div>
+                <strong className="stat-card__value" style={{ fontSize: '24px', marginTop: '12px' }}>{formatMoney(selectedRecord.base_price)}</strong>
+                <p className="stat-card__help">Precio de referencia</p>
               </div>
             </div>
-            <FieldGroup label="Precio operativo">
-              <NumberField
-                value={form.price_override}
-                onChange={(event) => setForm((current) => ({ ...current, price_override: event.target.value }))}
-                placeholder={String(selectedRecord.base_price)}
-              />
-            </FieldGroup>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-              <CheckboxField
-                label="Producto disponible en sucursal"
-                checked={form.is_available}
-                onChange={(event) => setForm((current) => ({ ...current, is_available: event.target.checked }))}
-              />
-              <CheckboxField
-                label="Producto pausado temporalmente"
-                checked={form.is_paused}
-                onChange={(event) => setForm((current) => ({ ...current, is_paused: event.target.checked }))}
-              />
+
+            <div className="form-grid">
+              <FieldGroup label="Precio Operativo (Sucursal)" hint="Este precio anula el global solo para este local.">
+                <NumberField
+                  value={form.price_override}
+                  onChange={(event) => setForm((current) => ({ ...current, price_override: event.target.value }))}
+                  placeholder={String(selectedRecord.base_price)}
+                />
+              </FieldGroup>
             </div>
-            <FieldGroup label="Motivo de pausa">
+
+            <div className="stat-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+              <div className="scope-card" style={{ cursor: 'pointer', padding: '16px' }} onClick={() => setForm(c => ({...c, is_available: !c.is_available}))}>
+                <CheckboxField
+                  label="Mostrar en carta"
+                  checked={form.is_available}
+                  onChange={() => {}}
+                />
+              </div>
+              <div className="scope-card" style={{ cursor: 'pointer', padding: '16px' }} onClick={() => setForm(c => ({...c, is_paused: !c.is_paused}))}>
+                <CheckboxField
+                  label="Pausar temporalmente"
+                  checked={form.is_paused}
+                  onChange={() => {}}
+                />
+              </div>
+            </div>
+
+            <FieldGroup label="Motivo de pausa / Nota interna" hint="Explica al equipo por qué no se puede vender este plato.">
               <TextAreaField
                 value={form.pause_reason}
                 onChange={(event) => setForm((current) => ({ ...current, pause_reason: event.target.value }))}
                 placeholder="Ejemplo: Sin insumo, cocina detenida, stock parcial."
               />
             </FieldGroup>
-          </>
+          </div>
         ) : null}
       </AdminModalForm>
     </AdminPageFrame>

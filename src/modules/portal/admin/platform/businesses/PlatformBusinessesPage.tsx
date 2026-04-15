@@ -74,85 +74,126 @@ export function PlatformBusinessesPage() {
         { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
         { label: 'Actor', value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }), tone: 'info' },
         { label: 'Entidad', value: 'Merchants', tone: 'warning' },
-        { label: 'Modo', value: 'Supervision', tone: 'warning' },
+        { label: 'Modo', value: 'Plataforma', tone: 'warning' },
       ]}
     >
-      <SectionCard title="Buscar negocio" description="Filtra por nombre, responsable, estado o contacto.">
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Buscar comercio..."
-          style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', border: '1px solid #d1d5db' }}
-        />
-      </SectionCard>
+      {loading ? (
+        <LoadingScreen />
+      ) : error ? (
+        <div style={{ color: 'var(--acme-red)', padding: '20px' }}>{error}</div>
+      ) : (
+        <>
+          <SectionCard title="Cifras de Plataforma" description="Consolidado global de la red de negocios y su actividad operativa actual.">
+            <div className="stat-grid">
+              {[
+                { label: 'Total Negocios', value: String(records.length), color: 'var(--acme-purple)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
+                { label: 'Sucursales Activas', value: String(records.reduce((sum, r) => sum + r.active_branches_count, 0)), color: 'var(--acme-green)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="4" y="2" width="16" height="20" rx="2" /><line d="M9 22 9 2M15 22 15 2M4 14 20 14" /></svg> },
+                { label: 'Pedidos Totales', value: String(records.reduce((sum, r) => sum + r.orders_count, 0)), color: 'var(--acme-blue)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg> },
+                { label: 'Promociones', value: String(records.reduce((sum, r) => sum + r.promotions_count, 0)), color: 'var(--acme-purple)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg> },
+              ].map((item) => (
+                <div key={item.label} className="stat-card">
+                  <div className="stat-card__badge" style={{ background: item.color }} />
+                  <div className="stat-card__header">
+                    <span className="stat-card__label">{item.label}</span>
+                    <div className="stat-card__icon-box">{item.icon}</div>
+                  </div>
+                  <strong className="stat-card__value">{item.value}</strong>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
 
-      <SectionCard title="Negocios registrados" description="Esta vista es la entrada del admin general para supervisar negocios completos, no solo un comercio actual.">
-        {loading ? (
-          <LoadingScreen />
-        ) : error ? (
-          <div style={{ color: '#b91c1c' }}>{error}</div>
-        ) : (
-          <AdminDataTable
-            rows={filteredRecords}
-            getRowId={(record) => record.id}
-            emptyMessage="No hay comercios registrados."
-            columns={[
-              {
-                id: 'merchant',
-                header: 'Comercio',
-                render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <strong>{record.trade_name || 'Sin nombre comercial'}</strong>
-                    <span style={{ color: '#6b7280' }}>{record.legal_name || 'Sin razon social'}</span>
-                    <span style={{ color: '#6b7280' }}>{record.owner_label}</span>
-                  </div>
-                ),
-              },
-              {
-                id: 'operations',
-                header: 'Operacion',
-                render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <span>{record.branches_count} sucursales / {record.active_branches_count} abiertas</span>
-                    <span style={{ color: '#6b7280' }}>{record.orders_count} pedidos / {record.active_orders_count} activos</span>
-                  </div>
-                ),
-              },
-              {
-                id: 'growth',
-                header: 'Equipo y promos',
-                render: (record) => (
-                  <div style={{ display: 'grid', gap: '6px' }}>
-                    <span>{record.staff_count} personas</span>
-                    <span style={{ color: '#6b7280' }}>{record.promotions_count} promociones activas</span>
-                  </div>
-                ),
-              },
-              {
-                id: 'status',
-                header: 'Estado',
-                render: (record) => <StatusPill label={record.status || 'sin estado'} tone={getStatusTone(record.status)} />,
-              },
-              {
-                id: 'created',
-                header: 'Alta',
-                render: (record) => formatDateTime(record.created_at),
-              },
-              {
-                id: 'action',
-                header: 'Accion',
-                align: 'right',
-                width: '170px',
-                render: (record) => (
-                  <Link to={AppRoutes.portal.admin.platformBusinessDetail.replace(':merchantId', record.id)} style={{ color: '#2563eb', fontWeight: 700 }}>
-                    Abrir comercio
-                  </Link>
-                ),
-              },
-            ]}
-          />
-        )}
-      </SectionCard>
+          <SectionCard title="Búsqueda Avanzada" description="Localiza rápidamente una entidad por nombre comercial, razón social o responsable.">
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--acme-text-faint)', zIndex: 1, pointerEvents: 'none' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Escribe el nombre del comercio, responsable o correo..."
+                className="input-field"
+                style={{ paddingLeft: '48px', width: '100%', border: '1px solid var(--acme-bg-soft)', borderRadius: '12px', padding: '12px 12px 12px 48px' }}
+              />
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Padrón de Negocios" description="Gestión centralizada de comercios. El estado 'Draft' o 'Pending' indica negocios en proceso de onboarding.">
+            <AdminDataTable
+              rows={filteredRecords}
+              getRowId={(record) => record.id}
+              emptyMessage="No hay comercios que coincidan con los criterios de búsqueda."
+              columns={[
+                {
+                  id: 'merchant',
+                  header: 'Negocio / Responsable',
+                  render: (record) => (
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                      <div className="module-icon-box" style={{ width: '44px', height: '44px', background: 'var(--acme-bg-soft)', color: 'var(--acme-purple)' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M3 7l9-4 9 4v14H3V7zm4 14V11h3v10m4 0V11h3v10"/></svg>
+                      </div>
+                      <div className="module-info">
+                        <strong style={{ fontWeight: 800 }}>{record.trade_name || record.legal_name || 'Negocio sin Nombre'}</strong>
+                        <span style={{ color: 'var(--acme-text-faint)', fontSize: '12px' }}>{record.owner_label}</span>
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  id: 'operations',
+                  header: 'Infraestructura',
+                  render: (record) => (
+                    <div style={{ display: 'grid', gap: '2px' }}>
+                      <span style={{ fontWeight: 600, fontSize: '13px' }}>{record.branches_count} Sedes ({record.active_branches_count} ON)</span>
+                      <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>{record.orders_count} Pedidos registrados</span>
+                    </div>
+                  ),
+                },
+                {
+                  id: 'growth',
+                  header: 'Capital Humano',
+                  render: (record) => (
+                    <div style={{ display: 'grid', gap: '2px' }}>
+                      <span style={{ fontWeight: 600, fontSize: '13px' }}>{record.staff_count} Colaboradores</span>
+                      <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>{record.promotions_count} Promociones activas</span>
+                    </div>
+                  ),
+                },
+                {
+                  id: 'status',
+                  header: 'Estado',
+                  render: (record) => (
+                    <StatusPill label={record.status.toUpperCase()} tone={getStatusTone(record.status)} />
+                  ),
+                },
+                {
+                  id: 'created',
+                  header: 'Registro',
+                  width: '120px',
+                  render: (record) => (
+                    <span style={{ fontSize: '12px', color: 'var(--acme-text-faint)' }}>{formatDateTime(record.created_at)}</span>
+                  ),
+                },
+                {
+                  id: 'action',
+                  header: '',
+                  align: 'right',
+                  width: '160px',
+                  render: (record) => (
+                    <Link 
+                      to={AppRoutes.portal.admin.platformBusinessDetail.replace(':merchantId', record.id)} 
+                      className="btn btn--sm btn--ghost" 
+                      style={{ color: 'var(--acme-purple)', fontWeight: 700 }}
+                    >
+                      Ver Detalles
+                    </Link>
+                  ),
+                },
+              ]}
+            />
+          </SectionCard>
+        </>
+      )}
     </AdminPageFrame>
   );
 }
