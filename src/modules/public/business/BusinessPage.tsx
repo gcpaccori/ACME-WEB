@@ -413,7 +413,7 @@ export function BusinessPage() {
         <section style={{ background: '#4d148c', padding: '160px 24px 110px', position: 'relative', overflow: 'hidden' }}>
           {[
             { w: 420, h: 420, top: -100, right: -80, color: 'rgba(167,139,250,0.14)', delay: '0s' },
-            { w: 300, h: 300, bottom: -100, left: -60, color: 'rgba(255,98,0,0.1)', delay: '5s' },
+            { w: 300, h: 300, bottom: 100, left: -60, color: 'rgba(255,98,0,0.1)', delay: '5s' },
             { w: 200, h: 200, top: '38%', left: '45%', color: 'rgba(139,92,246,0.16)', delay: '9s' },
           ].map((blob, index) => (
             <div key={index} style={{ position: 'absolute', width: blob.w, height: blob.h, top: blob.top as any, right: blob.right as any, bottom: blob.bottom as any, left: blob.left as any, background: blob.color, borderRadius: '50%', filter: 'blur(64px)', animation: `floatBlob 14s ease-in-out ${blob.delay} infinite`, pointerEvents: 'none' }} />

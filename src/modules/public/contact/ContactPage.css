@@ -17,7 +17,7 @@
 
 /* ── HERO ── */
 .contact-hero {
-  background: linear-gradient(135deg, var(--purple) 0%, #2d0a6b 100%);
+  background: #4d148c;
   padding: 140px 5% 90px;
   position: relative;
   overflow: hidden;

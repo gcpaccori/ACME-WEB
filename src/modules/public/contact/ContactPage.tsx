@@ -74,7 +74,7 @@ function IconFacebook() {
 
 function HeroWave() {
   return (
-    <div style={{ background: '#2d0a6b', lineHeight: 0, fontSize: 0, overflow: 'hidden' }}>
+    <div style={{ background: '#4d148c', lineHeight: 0, fontSize: 0, overflow: 'hidden' }}>
       <svg viewBox="0 0 1440 70" preserveAspectRatio="none"
         style={{ display: 'block', width: '100%', height: 60, verticalAlign: 'bottom' }}>
         <path d="M0,35 C180,70 360,0 540,35 C720,70 900,0 1080,35 C1260,70 1380,15 1440,35 L1440,90 L0,90 Z" fill="#f8f9fa" />
