@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import ScrollToTop from '../components/ScrollToTop';
 import { PublicLayout, PortalLayout } from '../layouts';
 import { LoginPage } from '../../modules/auth/login/LoginPage';
 import { FirstAccessPasswordPage } from '../../modules/auth/first-access/FirstAccessPasswordPage';
@@ -54,7 +55,9 @@ import { BranchOperationalMenuPage } from '../../modules/portal/admin/branch/Bra
 
 export function AppRouter() {
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<HomePage />} />
         <Route path="como-funciona" element={<AboutPage />} />
@@ -121,5 +124,6 @@ export function AppRouter() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }

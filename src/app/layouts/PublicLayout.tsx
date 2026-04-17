@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { AppRoutes } from '../../core/constants/routes';
-import headerLogo from '../../images/logo/logo-acme.jpeg';
-import footerLogo from '../../images/logo/logo-acme.png';
+import headerLogo from '../../images/logo/acme-pedidos-off.png';
+import footerLogo from '../../images/logo/acme-white.png';
 import { usePublicStore } from '../../modules/public/store/PublicStoreContext';
 
 function isActive(pathname: string, route: string) {
@@ -13,6 +13,11 @@ export function PublicLayout() {
   const location = useLocation();
   const publicStore = usePublicStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openFooterSec, setOpenFooterSec] = useState<Record<string, boolean>>({});
+
+  const toggleFooterSec = (sec: string) => {
+    setOpenFooterSec(prev => ({ ...prev, [sec]: !prev[sec] }));
+  };
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -133,6 +138,21 @@ export function PublicLayout() {
           font-size: 1.05rem;
           margin: 0 0 16px;
           color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+        }
+
+        .acme-footer-col-btn {
+          display: none;
+          background: none;
+          border: none;
+          color: inherit;
+          padding: 0;
+          cursor: pointer;
+          width: 100%;
+          text-align: inherit;
         }
 
         .acme-footer-socials {
@@ -252,12 +272,13 @@ export function PublicLayout() {
           height: 100vh;
           background: #fff;
           z-index: 999;
-          box-shadow: -12px 0 40px rgba(0,0,0,0.15);
+          box-shadow: -15px 0 50px rgba(0,0,0,0.12);
           display: flex;
           flex-direction: column;
           transform: translateX(100%);
-          transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
+          transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
           overflow: hidden;
+          border-radius: 32px 0 0 0;
         }
         .acme-mobile-drawer.open { transform: translateX(0); }
 
@@ -335,6 +356,32 @@ export function PublicLayout() {
           .acme-footer-socials { justify-content: center; }
           .acme-footer-links { align-items: center; }
           .acme-footer-logo { justify-content: center; display: flex; }
+          
+          /* Footer Accordion Mobile Styling */
+          .acme-footer-col-btn { display: flex !important; }
+          .acme-footer-links {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, margin 0.3s ease;
+            gap: 4px;
+            margin-top: 0;
+            width: 100%;
+          }
+          .acme-footer-links.is-open {
+            max-height: 400px;
+            margin-top: 10px;
+          }
+          .acme-footer-col-title {
+            padding: 12px 0;
+            margin-bottom: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+          }
+          .acme-footer-col-arrow {
+            transition: transform 0.3s ease;
+          }
+          .acme-footer-col-arrow.is-open {
+            transform: rotate(180deg);
+          }
         }
 
         @media (max-width: 640px) {
@@ -402,7 +449,7 @@ export function PublicLayout() {
             </svg>
             {publicStore.sessionUser ? 'Mi cuenta' : 'Ingreso'}
           </Link>
-          
+
           <Link to={AppRoutes.public.portalLogin} className="acme-nav-link acme-nav-portal">
             Portal para locales
           </Link>
@@ -424,23 +471,62 @@ export function PublicLayout() {
           <button className="acme-mobile-drawer-close" onClick={() => setIsMenuOpen(false)} aria-label="Cerrar menú">✕</button>
         </div>
         <div className="acme-mobile-drawer-content">
-          <Link to={AppRoutes.public.home} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.home) ? ' active' : ''}`}>🏠 Inicio</Link>
-          <Link to={AppRoutes.public.howItWorks} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.howItWorks) ? ' active' : ''}`}>❓ Como funciona</Link>
-          <Link to={AppRoutes.public.marketplace} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.marketplace) ? ' active' : ''}`}>🛒 Pide ahora</Link>
-          <Link to={AppRoutes.public.businesses} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.businesses) ? ' active' : ''}`}>🏪 Para negocios</Link>
-          <Link to={AppRoutes.public.hazteDriver} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.hazteDriver) ? ' active' : ''}`}>🛵 HAZTE DRIVER</Link>
-          <Link to={AppRoutes.public.contact} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.contact) ? ' active' : ''}`}>📩 Contacto</Link>
-          <div className="acme-mobile-divider" />
+          <Link to={AppRoutes.public.home} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.home) ? ' active' : ''}`}>Inicio</Link>
+          <Link to={AppRoutes.public.howItWorks} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.howItWorks) ? ' active' : ''}`}>Como funciona</Link>
+          <Link to={AppRoutes.public.marketplace} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.marketplace) ? ' active' : ''}`}>Pide ahora</Link>
+          <Link to={AppRoutes.public.businesses} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.businesses) ? ' active' : ''}`}>Para negocios</Link>
+          <Link to={AppRoutes.public.hazteDriver} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.hazteDriver) ? ' active' : ''}`}>HAZTE DRIVER</Link>
+          <Link to={AppRoutes.public.contact} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.contact) ? ' active' : ''}`}>Contacto</Link>
+          
           <Link to={AppRoutes.public.account} className={`acme-mobile-nav-link${isActive(location.pathname, AppRoutes.public.account) ? ' active' : ''}`}>
-            👤 {publicStore.sessionUser ? 'Mi cuenta' : 'Ingreso'}
+            {publicStore.sessionUser ? 'Mi cuenta' : 'Ingreso'}
           </Link>
           <Link
             to={AppRoutes.public.portalLogin}
             className="acme-mobile-nav-link"
-            style={{ background: '#ff6200', color: '#fff', textAlign: 'center', marginTop: '4px', borderRadius: '14px' }}
+            style={{ 
+              background: '#ff6200', 
+              color: '#fff', 
+              textAlign: 'center', 
+              marginTop: '4px', 
+              borderRadius: '14px',
+              width: 'fit-content',
+              padding: '10px 24px'
+            }}
           >
             Portal para locales
           </Link>
+
+          <div className="acme-mobile-divider" style={{ margin: '6px 0' }} />
+
+          {/* Botones de Descarga en Menú Móvil */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '0 8px' }}>
+            <Link to={AppRoutes.public.marketplace} style={{
+              display: 'flex', alignItems: 'center', gap: '12px', background: '#000000', color: '#ffffff',
+              padding: '10px 18px', borderRadius: '16px', textDecoration: 'none', width: 'fit-content'
+            }}>
+              <svg width="22" height="22" viewBox="0 0 512 512" fill="currentColor">
+                <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z" />
+              </svg>
+              <div>
+                <div style={{ fontSize: '8px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Disponible en</div>
+                <div style={{ fontSize: '14px', fontWeight: 700 }}>Google Play</div>
+              </div>
+            </Link>
+
+            <Link to={AppRoutes.public.marketplace} style={{
+              display: 'flex', alignItems: 'center', gap: '12px', background: '#000000', color: '#ffffff',
+              padding: '10px 18px', borderRadius: '16px', textDecoration: 'none', width: 'fit-content'
+            }}>
+              <svg width="22" height="22" viewBox="0 0 384 512" fill="currentColor">
+                <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+              </svg>
+              <div>
+                <div style={{ fontSize: '8px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Consíguelo en el</div>
+                <div style={{ fontSize: '14px', fontWeight: 700 }}>App Store</div>
+              </div>
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -471,8 +557,17 @@ export function PublicLayout() {
             </div>
 
             <div>
-              <h4 className="acme-footer-col-title">Explora</h4>
-              <div className="acme-footer-links">
+              <button className="acme-footer-col-btn" onClick={() => toggleFooterSec('explora')}>
+                <h4 className="acme-footer-col-title">
+                  Explora
+                  <span className={`acme-footer-col-arrow${openFooterSec['explora'] ? ' is-open' : ''}`}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </span>
+                </h4>
+              </button>
+              <div className={`acme-footer-links${openFooterSec['explora'] ? ' is-open' : ''}`}>
                 <Link to={AppRoutes.public.home} className="acme-footer-link">Inicio</Link>
                 <Link to={AppRoutes.public.howItWorks} className="acme-footer-link">Como funciona</Link>
                 <Link to={AppRoutes.public.marketplace} className="acme-footer-link">Pide ahora</Link>
@@ -481,8 +576,17 @@ export function PublicLayout() {
             </div>
 
             <div>
-              <h4 className="acme-footer-col-title">Accesos</h4>
-              <div className="acme-footer-links">
+              <button className="acme-footer-col-btn" onClick={() => toggleFooterSec('accesos')}>
+                <h4 className="acme-footer-col-title">
+                  Accesos
+                  <span className={`acme-footer-col-arrow${openFooterSec['accesos'] ? ' is-open' : ''}`}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </span>
+                </h4>
+              </button>
+              <div className={`acme-footer-links${openFooterSec['accesos'] ? ' is-open' : ''}`}>
                 <Link to={AppRoutes.public.hazteDriver} className="acme-footer-link">HAZTE DRIVER</Link>
                 <Link to={AppRoutes.public.contact} className="acme-footer-link">Contacto</Link>
                 <Link to={AppRoutes.public.cart} className="acme-footer-link">Carrito</Link>

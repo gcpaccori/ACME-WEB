@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { publicBusinessService } from '../../../core/services/publicBusinessService';
 import { PortalContext } from '../../auth/session/PortalContext';
 import { AppRoutes } from '../../../core/constants/routes';
+import localLeftImg from '../../../images/local-izquierda.png';
+import localRightImg from '../../../images/local-derecha.png';
 
 interface FormData {
   email: string;
@@ -243,7 +245,7 @@ export function BusinessPage() {
         navigate(AppRoutes.portal.dashboard);
         return;
       }
-      
+
       // If logged in but no business, pre-fill owner data and auto-open if intended
       if (portal.profile && !formData.ownerName) {
         setFormData(prev => ({
@@ -283,7 +285,7 @@ export function BusinessPage() {
       if (step === 0) return Boolean(formData.businessName.trim() && formData.branchName.trim());
       return Boolean(formData.address.trim() && formData.phone.trim());
     }
-    
+
     if (step === 0) return Boolean(formData.ownerName.trim() && validateEmail(formData.email) && !emailError && formData.password.length >= 6);
     if (step === 1) return Boolean(formData.businessName.trim() && formData.branchName.trim());
     return Boolean(formData.address.trim() && formData.phone.trim());
@@ -400,14 +402,36 @@ export function BusinessPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap');
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes floatBlob { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(28px,-18px) scale(1.04); } 66% { transform: translate(-18px,14px) scale(0.97); } }
-        @keyframes modalIn { from { opacity: 0; transform: scale(.94) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .business-hero-btn:hover { transform: translateY(-2px); }
-        .feature-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(124,58,237,.1) !important; }
-      `}</style>
+          @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;700&display=swap');
+          @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes floatBlob { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(28px,-18px) scale(1.04); } 66% { transform: translate(-18px,14px) scale(0.97); } }
+          @keyframes modalIn { from { opacity: 0; transform: scale(.94) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+          @keyframes spin { to { transform: rotate(360deg); } }
+          .business-hero-btn:hover { transform: translateY(-2px); }
+          .feature-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(124,58,237,.1) !important; }
+          
+          @media (max-width: 1200px) {
+            .business-hero__side-img { display: none !important; }
+          }
+          
+          .business-hero__side-img {
+            position: absolute;
+            bottom: 20px;
+            z-index: 2;
+            width: 680px;
+            height: auto;
+            pointer-events: none;
+            animation: fadeUp 1s ease both;
+          }
+          
+          .business-hero__side-img--left {
+            left: -190px;
+          }
+          
+          .business-hero__side-img--right {
+            right: -190px;
+          }
+        `}</style>
 
       <div style={{ background: '#faf8ff', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
         <section style={{ background: '#4d148c', padding: '160px 24px 110px', position: 'relative', overflow: 'hidden' }}>
@@ -418,6 +442,9 @@ export function BusinessPage() {
           ].map((blob, index) => (
             <div key={index} style={{ position: 'absolute', width: blob.w, height: blob.h, top: blob.top as any, right: blob.right as any, bottom: blob.bottom as any, left: blob.left as any, background: blob.color, borderRadius: '50%', filter: 'blur(64px)', animation: `floatBlob 14s ease-in-out ${blob.delay} infinite`, pointerEvents: 'none' }} />
           ))}
+
+          <img src={localLeftImg} alt="" className="business-hero__side-img business-hero__side-img--left" />
+          <img src={localRightImg} alt="" className="business-hero__side-img business-hero__side-img--right" />
 
           <div style={{ maxWidth: 820, margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 100, padding: '6px 18px', marginBottom: 28, color: 'rgba(255,255,255,0.88)', fontSize: '0.8rem', fontWeight: 600, animation: 'fadeUp .6s ease both' }}>
@@ -527,7 +554,7 @@ export function BusinessPage() {
                   <>
                     <div style={{ marginBottom: 18 }}>
                       <h3 style={{ margin: '0 0 4px', fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: '1.05rem', color: '#18181b' }}>
-                        {portal.sessionUserId 
+                        {portal.sessionUserId
                           ? ['Tu negocio', 'Donde encontrarte'][step]
                           : ['Crea tu cuenta', 'Tu negocio', 'Donde encontrarte'][step]
                         }

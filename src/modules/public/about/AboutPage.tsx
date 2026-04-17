@@ -1,13 +1,14 @@
 import './AboutPage.css';
 import { Link } from 'react-router-dom';
 import { AppRoutes } from '../../../core/constants/routes';
+import packageImg from '../../../images/package.png';
 
 // ── ICONS ────────────────────────────────────────────────────────────────────
 
 function IconSearch() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
   );
 }
@@ -15,8 +16,8 @@ function IconSearch() {
 function IconCart() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+      <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
     </svg>
   );
 }
@@ -24,9 +25,9 @@ function IconCart() {
 function IconTruck() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1" y="3" width="15" height="13" rx="1"/>
-      <path d="M16 8h4l3 5v3h-7V8z"/>
-      <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+      <rect x="1" y="3" width="15" height="13" rx="1" />
+      <path d="M16 8h4l3 5v3h-7V8z" />
+      <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
     </svg>
   );
 }
@@ -34,7 +35,7 @@ function IconTruck() {
 function IconStar2() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   );
 }
@@ -42,8 +43,8 @@ function IconStar2() {
 function IconGlobe() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/>
-      <path d="M2 12h20M12 2c-2.5 3-4 5.5-4 10s1.5 7 4 10M12 2c2.5 3 4 5.5 4 10s-1.5 7-4 10"/>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20M12 2c-2.5 3-4 5.5-4 10s1.5 7 4 10M12 2c2.5 3 4 5.5 4 10s-1.5 7-4 10" />
     </svg>
   );
 }
@@ -51,8 +52,8 @@ function IconGlobe() {
 function IconLock() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
     </svg>
   );
 }
@@ -60,7 +61,7 @@ function IconLock() {
 function IconCheck() {
   return (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12"/>
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   );
 }
@@ -68,7 +69,7 @@ function IconCheck() {
 function IconRealtime() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
     </svg>
   );
 }
@@ -76,7 +77,7 @@ function IconRealtime() {
 function IconMenu() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+      <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
     </svg>
   );
 }
@@ -84,7 +85,7 @@ function IconMenu() {
 function IconMap() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
     </svg>
   );
 }
@@ -92,7 +93,7 @@ function IconMap() {
 function IconBell() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
     </svg>
   );
 }
@@ -100,7 +101,7 @@ function IconBell() {
 function IconShield() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
   );
 }
@@ -108,7 +109,7 @@ function IconShield() {
 function IconBarChart() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+      <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
     </svg>
   );
 }
@@ -116,7 +117,7 @@ function IconBarChart() {
 function IconPhone() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
+      <rect x="5" y="2" width="14" height="20" rx="2" ry="2" /><line x1="12" y1="18" x2="12.01" y2="18" />
     </svg>
   );
 }
@@ -145,33 +146,41 @@ export function AboutPage() {
 
       {/* ── HERO ── */}
       <section className="about-hero">
-        <div className="about-hero__eyebrow about-animate">
-          <div className="about-hero__eyebrow-dot" />
-          Plataforma ACME Pedidos
-        </div>
-        <h1 className="about-animate delay-1">
-          Cómo funciona <span>ACME</span>
-        </h1>
-        <p className="about-hero__lead about-animate delay-2">
-          Un ecosistema completo que conecta clientes, negocios y repartidores en tiempo real. Descubre cómo cada pieza encaja para ofrecerte la mejor experiencia de delivery en Huancavelica.
-        </p>
+        <div className="about-hero__container">
+          <div className="about-hero__text">
+            <div className="about-hero__eyebrow about-animate">
+              <div className="about-hero__eyebrow-dot" />
+              Plataforma ACME Pedidos
+            </div>
+            <h1 className="about-animate delay-1">
+              Cómo funciona <span>ACME</span> PEDIDOS
+            </h1>
+            <p className="about-hero__lead about-animate delay-2">
+              Un ecosistema completo que conecta clientes, negocios y repartidores en tiempo real. Descubre cómo cada pieza encaja para ofrecerte la mejor experiencia de delivery en Huancavelica.
+            </p>
 
-        <div className="about-hero-stats about-animate delay-3">
-          <div className="about-hero-stat">
-            <span className="about-hero-stat__num">3</span>
-            <span className="about-hero-stat__label">Tipos de usuario</span>
+            <div className="about-hero-stats about-animate delay-3">
+              <div className="about-hero-stat">
+                <span className="about-hero-stat__num">3</span>
+                <span className="about-hero-stat__label">Tipos de usuario</span>
+              </div>
+              <div className="about-hero-stat">
+                <span className="about-hero-stat__num">∞</span>
+                <span className="about-hero-stat__label">Pedidos en tiempo real</span>
+              </div>
+              <div className="about-hero-stat">
+                <span className="about-hero-stat__num">24h</span>
+                <span className="about-hero-stat__label">Soporte disponible</span>
+              </div>
+              <div className="about-hero-stat">
+                <span className="about-hero-stat__num">100%</span>
+                <span className="about-hero-stat__label">Control por local</span>
+              </div>
+            </div>
           </div>
-          <div className="about-hero-stat">
-            <span className="about-hero-stat__num">∞</span>
-            <span className="about-hero-stat__label">Pedidos en tiempo real</span>
-          </div>
-          <div className="about-hero-stat">
-            <span className="about-hero-stat__num">24h</span>
-            <span className="about-hero-stat__label">Soporte disponible</span>
-          </div>
-          <div className="about-hero-stat">
-            <span className="about-hero-stat__num">100%</span>
-            <span className="about-hero-stat__label">Control por local</span>
+
+          <div className="about-hero__image about-animate delay-2">
+            <img src={packageImg} alt="ACME Package" />
           </div>
         </div>
       </section>
