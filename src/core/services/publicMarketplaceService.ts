@@ -147,40 +147,87 @@ export const publicMarketplaceService = {
     const addressMap = new Map<string, any>(((addressesResult.data ?? []) as any[]).map((row) => [stringOrEmpty(row.id), row]));
     const branchStatusMap = new Map<string, any>(((branchStatusResult.data ?? []) as any[]).map((row) => [stringOrEmpty(row.branch_id), row]));
     const modifierOptionRows = (modifierOptionsResult.data ?? []) as any[];
-    const modifierGroupMap = new Map<
-      string,
-      {
-        id: string;
-        merchant_id: string;
-        name: string;
-        min_select: number;
-        max_select: number;
-        is_required: boolean;
-        options: PublicMarketplaceModifierOption[];
-      }
-    >(
-      ((modifierGroupsResult.data ?? []) as any[]).map((row) => [
-        stringOrEmpty(row.id),
-        {
-          id: stringOrEmpty(row.id),
-          merchant_id: stringOrEmpty(row.merchant_id),
-          name: stringOrEmpty(row.name),
-          min_select: numberOrZero(row.min_select),
-          max_select: numberOrZero(row.max_select),
-          is_required: Boolean(row.is_required ?? false),
-          options: modifierOptionRows
-            .filter((option) => stringOrEmpty(option.group_id) === stringOrEmpty(row.id))
-            .map((option) => ({
-              id: stringOrEmpty(option.id),
-              name: stringOrEmpty(option.name),
-              price_delta: numberOrZero(option.price_delta),
-            })),
-        },
-      ])
+
+    // Index modifier options by group
+    const optionsByGroup = new Map<string, PublicMarketplaceModifierOption[]>();
+    modifierOptionRows.forEach((opt) => {
+      const gid = stringOrEmpty(opt.group_id);
+      if (!optionsByGroup.has(gid)) optionsByGroup.set(gid, []);
+      optionsByGroup.get(gid)!.push({
+        id: stringOrEmpty(opt.id),
+        name: stringOrEmpty(opt.name),
+        price_delta: numberOrZero(opt.price_delta),
+      });
+    });
+
+    const modifierGroupMap = new Map<string, PublicMarketplaceModifierGroup>(
+      ((modifierGroupsResult.data ?? []) as any[]).map((row) => {
+        const gid = stringOrEmpty(row.id);
+        return [
+          gid,
+          {
+            id: gid,
+            merchant_id: stringOrEmpty(row.merchant_id),
+            name: stringOrEmpty(row.name),
+            min_select: numberOrZero(row.min_select),
+            max_select: numberOrZero(row.max_select),
+            is_required: Boolean(row.is_required ?? false),
+            options: optionsByGroup.get(gid) ?? [],
+          },
+        ];
+      })
     );
 
     const productSettingsRows = (settingsResult.data ?? []) as any[];
     const productModifierRows = (productGroupsResult.data ?? []) as any[];
+
+    // Index settings by product
+    const settingsByProduct = new Map<string, PublicMarketplaceProductSetting[]>();
+    productSettingsRows.forEach((s) => {
+      const pid = stringOrEmpty(s.product_id);
+      if (!settingsByProduct.has(pid)) settingsByProduct.set(pid, []);
+      settingsByProduct.get(pid)!.push({
+        branch_id: stringOrEmpty(s.branch_id),
+        price: numberOrZero(s.price_override),
+        is_available: Boolean(s.is_available ?? true),
+        is_paused: Boolean(s.is_paused ?? false),
+        stock_qty: s.stock_qty == null ? null : numberOrZero(s.stock_qty),
+      });
+    });
+
+    // Index modifier groups by product
+    const groupsByProduct = new Map<string, PublicMarketplaceModifierGroup[]>();
+    productModifierRows.forEach((pm) => {
+      const pid = stringOrEmpty(pm.product_id);
+      const group = modifierGroupMap.get(stringOrEmpty(pm.group_id));
+      if (group) {
+        if (!groupsByProduct.has(pid)) groupsByProduct.set(pid, []);
+        groupsByProduct.get(pid)!.push(group);
+      }
+    });
+
+    // Index everything by merchant
+    const branchesByMerchant = new Map<string, any[]>();
+    ((branchesResult.data ?? []) as any[]).forEach((b) => {
+      const mid = stringOrEmpty(b.merchant_id);
+      if (!branchesByMerchant.has(mid)) branchesByMerchant.set(mid, []);
+      branchesByMerchant.get(mid)!.push(b);
+    });
+
+    const categoriesByMerchant = new Map<string, any[]>();
+    ((categoriesResult.data ?? []) as any[]).forEach((c) => {
+      const mid = stringOrEmpty(c.merchant_id);
+      if (!categoriesByMerchant.has(mid)) categoriesByMerchant.set(mid, []);
+      categoriesByMerchant.get(mid)!.push(c);
+    });
+
+    const productsByMerchant = new Map<string, any[]>();
+    ((productsResult.data ?? []) as any[]).forEach((p) => {
+      const mid = stringOrEmpty(p.merchant_id);
+      if (!productsByMerchant.has(mid)) productsByMerchant.set(mid, []);
+      productsByMerchant.get(mid)!.push(p);
+    });
+
     const payment_methods: PublicMarketplacePaymentMethod[] = ((paymentMethodsResult.data ?? []) as any[]).map((row) => ({
       id: stringOrEmpty(row.id),
       code: stringOrEmpty(row.code),
@@ -192,30 +239,28 @@ export const publicMarketplaceService = {
       .filter((merchant) => stringOrEmpty(merchant.status) !== 'inactive')
       .map((merchant) => {
         const merchantId = stringOrEmpty(merchant.id);
-        const branches: PublicMarketplaceBranch[] = ((branchesResult.data ?? []) as any[])
-          .filter((branch) => stringOrEmpty(branch.merchant_id) === merchantId)
-          .map((branch) => {
-            const branchId = stringOrEmpty(branch.id);
-            const branchAddress = addressMap.get(stringOrEmpty(branch.address_id));
-            const branchStatus = branchStatusMap.get(branchId);
-            return {
-              id: branchId,
-              merchant_id: merchantId,
-              name: stringOrEmpty(branch.name),
-              phone: stringOrEmpty(branch.phone),
-              prep_time_avg_min: numberOrZero(branch.prep_time_avg_min),
-              accepts_orders: Boolean(branch.accepts_orders ?? false),
-              address_label: stringOrEmpty(branchAddress?.line1),
-              district: stringOrEmpty(branchAddress?.district),
-              city: stringOrEmpty(branchAddress?.city),
-              is_open: Boolean(branchStatus?.is_open ?? false),
-              accepting_orders: Boolean(branchStatus?.accepting_orders ?? branch.accepts_orders ?? false),
-              status_code: stringOrEmpty(branchStatus?.status_code || branch.status || 'active'),
-            };
-          });
 
-        const categories: PublicMarketplaceCategory[] = ((categoriesResult.data ?? []) as any[])
-          .filter((category) => stringOrEmpty(category.merchant_id) === merchantId)
+        const branches: PublicMarketplaceBranch[] = (branchesByMerchant.get(merchantId) ?? []).map((branch) => {
+          const branchId = stringOrEmpty(branch.id);
+          const branchAddress = addressMap.get(stringOrEmpty(branch.address_id));
+          const branchStatus = branchStatusMap.get(branchId);
+          return {
+            id: branchId,
+            merchant_id: merchantId,
+            name: stringOrEmpty(branch.name),
+            phone: stringOrEmpty(branch.phone),
+            prep_time_avg_min: numberOrZero(branch.prep_time_avg_min),
+            accepts_orders: Boolean(branch.accepts_orders ?? false),
+            address_label: stringOrEmpty(branchAddress?.line1),
+            district: stringOrEmpty(branchAddress?.district),
+            city: stringOrEmpty(branchAddress?.city),
+            is_open: Boolean(branchStatus?.is_open ?? false),
+            accepting_orders: Boolean(branchStatus?.accepting_orders ?? branch.accepts_orders ?? false),
+            status_code: stringOrEmpty(branchStatus?.status_code || branch.status || 'active'),
+          };
+        });
+
+        const categories: PublicMarketplaceCategory[] = (categoriesByMerchant.get(merchantId) ?? [])
           .map((category) => ({
             id: stringOrEmpty(category.id),
             name: stringOrEmpty(category.name),
@@ -223,31 +268,28 @@ export const publicMarketplaceService = {
           }))
           .sort((left, right) => left.sort_order - right.sort_order || left.name.localeCompare(right.name));
 
-        const products: PublicMarketplaceProduct[] = ((productsResult.data ?? []) as any[])
-          .filter((product) => stringOrEmpty(product.merchant_id) === merchantId)
-          .map((product) => ({
-            id: stringOrEmpty(product.id),
-            merchant_id: merchantId,
-            category_id: stringOrEmpty(product.category_id),
-            name: stringOrEmpty(product.name),
-            description: stringOrEmpty(product.description),
-            base_price: numberOrZero(product.base_price),
-            image_url: stringOrEmpty(product.image_url),
-            sort_order: numberOrZero(product.sort_order),
-            settings: productSettingsRows
-              .filter((setting) => stringOrEmpty(setting.product_id) === stringOrEmpty(product.id))
-              .map((setting) => ({
-                branch_id: stringOrEmpty(setting.branch_id),
-                price: numberOrZero(setting.price_override) || numberOrZero(product.base_price),
-                is_available: Boolean(setting.is_available ?? true),
-                is_paused: Boolean(setting.is_paused ?? false),
-                stock_qty: setting.stock_qty == null ? null : numberOrZero(setting.stock_qty),
-              })),
-            modifier_groups: productModifierRows
-              .filter((row) => stringOrEmpty(row.product_id) === stringOrEmpty(product.id))
-              .map((row) => modifierGroupMap.get(stringOrEmpty(row.group_id)))
-              .filter(Boolean) as PublicMarketplaceModifierGroup[],
-          }))
+        const products: PublicMarketplaceProduct[] = (productsByMerchant.get(merchantId) ?? [])
+          .map((product) => {
+            const pid = stringOrEmpty(product.id);
+            const basePrice = numberOrZero(product.base_price);
+            const settings = (settingsByProduct.get(pid) ?? []).map((s) => ({
+              ...s,
+              price: s.price || basePrice,
+            }));
+
+            return {
+              id: pid,
+              merchant_id: merchantId,
+              category_id: stringOrEmpty(product.category_id),
+              name: stringOrEmpty(product.name),
+              description: stringOrEmpty(product.description),
+              base_price: basePrice,
+              image_url: stringOrEmpty(product.image_url),
+              sort_order: numberOrZero(product.sort_order),
+              settings,
+              modifier_groups: groupsByProduct.get(pid) ?? [],
+            };
+          })
           .sort((left, right) => left.sort_order - right.sort_order || left.name.localeCompare(right.name));
 
         return {
