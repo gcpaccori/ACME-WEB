@@ -69,7 +69,7 @@ async function ensureBusinessProfile(userId: string, draft: PendingBusinessRegis
     full_name: draft.ownerName,
     email: draft.email,
     phone: nullableString(draft.phone),
-    default_role: 'owner',
+    default_role: 'merchant_staff',
     is_active: false,
   };
 
