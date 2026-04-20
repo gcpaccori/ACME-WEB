@@ -277,7 +277,7 @@ async function ensureProfile(adminClient: ReturnType<typeof createClient>, param
         user_id: params.userId,
         email: params.email,
         full_name: nullableString(params.fullName),
-        default_role: 'owner',
+        default_role: 'merchant_staff',
         is_active: params.isActive,
         updated_at: now,
       },
