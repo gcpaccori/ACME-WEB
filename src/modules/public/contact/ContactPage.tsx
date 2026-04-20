@@ -1,4 +1,5 @@
 import './ContactPage.css';
+import contactoImg from '../../../images/contacto.png';
 
 // ── ICONS ────────────────────────────────────────────────────────────────────
 
@@ -126,6 +127,10 @@ export function ContactPage() {
               <span className="contact-chip__value">Lun–Sáb 9:00–18:00</span>
             </div>
           </div>
+        </div>
+
+        <div className="contact-hero__img-wrapper">
+          <img src={contactoImg} alt="Contacto ACME" className="contact-hero__main-img" />
         </div>
       </section>
 
