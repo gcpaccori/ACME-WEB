@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { LoadingScreen } from '../../../components/shared/LoadingScreen';
+import { resolvePortalLandingRoute } from '../../../core/auth/portalLanding';
 import { AppRoutes } from '../../../core/constants/routes';
 import { PortalContext } from '../session/PortalContext';
 
@@ -8,6 +9,7 @@ export function PrivateRoute() {
   const portal = useContext(PortalContext);
   const location = useLocation();
   const isFirstAccessRoute = location.pathname === AppRoutes.portal.firstAccess;
+  const landingRoute = resolvePortalLandingRoute(portal);
 
   if (portal.isLoading) {
     return <LoadingScreen message="Validando sesion..." />;
@@ -22,7 +24,7 @@ export function PrivateRoute() {
   }
 
   if (!portal.mustChangePassword && isFirstAccessRoute) {
-    return <Navigate to={AppRoutes.portal.dashboard} replace />;
+    return <Navigate to={landingRoute} replace />;
   }
 
   if (!portal.isAccountActive) {

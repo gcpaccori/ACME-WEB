@@ -1,6 +1,7 @@
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppRoutes } from '../../../core/constants/routes';
+import { resolvePortalLandingRoute } from '../../../core/auth/portalLanding';
 import { PortalContext } from '../session/PortalContext';
 import { authService } from '../../../core/services/authService';
 import { supabase } from '../../../integrations/supabase/client';
@@ -18,9 +19,10 @@ export function LoginPage() {
   const [recoverySent, setRecoverySent] = useState(false);
 
   const [searchParams] = useSearchParams();
+  const defaultPortalRoute = resolvePortalLandingRoute(portal);
 
   useEffect(() => {
-    const redirectTo = searchParams.get('redirect') || AppRoutes.portal.dashboard;
+    const redirectTo = searchParams.get('redirect') || defaultPortalRoute;
 
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -33,7 +35,7 @@ export function LoginPage() {
     });
 
     return () => listener.subscription?.unsubscribe();
-  }, [navigate, searchParams]);
+  }, [defaultPortalRoute, navigate, searchParams]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -49,7 +51,7 @@ export function LoginPage() {
         return;
       }
 
-      const redirectTo = searchParams.get('redirect') || AppRoutes.portal.dashboard;
+      const redirectTo = searchParams.get('redirect') || defaultPortalRoute;
       navigate(redirectTo);
       return;
     }
@@ -57,7 +59,7 @@ export function LoginPage() {
     const { error } = await supabase.auth.signInWithOtp({ 
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}${searchParams.get('redirect') || AppRoutes.portal.dashboard}`
+        emailRedirectTo: `${window.location.origin}${searchParams.get('redirect') || defaultPortalRoute}`
       }
     });
     setLoading(false);

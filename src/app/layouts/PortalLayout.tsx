@@ -1,5 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { resolvePortalLandingRoute } from '../../core/auth/portalLanding';
 import { canAccessAdminModule, getScopeLabel } from '../../core/auth/portalAccess';
 import { getEnabledAdminModules } from '../../core/admin/registry/moduleRegistry';
 import { AppRoutes } from '../../core/constants/routes';
@@ -35,6 +36,10 @@ export function PortalLayout() {
           }).filter((module) => canAccessAdminModule(module.id, portal.permissions)),
     [portal.currentScopeType, portal.currentMerchant, portal.currentBranch, portal.permissions, portal.mustChangePassword, portal.isAccountActive]
   );
+  const landingRoute = useMemo(
+    () => resolvePortalLandingRoute(portal),
+    [portal.currentScopeType, portal.currentMerchant, portal.currentBranch, portal.permissions]
+  );
 
   const isBusinessScope = portal.currentScopeType === 'business';
   const isBranchScope = portal.currentScopeType === 'branch';
@@ -44,15 +49,20 @@ export function PortalLayout() {
   const needsBranchSelection = isBranchScope && !!portal.currentMerchant && !portal.currentBranch && portal.branches.length > 0;
 
   useEffect(() => {
+    if (location.pathname === AppRoutes.portal.dashboard && landingRoute !== AppRoutes.portal.dashboard) {
+      navigate(landingRoute, { replace: true });
+      return;
+    }
+
     if (!location.pathname.startsWith(AppRoutes.portal.admin.root) || location.pathname === AppRoutes.portal.admin.root) {
       return;
     }
 
     const isAllowed = enabledModules.some((module) => location.pathname === module.route || location.pathname.startsWith(`${module.route}/`));
     if (!isAllowed) {
-      navigate(AppRoutes.portal.admin.root, { replace: true });
+      navigate(landingRoute, { replace: true });
     }
-  }, [enabledModules, location.pathname, navigate]);
+  }, [enabledModules, landingRoute, location.pathname, navigate]);
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
   const closeSidebar = () => setSidebarOpen(false);

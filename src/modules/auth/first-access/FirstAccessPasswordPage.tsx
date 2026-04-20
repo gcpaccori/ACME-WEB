@@ -1,8 +1,8 @@
 import { FormEvent, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SectionCard, StatusPill } from '../../../components/admin/AdminScaffold';
+import { resolvePortalLandingRoute } from '../../../core/auth/portalLanding';
 import { TextField } from '../../../components/ui/TextField';
-import { AppRoutes } from '../../../core/constants/routes';
 import { merchantAccessService } from '../../../core/services/merchantAccessService';
 import { PortalContext } from '../session/PortalContext';
 
@@ -47,7 +47,7 @@ export function FirstAccessPasswordPage() {
 
     setSuccessMessage('Contraseña actualizada. Redirigiendo al portal...');
     await portal.reloadPortalContext();
-    navigate(AppRoutes.portal.dashboard, { replace: true });
+    navigate(resolvePortalLandingRoute(portal), { replace: true });
   };
 
   return (

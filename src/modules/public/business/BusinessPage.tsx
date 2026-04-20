@@ -1,5 +1,6 @@
 import { useEffect, useState, useContext, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { resolvePortalLandingRoute } from '../../../core/auth/portalLanding';
 import { publicBusinessService } from '../../../core/services/publicBusinessService';
 import { PortalContext } from '../../auth/session/PortalContext';
 import { AppRoutes } from '../../../core/constants/routes';
@@ -242,7 +243,7 @@ export function BusinessPage() {
     // Check if user is already a partner
     if (portal.sessionUserId && !portal.isLoading) {
       if (portal.hasBusinessAccess || portal.businessAssignments.length > 0) {
-        navigate(AppRoutes.portal.dashboard);
+        navigate(resolvePortalLandingRoute(portal));
         return;
       }
 

@@ -1,6 +1,7 @@
 import { FormEvent, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SectionCard, StatusPill } from '../../../components/admin/AdminScaffold';
+import { resolvePortalLandingRoute } from '../../../core/auth/portalLanding';
 import { TextField } from '../../../components/ui/TextField';
 import { AppRoutes } from '../../../core/constants/routes';
 import { merchantAccessService } from '../../../core/services/merchantAccessService';
@@ -76,7 +77,7 @@ export function PasswordRecoveryPage() {
 
     setSuccessMessage('Contraseña actualizada. Redirigiendo al portal...');
     await portal.reloadPortalContext();
-    navigate(AppRoutes.portal.dashboard, { replace: true });
+    navigate(resolvePortalLandingRoute(portal), { replace: true });
   };
 
   if (checkingSession) {
