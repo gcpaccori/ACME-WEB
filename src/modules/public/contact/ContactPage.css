@@ -138,6 +138,23 @@
   display: block;
 }
 
+/* Hero image */
+.contact-hero__img-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.contact-hero__main-img {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.20));
+}
+
 /* ── MAIN CONTENT AREA ── */
 .contact-body {
   background: var(--bg-muted);
@@ -482,7 +499,23 @@
     gap: 36px;
   }
 
-  .contact-hero__chips { flex-direction: row; flex-wrap: wrap; }
+  .contact-hero__chips {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .contact-hero__img-wrapper {
+    order: -1;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .contact-hero__main-img {
+    max-width: 220px;
+  }
+
   .contact-chip { min-width: 0; flex: 1; }
 
   .contact-grid {

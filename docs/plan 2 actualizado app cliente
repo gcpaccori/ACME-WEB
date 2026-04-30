@@ -1,0 +1,242 @@
+Plan 2 - App cliente
+Objetivo
+Construir la experiencia de compra del cliente final sobre la misma base de datos. El cliente debe poder:
+•	registrarse e iniciar sesión 
+•	guardar direcciones y métodos de pago 
+•	explorar comercios y catálogos 
+•	armar carrito con modificadores 
+•	pagar y seguir el pedido 
+•	conversar con soporte o con el flujo del pedido 
+________________________________________
+Tablas del plan
+Identidad y perfil
+•	profiles 
+•	customers 
+•	roles 
+•	user_roles 
+Direcciones y pagos
+•	addresses 
+•	customer_addresses 
+•	customer_payment_methods 
+•	payment_methods 
+Descubrimiento y compra
+•	merchants 
+•	merchant_branches 
+•	merchant_branch_status 
+•	merchant_branch_hours 
+•	categories 
+•	products 
+•	product_branch_settings 
+•	modifier_groups 
+•	modifier_options 
+•	product_modifier_groups 
+•	delivery_zones 
+•	branch_delivery_zones 
+•	merchant_settings ← agregado 
+Carrito y checkout
+•	carts 
+•	cart_items 
+•	cart_item_modifiers 
+•	coupons 
+•	coupon_redemptions 
+•	promotions 
+•	promotion_targets 
+Pedido y seguimiento
+•	orders 
+•	order_items 
+•	order_item_modifiers 
+•	order_delivery_details 
+•	order_status_history 
+•	payments 
+•	payment_transactions 
+•	conversations 
+•	conversation_participants 
+•	messages 
+•	message_reads 
+•	notifications 
+________________________________________
+CRUD y acciones por módulo
+1. Cuenta y perfil
+profiles
+•	editar nombre, teléfono, avatar 
+customers
+•	bootstrap automático al primer login 
+•	lectura de rating promedio y datos base 
+2. Libreta de direcciones
+addresses
+•	crear dirección 
+•	editar dirección 
+•	eliminar dirección lógica si se decide por estado 
+customer_addresses
+•	vincular dirección al cliente 
+•	marcar como default 
+•	asignar etiqueta como casa, trabajo, otro 
+3. Métodos de pago
+customer_payment_methods
+•	agregar método 
+•	cambiar alias 
+•	marcar como default 
+•	desactivar o eliminar 
+payment_methods
+•	solo lectura para mostrar medios habilitados 
+4. Marketplace
+merchants
+•	lectura de comercios disponibles 
+merchant_branches
+•	lectura de sucursales según zona 
+merchant_branch_status
+•	lectura para mostrar si acepta pedidos 
+categories, products
+•	lectura y filtros por categoría, precio, disponibilidad 
+modifier_groups, modifier_options, product_modifier_groups
+•	lectura para configurar producto antes de agregar al carrito 
+merchant_settings ← agregado
+•	lectura de configuración operativa por comercio 
+•	uso de order_timeouts por comercio en vez de configuración global 
+5. Carrito
+carts
+•	crear carrito activo 
+•	recalcular totales 
+cart_items
+•	agregar item 
+•	editar cantidad 
+•	quitar item 
+cart_item_modifiers
+•	agregar o quitar modificadores por item 
+coupons
+•	validar código 
+coupon_redemptions
+•	registrar uso al confirmar pedido 
+6. Checkout y pedido
+orders
+•	crear pedido 
+•	listar historial 
+•	cancelar si la regla de negocio lo permite 
+order_items
+•	persistir snapshot de compra 
+order_item_modifiers
+•	persistir modificadores elegidos 
+order_delivery_details
+•	guardar snapshot de entrega 
+payments
+•	crear solicitud de pago 
+payment_transactions
+•	leer estado de transacción 
+7. Seguimiento y comunicación
+order_status_history
+•	lectura de timeline 
+conversations
+•	abrir conversación por pedido 
+messages
+•	enviar y recibir mensajes 
+message_reads
+•	marcar como leído 
+notifications
+•	centro de notificaciones del cliente 
+________________________________________
+Pantallas recomendadas
+•	auth/login 
+•	auth/register 
+•	home 
+•	merchant-list 
+•	merchant-detail 
+•	product-detail 
+•	cart 
+•	checkout 
+•	order-success 
+•	orders 
+•	order-detail 
+•	addresses 
+•	payment-methods 
+•	profile 
+•	notifications 
+•	support-chat 
+________________________________________
+Fases ejecutables
+Fase 1 - Identidad y bootstrap de cliente
+•	login y registro 
+•	bootstrap de profiles y customers 
+•	contexto de sesión del cliente 
+Fase 2 - Direcciones y zona de reparto
+•	CRUD de addresses 
+•	CRUD de customer_addresses 
+•	selector de dirección default 
+•	validación de cobertura con delivery_zones y branch_delivery_zones 
+Fase 3 - Marketplace y menú
+•	listado de comercios 
+•	detalle de sucursal 
+•	categorías y productos 
+•	configurador de producto con modificadores 
+•	disponibilidad por sucursal usando product_branch_settings 
+•	lectura de merchant_settings para obtener configuración operativa por comercio ← agregado 
+Fase 4 - Carrito y checkout
+•	carrito persistente 
+•	cupones y promociones 
+•	cálculo de subtotal, delivery, service fee, total 
+•	creación de pedido y detalle de entrega 
+•	integración de pago y estados de transacción 
+•	uso de merchant_settings.order_timeouts durante el flujo operativo del pedido ← agregado 
+Fase 5 - Seguimiento post compra
+•	timeline de pedido 
+•	detalle del pedido con items y dirección 
+•	chat por pedido 
+•	centro de notificaciones 
+•	cancelación si aplica 
+Fase 6 - Perfil y recurrencia
+•	CRUD de métodos de pago guardados 
+•	editar perfil 
+•	reordenar desde historial 
+•	dirección preferida y último checkout 
+________________________________________
+Reglas de negocio sugeridas
+•	no permitir checkout si la sucursal está cerrada o no acepta pedidos 
+•	no permitir items pausados o sin stock 
+•	congelar snapshots en order_items y order_delivery_details al confirmar pedido 
+•	registrar todo cambio relevante del pedido en order_status_history 
+•	separar claramente pago solicitado, autorizado, capturado y fallido 
+•	leer los timeouts operativos desde merchant_settings por comercio, no desde system_settings global ← agregado 
+________________________________________
+Cambio agregado de datos / migración
+Nuevo esquema: merchant_settings
+•	crear tabla public.merchant_settings 
+•	columnas: 
+o	id 
+o	merchant_id 
+o	key 
+o	description 
+o	value_json 
+o	created_at 
+o	updated_at 
+•	relación: 
+o	merchant_id references public.merchants(id) on delete cascade 
+•	restricción única: 
+o	unique (merchant_id, key) 
+Índices agregados
+•	merchant_settings_merchant_idx sobre merchant_id 
+•	merchant_settings_key_idx sobre key 
+Migración aplicada
+•	copiar system_settings.key = 'order_timeouts' 
+•	replicarlo para todos los comercios en merchant_settings 
+•	hacer upsert por (merchant_id, key) 
+•	conservar descripción y value_json 
+•	actualizar updated_at en conflicto 
+Limpieza posterior
+•	eliminar order_timeouts de public.system_settings 
+Impacto funcional
+•	order_timeouts deja de ser global 
+•	order_timeouts pasa a ser configurable por comercio 
+•	la app cliente debe consumir esta configuración desde merchant_settings 
+________________________________________
+Criterio de cierre
+El plan se considera listo cuando:
+•	el cliente puede registrarse y mantener direcciones 
+•	puede ver comercios y productos reales con modificadores 
+•	puede armar carrito y confirmar pedido 
+•	puede pagar y seguir estados 
+•	puede revisar historial y conversar sobre su pedido 
+________________________________________
+Dependencias con otros planes
+•	depende del portal de negocio para catálogo, horarios y zonas 
+•	depende también de merchant_settings para la configuración operativa por comercio ← agregado 
+•	alimenta el flujo operativo de orders que usa el portal 
+•	activa el trabajo de order_assignments para la app repartidor
