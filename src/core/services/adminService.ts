@@ -431,7 +431,7 @@ export const adminService = {
 
   uploadMerchantLogo: async (merchantId: string, file: File, oldLogoUrl: string) => {
     const BUCKET = 'merchant-logos';
-    const ext = file.name.includes('.') ? file.name.split('.').pop()! : 'jpg';
+    const ext = file.name.split('.').pop() || 'jpg';
     const path = `${merchantId}/logo-${Date.now()}.${ext}`;
 
     const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true, contentType: file.type });
@@ -443,7 +443,7 @@ export const adminService = {
         const idx = oldLogoUrl.indexOf(storagePrefix);
         if (idx !== -1) {
           const oldPath = oldLogoUrl.slice(idx + storagePrefix.length).split('?')[0];
-          if (oldPath && oldPath !== path) {
+          if (oldPath) {
             await supabase.storage.from(BUCKET).remove([oldPath]);
           }
         }
