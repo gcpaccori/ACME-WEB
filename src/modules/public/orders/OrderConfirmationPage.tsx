@@ -4,6 +4,7 @@ import { AppRoutes } from '../../../core/constants/routes';
 import { publicCustomerService, type CustomerOrderHistoryRecord } from '../../../core/services/publicCustomerService';
 import { courierPaymentService } from '../../../core/services/courierPaymentService';
 import { usePublicStore } from '../store/PublicStoreContext';
+import { OrderRatingPanel } from './OrderRatingPanel';
 import {
   ORDER_STEPS,
   currentStepIndex,
@@ -140,6 +141,10 @@ export function OrderConfirmationPage() {
             </div>
           </div>
         </div>
+
+        {order.status === 'delivered' && (
+          <OrderRatingPanel orderId={order.id} merchantLabel={order.merchant_label} withDriver={order.fulfillment_type !== 'pickup'} />
+        )}
 
         <div className="orders-confirm__actions">
           <Link to={AppRoutes.public.myOrders} className="btn-primary">Ver mis pedidos</Link>
