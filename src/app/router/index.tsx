@@ -16,7 +16,7 @@ import { ContactPage } from '../../modules/public/contact/ContactPage';
 import { HazteDriverPage } from '../../modules/public/downloads/HazteDriverPage';
 import { MyOrdersPage } from '../../modules/public/orders/MyOrdersPage';
 import { OrderConfirmationPage } from '../../modules/public/orders/OrderConfirmationPage';
-import { TermsPage, PrivacyPage, RefundsPage, ComplaintsBookPage } from '../../modules/public/legal/LegalPages';
+import { TermsPage, PrivacyPage, CookiesPage, RefundsPage, ComplaintsBookPage } from '../../modules/public/legal/LegalPages';
 import { PrivateRoute } from '../../modules/auth/guards/PrivateRoute';
 import { DashboardPage } from '../../modules/portal/dashboard/DashboardPage';
 import { OrdersPage, OrderDetailPage } from '../../modules/portal/orders';
@@ -73,6 +73,7 @@ export function AppRouter() {
         <Route path="pedido/:orderId" element={<OrderConfirmationPage />} />
         <Route path="terminos-y-condiciones" element={<TermsPage />} />
         <Route path="politica-de-privacidad" element={<PrivacyPage />} />
+        <Route path="politica-de-cookies" element={<CookiesPage />} />
         <Route path="devoluciones-y-cancelaciones" element={<RefundsPage />} />
         <Route path="libro-de-reclamaciones" element={<ComplaintsBookPage />} />
         <Route path="para-negocios" element={<BusinessPage />} />
