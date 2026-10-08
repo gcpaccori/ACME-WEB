@@ -67,8 +67,9 @@ export function MyOrdersPage() {
   useEffect(() => {
     if (!publicStore.sessionUser) return;
     publicCustomerService.fetchMyOrderRatings()
-      .then((result) => setRatedIds(new Set((result.data ?? []).map((row) => row.order_id))))
-      .catch(() => setRatedIds(new Set()));
+      // Si no se pudo leer (por ejemplo, falta la migracion) no se avisa nada.
+      .then((result) => setRatedIds(result.data ? new Set(result.data.map((row) => row.order_id)) : null))
+      .catch(() => setRatedIds(null));
   }, [publicStore.sessionUser]);
 
   // Pedidos entregados que el cliente aun no califica.
