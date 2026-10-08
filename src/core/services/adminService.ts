@@ -21,6 +21,10 @@ export interface AddressFormValue {
   city: string;
   region: string;
   country: string;
+  // addresses.lat / addresses.lng, numeric nullable. Grados decimales:
+  // en Huancavelica ambos son negativos (ej. -12.78452, -74.97125).
+  lat: string;
+  lng: string;
 }
 
 export interface BranchStatusFormValue {
@@ -239,6 +243,82 @@ function nullableString(value: string) {
   return normalized.length > 0 ? normalized : null;
 }
 
+// Coordenada en grados decimales. Devuelve null si esta vacia o fuera de
+// rango, para no escribir en addresses un punto que caiga en cualquier lado:
+// Postgres acepta cualquier numeric y el error recien se veria en el mapa.
+function coordinateToText(value: unknown) {
+  return value === null || value === undefined ? '' : String(value);
+}
+
+function coordinateOrNull(value: string, limit: number) {
+  const normalized = value.trim();
+  if (!normalized) return null;
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed) || Math.abs(parsed) > limit) return null;
+  return parsed;
+}
+
+// Sube a un bucket publico y borra la imagen anterior si estaba en ese
+// mismo bucket. Compartido por logos de comercio e imagenes de producto.
+async function uploadPublicImage(bucket: string, path: string, file: File, oldUrl: string) {
+  const { error: uploadError } = await supabase.storage.from(bucket).upload(path, file, {
+    upsert: true,
+    contentType: file.type,
+  });
+  if (uploadError) return { data: null, error: uploadError };
+
+  if (oldUrl) {
+    try {
+      const storagePrefix = `/storage/v1/object/public/${bucket}/`;
+      const idx = oldUrl.indexOf(storagePrefix);
+      if (idx !== -1) {
+        const oldPath = oldUrl.slice(idx + storagePrefix.length).split('?')[0];
+        if (oldPath) {
+          await supabase.storage.from(bucket).remove([oldPath]);
+        }
+      }
+    } catch {
+      // best-effort: ignore delete errors
+    }
+  }
+
+  const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
+  return { data: urlData.publicUrl, error: null };
+}
+
+function fileExtension(file: File) {
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return ext || 'jpg';
+}
+
+// SKU a partir del nombre del producto: "Lomo Saltado" -> "LOMO-SALTADO-4F2A".
+// El sufijo evita choques entre productos de nombre parecido (media/grande)
+// y entre comercios distintos.
+export function buildProductSku(name: string, suffix?: string) {
+  // Quita tildes sin literales exoticos en el fuente: tras normalizar en NFD
+  // los diacriticos quedan como combinantes en U+0300..U+036F.
+  const sinTildes = name
+    .normalize('NFD')
+    .split('')
+    .filter((ch) => {
+      const code = ch.charCodeAt(0);
+      return code < 0x300 || code > 0x36f;
+    })
+    .join('');
+
+  const base = sinTildes
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .split('-')
+    .filter(Boolean)
+    .slice(0, 3)
+    .join('-');
+
+  const code = suffix ?? Math.random().toString(36).slice(2, 6).toUpperCase();
+  return base ? `${base}-${code}` : `PROD-${code}`;
+}
+
 function isTempId(value: string | undefined) {
   return Boolean(value && value.startsWith('temp:'));
 }
@@ -274,11 +354,34 @@ function mapClosureRows(rows: any[]): BranchClosureFormValue[] {
   }));
 }
 
+// polygon_geojson es jsonb: llega como objeto, no como texto. Pasarlo por
+// stringOrEmpty daba "[object Object]", que es lo que se veia en el textarea
+// y lo que se habria escrito de vuelta en la columna.
+function jsonColumnToText(value: unknown) {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'string') return value;
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return '';
+  }
+}
+
+function textToJsonColumn(value: string): { ok: true; value: unknown } | { ok: false } {
+  const normalized = value.trim();
+  if (!normalized) return { ok: true, value: null };
+  try {
+    return { ok: true, value: JSON.parse(normalized) };
+  } catch {
+    return { ok: false };
+  }
+}
+
 function mapDeliveryZoneRows(rows: any[]): DeliveryZoneFormValue[] {
   return rows.map((row) => ({
     id: row.id,
     name: stringOrEmpty(row.name),
-    polygon_geojson: stringOrEmpty(row.polygon_geojson),
+    polygon_geojson: jsonColumnToText(row.polygon_geojson),
     base_fee: String(row.base_fee ?? 0),
     min_order_amount: String(row.min_order_amount ?? 0),
     estimated_minutes: String(row.estimated_minutes ?? 0),
@@ -416,6 +519,25 @@ export const adminService = {
     return { data, error: null };
   },
 
+  // Alta de comercio. En merchants solo trade_name es obligatorio sin
+  // default; id, status y las fechas los pone la base. El dueño no se
+  // define aca: la propiedad vive en merchant_staff, no en merchants.
+  createMerchant: async (form: MerchantAdminForm) => {
+    const payload = {
+      trade_name: form.trade_name.trim(),
+      legal_name: nullableString(form.legal_name),
+      tax_id: nullableString(form.tax_id),
+      logo_url: nullableString(form.logo_url),
+      phone: nullableString(form.phone),
+      email: nullableString(form.email),
+      status: form.status,
+    };
+
+    const result = await supabase.from('merchants').insert(payload).select('id').single();
+    if (result.error) return { data: null, error: result.error };
+    return { data: { id: String((result.data as any).id) }, error: null };
+  },
+
   saveMerchant: async (merchantId: string, form: MerchantAdminForm) => {
     const payload = {
       trade_name: form.trade_name.trim(),
@@ -433,30 +555,13 @@ export const adminService = {
   },
 
   uploadMerchantLogo: async (merchantId: string, file: File, oldLogoUrl: string) => {
-    const BUCKET = 'merchant-logos';
-    const ext = file.name.split('.').pop() || 'jpg';
-    const path = `${merchantId}/logo-${Date.now()}.${ext}`;
+    return uploadPublicImage('merchant-logos', `${merchantId}/logo-${Date.now()}.${fileExtension(file)}`, file, oldLogoUrl);
+  },
 
-    const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true, contentType: file.type });
-    if (uploadError) return { data: null, error: uploadError };
-
-    if (oldLogoUrl) {
-      try {
-        const storagePrefix = `/storage/v1/object/public/${BUCKET}/`;
-        const idx = oldLogoUrl.indexOf(storagePrefix);
-        if (idx !== -1) {
-          const oldPath = oldLogoUrl.slice(idx + storagePrefix.length).split('?')[0];
-          if (oldPath) {
-            await supabase.storage.from(BUCKET).remove([oldPath]);
-          }
-        }
-      } catch {
-        // best-effort: ignore delete errors
-      }
-    }
-
-    const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
-    return { data: urlData.publicUrl, error: null };
+  // No usa el id del producto en la ruta: al crear uno nuevo todavia no
+  // existe, y la imagen se sube antes de guardar.
+  uploadProductImage: async (merchantId: string, file: File, oldImageUrl: string) => {
+    return uploadPublicImage('product-images', `${merchantId}/producto-${Date.now()}.${fileExtension(file)}`, file, oldImageUrl);
   },
 
   fetchBranches: async (merchantId: string) => {
@@ -513,8 +618,10 @@ export const adminService = {
       reference: '',
       district: '',
       city: '',
-      region: 'Junin',
+      region: 'Huancavelica',
       country: 'Peru',
+      lat: '',
+      lng: '',
     },
     branch_status: {
       is_open: true,
@@ -539,7 +646,9 @@ export const adminService = {
         prep_time_avg_min,
         accepts_orders,
         status,
-        address:addresses(id, line1, line2, reference, district, city, region, country),
+        lat,
+        lng,
+        address:addresses(id, line1, line2, reference, district, city, region, country, lat, lng),
         branch_status:merchant_branch_status(branch_id, is_open, accepting_orders, status_code, pause_reason),
         hours:merchant_branch_hours(id, day_of_week, open_time, close_time, is_closed),
         closures:merchant_branch_closures(id, starts_at, ends_at, reason),
@@ -575,8 +684,13 @@ export const adminService = {
         reference: stringOrEmpty(row.address?.reference),
         district: stringOrEmpty(row.address?.district),
         city: stringOrEmpty(row.address?.city),
-        region: stringOrEmpty(row.address?.region) || 'Junin',
+        region: stringOrEmpty(row.address?.region) || 'Huancavelica',
         country: stringOrEmpty(row.address?.country) || 'Peru',
+        // El punto vive en merchant_branches (lat/lng/geom, que es lo que
+        // tienen las sucursales ya cargadas); addresses queda como respaldo
+        // para las que solo lo tengan ahi.
+        lat: coordinateToText(row.lat ?? row.address?.lat),
+        lng: coordinateToText(row.lng ?? row.address?.lng),
       },
       branch_status: {
         is_open: Boolean(row.branch_status?.is_open ?? true),
@@ -594,6 +708,110 @@ export const adminService = {
   },
 
   saveBranch: async (form: BranchAdminForm, userId: string | null) => {
+    // Las zonas se resuelven ANTES de crear nada. Si algo falla aca
+    // (GeoJSON invalido, RLS sobre una zona global) no queda una sucursal
+    // huerfana: cada intento fallido creaba una duplicada, porque el insert
+    // de merchant_branches ya habia ocurrido. No necesitan branchId; el que
+    // si lo necesita es branch_delivery_zones, que sigue mas abajo.
+    // delivery_zones es un catalogo global: no tiene merchant_id ni branch_id.
+    // El editor de sucursal lo siembra completo para poder marcar cobertura,
+    // asi que el formulario llega con zonas que el usuario nunca toco. Si se
+    // reescriben todas en cada guardado, cualquier sucursal pisa la
+    // configuracion de reparto de toda la plataforma; y sobre una zona que RLS
+    // no deja modificar el UPDATE afecta cero filas, que con .single() se
+    // convierte en el 406 "Cannot coerce the result to a single JSON object".
+    // Por eso se comparan contra la base y solo se escriben las que cambiaron.
+    const existingZoneIds = form.delivery_zones
+      .map((zone) => zone.id)
+      .filter((id): id is string => Boolean(id) && !isTempId(id));
+
+    const existingZonesById = new Map<string, any>();
+    if (existingZoneIds.length > 0) {
+      const existingZones = await supabase
+        .from('delivery_zones')
+        .select('id, name, polygon_geojson, base_fee, min_order_amount, estimated_minutes, is_active')
+        .in('id', existingZoneIds);
+      if (existingZones.error) return existingZones;
+      for (const row of (existingZones.data ?? []) as any[]) {
+        existingZonesById.set(String(row.id), row);
+      }
+    }
+
+    const persistedZones: DeliveryZoneFormValue[] = [];
+    for (const zone of form.delivery_zones) {
+      const polygon = textToJsonColumn(zone.polygon_geojson);
+      if (!polygon.ok) {
+        return {
+          data: null,
+          error: {
+            message: `La zona de reparto "${zone.name.trim()}" tiene un poligono GeoJSON invalido. Corrigelo o dejalo vacio.`,
+          } as any,
+        };
+      }
+
+      const zonePayload = {
+        name: zone.name.trim(),
+        polygon_geojson: polygon.value,
+        base_fee: Number(zone.base_fee || 0),
+        min_order_amount: Number(zone.min_order_amount || 0),
+        estimated_minutes: Number(zone.estimated_minutes || 0),
+        is_active: zone.is_active,
+      };
+
+      if (!zonePayload.name) {
+        continue;
+      }
+
+      if (zone.id && !isTempId(zone.id)) {
+        const current = existingZonesById.get(zone.id);
+        const unchanged =
+          current &&
+          stringOrEmpty(current.name) === zonePayload.name &&
+          // jsonb contra jsonb: comparar por valor, no por identidad.
+          JSON.stringify(current.polygon_geojson ?? null) === JSON.stringify(zonePayload.polygon_geojson ?? null) &&
+          Number(current.base_fee ?? 0) === zonePayload.base_fee &&
+          Number(current.min_order_amount ?? 0) === zonePayload.min_order_amount &&
+          Number(current.estimated_minutes ?? 0) === zonePayload.estimated_minutes &&
+          Boolean(current.is_active) === zonePayload.is_active;
+
+        if (unchanged) {
+          persistedZones.push({ ...zone, id: zone.id });
+          continue;
+        }
+
+        const updateZone = await supabase.from('delivery_zones').update(zonePayload).eq('id', zone.id).select();
+        if (updateZone.error) return updateZone;
+        // Sin .single(): cero filas aca significa que RLS no dejo tocar la
+        // zona, y conviene decirlo en vez de dejar pasar el error cripto.
+        if ((updateZone.data ?? []).length === 0) {
+          return {
+            data: null,
+            error: {
+              message: `No se pudo actualizar la zona de reparto "${zonePayload.name}": no tienes permisos sobre las zonas globales.`,
+            } as any,
+          };
+        }
+        persistedZones.push({ ...zone, id: zone.id });
+      } else {
+        const insertZone = await supabase.from('delivery_zones').insert(zonePayload).select().single();
+        if (insertZone.error) return insertZone;
+        persistedZones.push({
+          ...zone,
+          id: (insertZone.data as any)?.id ?? '',
+        });
+      }
+    }
+
+    const persistedZoneIdSet = new Set(persistedZones.map((zone) => zone.id).filter(Boolean));
+    const persistedZoneIdMap = new Map<string, string>();
+    persistedZones.forEach((zone, index) => {
+      const sourceId = form.delivery_zones[index]?.id;
+      const savedId = zone.id;
+      if (sourceId && savedId) {
+        persistedZoneIdMap.set(sourceId, savedId);
+      }
+    });
+
     const addressPayload = {
       line1: form.address.line1.trim(),
       line2: nullableString(form.address.line2),
@@ -602,6 +820,9 @@ export const adminService = {
       city: nullableString(form.address.city),
       region: nullableString(form.address.region),
       country: nullableString(form.address.country),
+      // Vacio guarda null: una sucursal puede no tener punto todavia.
+      lat: coordinateOrNull(form.address.lat, 90),
+      lng: coordinateOrNull(form.address.lng, 180),
     };
 
     let addressId = form.address.id ?? null;
@@ -622,6 +843,10 @@ export const adminService = {
       accepts_orders: form.accepts_orders,
       status: form.status,
       address_id: addressId,
+      // El punto de la sucursal es el dato que consumen las apps; se guarda
+      // aca ademas de en addresses. geom lo deriva la base a partir de estos.
+      lat: coordinateOrNull(form.address.lat, 90),
+      lng: coordinateOrNull(form.address.lng, 180),
     };
 
     let branchId = form.id ?? null;
@@ -673,44 +898,6 @@ export const adminService = {
       }
     }
 
-    const persistedZones: DeliveryZoneFormValue[] = [];
-    for (const zone of form.delivery_zones) {
-      const zonePayload = {
-        name: zone.name.trim(),
-        polygon_geojson: nullableString(zone.polygon_geojson),
-        base_fee: Number(zone.base_fee || 0),
-        min_order_amount: Number(zone.min_order_amount || 0),
-        estimated_minutes: Number(zone.estimated_minutes || 0),
-        is_active: zone.is_active,
-      };
-
-      if (!zonePayload.name) {
-        continue;
-      }
-
-      if (zone.id && !isTempId(zone.id)) {
-        const updateZone = await supabase.from('delivery_zones').update(zonePayload).eq('id', zone.id).select().single();
-        if (updateZone.error) return updateZone;
-        persistedZones.push({ ...zone, id: zone.id });
-      } else {
-        const insertZone = await supabase.from('delivery_zones').insert(zonePayload).select().single();
-        if (insertZone.error) return insertZone;
-        persistedZones.push({
-          ...zone,
-          id: (insertZone.data as any)?.id ?? '',
-        });
-      }
-    }
-
-    const persistedZoneIdSet = new Set(persistedZones.map((zone) => zone.id).filter(Boolean));
-    const persistedZoneIdMap = new Map<string, string>();
-    persistedZones.forEach((zone, index) => {
-      const sourceId = form.delivery_zones[index]?.id;
-      const savedId = zone.id;
-      if (sourceId && savedId) {
-        persistedZoneIdMap.set(sourceId, savedId);
-      }
-    });
 
     const existingClosures = await supabase.from('merchant_branch_closures').select('id').eq('branch_id', branchId);
     if (existingClosures.error) return existingClosures;

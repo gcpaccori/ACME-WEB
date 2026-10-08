@@ -1,8 +1,7 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AdminActionDialog } from '../../../../components/admin/AdminActionDialog';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
-import { AdminEntityHeader } from '../../../../components/admin/AdminEntityHeader';
 import { FieldGroup, NumberField, SelectField, TextAreaField } from '../../../../components/admin/AdminFields';
 import { AdminInlineRelationTable } from '../../../../components/admin/AdminInlineRelationTable';
 import { AdminModalForm } from '../../../../components/admin/AdminModalForm';
@@ -10,6 +9,7 @@ import { AdminPageFrame, FormStatusBar, SectionCard, StatusPill } from '../../..
 import { AdminTabPanel, AdminTabs } from '../../../../components/admin/AdminTabs';
 import { AdminTimeline } from '../../../../components/admin/AdminTimeline';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { ErrorBanner } from '../../../../components/shared/ErrorBanner';
 import { TextField } from '../../../../components/ui/TextField';
 import {
   canBusinessAssignDriver,
@@ -18,8 +18,8 @@ import {
   getAdminOrderStatusLabel,
   getAdminOrderStatusTone,
   isOrderAwaitingPayment,
+  normalizeAdminOrderStatus,
 } from '../../../../core/admin/utils/orderWorkflow';
-import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import {
   adminOrdersService,
@@ -37,8 +37,9 @@ import {
   OrderAdminStatusUpdateForm,
 } from '../../../../core/services/adminOrdersService';
 import { PortalContext } from '../../../auth/session/PortalContext';
+import { useOrdersLiveRefresh } from '../../orders/useOrdersLiveRefresh';
 
-type DetailTab = 'summary' | 'items' | 'operations' | 'support' | 'payments';
+type DetailTab = 'summary' | 'operations' | 'support' | 'payments';
 
 function normalizeId(value: string | null | undefined) {
   const normalized = String(value ?? '').trim().toLowerCase();
@@ -71,6 +72,187 @@ function createStatusForm(nextStatus: string): OrderAdminStatusUpdateForm {
     next_status: nextStatus,
     note: '',
   };
+}
+
+/* ——— Piezas de presentacion ———————————————————————————
+   La ficha se lee de arriba abajo en el orden en que se atiende un pedido:
+   que hay que hacer ahora, en que punto va, que se prepara, a quien se
+   entrega y cuanto se cobra. Lo tecnico (pagos, soporte, historial) queda
+   en las pestanas. */
+
+type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+
+const TONE_COLORS: Record<Tone, { accent: string; soft: string }> = {
+  neutral: { accent: 'var(--acme-text-muted)', soft: 'var(--acme-surface-muted)' },
+  info: { accent: 'var(--acme-purple)', soft: 'var(--acme-purple-light)' },
+  success: { accent: 'var(--acme-green)', soft: 'var(--acme-green-light)' },
+  warning: { accent: 'var(--acme-orange)', soft: 'var(--acme-orange-light)' },
+  danger: { accent: 'var(--acme-red)', soft: 'var(--acme-red-light)' },
+};
+
+const PAYMENT_STATUS_META: Record<string, { label: string; tone: Tone }> = {
+  paid: { label: 'Pagado', tone: 'success' },
+  captured: { label: 'Pagado', tone: 'success' },
+  authorized: { label: 'Autorizado', tone: 'info' },
+  pending: { label: 'Pago pendiente', tone: 'warning' },
+  failed: { label: 'Pago fallido', tone: 'danger' },
+  refunded: { label: 'Devuelto', tone: 'neutral' },
+  cancelled: { label: 'Pago anulado', tone: 'neutral' },
+};
+
+function getPaymentStatusMeta(status: string) {
+  const key = String(status || '').trim().toLowerCase();
+  return PAYMENT_STATUS_META[key] ?? { label: key || 'Sin estado', tone: 'neutral' as Tone };
+}
+
+const FULFILLMENT_LABELS: Record<string, string> = {
+  delivery: 'Delivery',
+  pickup: 'Recojo en tienda',
+  dine_in: 'Consumo en local',
+};
+
+function getFulfillmentLabel(type: string) {
+  return FULFILLMENT_LABELS[String(type || '').toLowerCase()] || type || 'Sin tipo';
+}
+
+// Indice del paso actual en la barra de progreso, segun el estado del pedido.
+function getProgressIndex(status: string) {
+  const normalized = normalizeAdminOrderStatus(status);
+  if (normalized === 'delivered') return 3;
+  if (normalized === 'picked_up' || normalized === 'on_the_way') return 2;
+  if (normalized === 'ready_for_pickup' || normalized === 'assigned' || normalized === 'driver_accepted') return 1;
+  return 0;
+}
+
+function SectionLabel({ children }: { children: ReactNode }) {
+  return (
+    <span
+      style={{
+        color: 'var(--acme-text-muted)',
+        fontSize: '11px',
+        fontWeight: 700,
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function OrderProgress({ order }: { order: OrderAdminDetail }) {
+  const cancelled = normalizeAdminOrderStatus(order.status) === 'cancelled' || normalizeAdminOrderStatus(order.status) === 'failed';
+  const current = getProgressIndex(order.status);
+  const steps = [
+    { label: 'Recibido', at: order.placed_at },
+    { label: 'Listo', at: order.ready_at },
+    { label: order.fulfillment_type === 'pickup' ? 'Recogido' : 'En camino', at: order.picked_up_at },
+    { label: 'Entregado', at: order.delivered_at },
+  ];
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))`, gap: '6px' }}>
+      {steps.map((step, index) => {
+        const done = !cancelled && index <= current;
+        const active = !cancelled && index === current;
+        const accent = done ? 'var(--acme-purple)' : 'var(--acme-border)';
+        return (
+          <div key={step.label} style={{ display: 'grid', gap: '8px', alignContent: 'start' }}>
+            <div
+              style={{
+                height: '6px',
+                borderRadius: '999px',
+                background: accent,
+                opacity: done && !active ? 0.45 : 1,
+              }}
+            />
+            <span
+              style={{
+                fontSize: '13px',
+                fontWeight: active ? 800 : 600,
+                color: done ? 'var(--acme-text)' : 'var(--acme-text-faint)',
+              }}
+            >
+              {step.label}
+            </span>
+            {step.at && !cancelled ? (
+              <span style={{ fontSize: '12px', color: 'var(--acme-text-muted)' }}>{formatDateTime(step.at)}</span>
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function NextStepCard({
+  tone,
+  title,
+  body,
+  progress,
+  actions,
+}: {
+  tone: Tone;
+  title: string;
+  body: ReactNode;
+  progress: ReactNode;
+  actions?: ReactNode;
+}) {
+  const colors = TONE_COLORS[tone];
+  return (
+    <section
+      style={{
+        display: 'grid',
+        gap: '18px',
+        padding: '20px 22px',
+        borderRadius: 'var(--acme-radius-lg)',
+        background: 'var(--acme-surface)',
+        border: '1px solid var(--acme-border)',
+        borderLeft: `5px solid ${colors.accent}`,
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ display: 'grid', gap: '4px', flex: '1 1 280px' }}>
+          <SectionLabel>Que sigue</SectionLabel>
+          <strong style={{ fontSize: '18px', color: 'var(--acme-text)' }}>{title}</strong>
+          <span style={{ color: 'var(--acme-text-muted)', fontSize: '14px', lineHeight: 1.45 }}>{body}</span>
+        </div>
+        {actions ? <div className="btn-group" style={{ justifyContent: 'flex-end' }}>{actions}</div> : null}
+      </div>
+      {progress}
+    </section>
+  );
+}
+
+function ReceiptRow({ label, value, strong, muted }: { label: string; value: string; strong?: boolean; muted?: boolean }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '12px',
+        fontSize: strong ? '18px' : '14px',
+        fontWeight: strong ? 800 : 500,
+        color: muted ? 'var(--acme-text-muted)' : 'var(--acme-text)',
+      }}
+    >
+      <span>{label}</span>
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: strong ? 'var(--acme-purple)' : undefined }}>{value}</span>
+    </div>
+  );
+}
+
+function InfoRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div style={{ display: 'grid', gap: '3px' }}>
+      <SectionLabel>{label}</SectionLabel>
+      <span style={{ fontSize: '14.5px', fontWeight: 600, color: 'var(--acme-text)', overflowWrap: 'anywhere' }}>{children}</span>
+    </div>
+  );
+}
+
+function EmptyValue({ children }: { children: ReactNode }) {
+  return <span style={{ fontWeight: 500, color: 'var(--acme-text-faint)' }}>{children}</span>;
 }
 
 export function OrderDetailAdminPage() {
@@ -113,12 +295,16 @@ export function OrderDetailAdminPage() {
   const [refundOpen, setRefundOpen] = useState(false);
   const [refundForm, setRefundForm] = useState<OrderAdminRefundForm>(adminOrdersService.createEmptyRefundForm());
 
-  const loadOrder = async () => {
+  // silent: refresca los datos sin activar el gate de loading. Ese gate
+  // reemplaza el arbol entero por LoadingScreen, asi que tras cada accion
+  // se desmontaba FormStatusBar y el toast de exito nunca llegaba a
+  // observarse montado. Ademas evita el parpadeo de pagina completa.
+  const loadOrder = async (options?: { silent?: boolean }) => {
     if (!branchId || !orderId) return;
-    setLoading(true);
+    if (!options?.silent) setLoading(true);
     setError(null);
     const result = await adminOrdersService.fetchOrderDetail(orderId, branchId);
-    setLoading(false);
+    if (!options?.silent) setLoading(false);
     if (result.error) {
       setError(result.error.message);
       return;
@@ -130,9 +316,14 @@ export function OrderDetailAdminPage() {
     loadOrder();
   }, [branchId, orderId]);
 
+  // La ficha se actualiza sola cuando el pedido cambia (pago, repartidor, entrega).
+  useOrdersLiveRefresh(() => loadOrder({ silent: true }), Boolean(branchId && orderId), `admin-order-${orderId}`);
+
   const nextStatuses = useMemo(() => (order ? getAdminOrderNextStatuses(order.status, order.payment_status) : []), [order]);
   const awaitingPayment = order ? isOrderAwaitingPayment(order.status, order.payment_status) : false;
-  const canAssignDriver = order ? canBusinessAssignDriver(order.status, order.payment_status) : false;
+  // Asignar repartidor es tarea del administrador general; la tienda solo
+  // marca listo y el despacho automatico ofrece el pedido.
+  const canAssignDriver = order && portal.permissions.canAccessPlatform ? canBusinessAssignDriver(order.status, order.payment_status) : false;
   const canCancel = order ? canBusinessCancelOrder(order.status) : false;
 
   const driverOptions = useMemo(
@@ -197,8 +388,12 @@ export function OrderDetailAdminPage() {
     try {
       setMutating(true);
       setError(null);
+      // Se limpia antes de la accion: si vuelve a producir el mismo texto
+      // (cancelar dos veces, por ejemplo) sin un cambio de valor el efecto
+      // que emite el toast no se volveria a disparar.
+      setSuccessMessage(null);
       await handler();
-      await loadOrder();
+      await loadOrder({ silent: true });
     } catch (mutationError: any) {
       setError(mutationError?.message || 'No se pudo completar la accion');
     } finally {
@@ -294,7 +489,7 @@ export function OrderDetailAdminPage() {
       if (result.error) throw result.error;
       setRefundOpen(false);
       setRefundForm(adminOrdersService.createEmptyRefundForm());
-      setSuccessMessage('Refund registrado');
+      setSuccessMessage('Devolucion registrada');
     });
   };
 
@@ -307,80 +502,130 @@ export function OrderDetailAdminPage() {
   }
 
   if (error && !order) {
-    return <div style={{ color: '#b91c1c' }}>{error}</div>;
+    return <ErrorBanner message={error} />;
   }
 
   if (!order) {
     return <div>No se encontro el pedido.</div>;
   }
 
+  const normalizedStatus = normalizeAdminOrderStatus(order.status);
+  const statusLabel = getAdminOrderStatusLabel(order.status, order.payment_status);
+  const statusTone = getAdminOrderStatusTone(order.status, order.payment_status);
+  const paymentMeta = getPaymentStatusMeta(order.payment_status);
+  const latestCancellation = order.cancellations[0];
+  const discounts = order.discount_total + order.coupon_discount_total;
+
+  // Una sola frase que dice que hacer con el pedido ahora mismo.
+  const nextStep: { tone: Tone; title: string; body: string } = (() => {
+    if (normalizedStatus === 'cancelled' || normalizedStatus === 'failed') {
+      return {
+        tone: 'danger',
+        title: normalizedStatus === 'failed' ? 'El pedido no se completo' : 'Pedido cancelado',
+        body: latestCancellation?.reason_text || latestCancellation?.reason_code || 'No hay nada mas que hacer con este pedido.',
+      };
+    }
+    if (awaitingPayment) {
+      return {
+        tone: 'warning',
+        title: 'Esperando el pago del cliente',
+        body: 'Todavia no prepares nada: el pedido entra a cocina cuando el pago figure como pagado.',
+      };
+    }
+    if (nextStatuses.length > 0) {
+      return {
+        tone: 'info',
+        title: 'Prepara el pedido',
+        body: 'Cuando este empacado, marcalo como listo para que el repartidor lo recoja.',
+      };
+    }
+    if (normalizedStatus === 'ready_for_pickup') {
+      return order.current_driver_label
+        ? { tone: 'success', title: 'Listo, esperando al repartidor', body: `${order.current_driver_label} recogera el pedido.` }
+        : {
+            tone: 'warning',
+            title: 'Listo, buscando repartidor',
+            body: canAssignDriver
+              ? 'El sistema lo ofrece a los repartidores cercanos. Si tarda, asigna uno a mano.'
+              : 'El sistema lo esta ofreciendo a los repartidores cercanos. No hace falta hacer nada.',
+          };
+    }
+    if (normalizedStatus === 'assigned' || normalizedStatus === 'driver_accepted') {
+      return {
+        tone: 'info',
+        title: 'El repartidor va al local',
+        body: `${order.current_driver_label || 'El repartidor'} esta en camino a recoger el pedido.`,
+      };
+    }
+    if (normalizedStatus === 'picked_up' || normalizedStatus === 'on_the_way') {
+      return { tone: 'info', title: 'En camino al cliente', body: 'El repartidor ya tiene el pedido. No hace falta hacer nada.' };
+    }
+    if (normalizedStatus === 'delivered') {
+      return { tone: 'success', title: 'Pedido entregado', body: order.delivered_at ? `Entregado el ${formatDateTime(order.delivered_at)}.` : 'El pedido se entrego.' };
+    }
+    return { tone: 'neutral', title: statusLabel, body: 'Revisa el historial para ver el detalle.' };
+  })();
+
   return (
     <AdminPageFrame
-      title="Ficha de pedido"
-      description="Centro operativo del pedido con lectura y acciones sobre preparacion, entrega, soporte y pago."
+      title={`Pedido #${order.order_code}`}
       breadcrumbs={[
         { label: 'Admin', to: AppRoutes.portal.admin.root },
         { label: 'Pedidos', to: AppRoutes.portal.admin.orders },
         { label: `#${order.order_code}` },
       ]}
-      contextItems={[
-        { label: 'Capa', value: getScopeLabel(portal.currentScopeType), tone: 'info' },
-        {
-          label: 'Actor',
-          value: getPortalActorLabel({ roleAssignments: portal.roleAssignments, profile: portal.profile, staffAssignment: portal.staffAssignment }),
-          tone: 'info',
-        },
-        { label: 'Comercio', value: portal.currentMerchant?.name || 'sin comercio', tone: 'neutral' },
-        { label: 'Sucursal', value: portal.currentBranch?.name || 'sin sucursal', tone: 'neutral' },
-        { label: 'Entidad', value: 'Pedido', tone: 'info' },
-        { label: 'Modo', value: 'Operacion', tone: 'warning' },
-        { label: 'Estado', value: getAdminOrderStatusLabel(order.status, order.payment_status), tone: getAdminOrderStatusTone(order.status, order.payment_status) },
-      ]}
-    >
-      <div>
+      contextItems={[]}
+      actions={
         <button type="button" onClick={() => navigate(-1)} className="btn btn--secondary btn--sm">
           Volver
         </button>
+      }
+    >
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', marginTop: '-10px' }}>
+        <StatusPill label={statusLabel} tone={statusTone} />
+        <span style={{ color: 'var(--acme-text-muted)', fontSize: '14px' }}>
+          {getFulfillmentLabel(order.fulfillment_type)} · {formatDateTime(order.placed_at)} · {order.customer_label}
+        </span>
       </div>
 
-      <AdminEntityHeader
-        title={`Pedido #${order.order_code}`}
-        description={`${order.customer_label} / ${formatDateTime(order.placed_at)} / ${order.fulfillment_type || 'sin tipo'}`}
-        status={{ label: getAdminOrderStatusLabel(order.status, order.payment_status), tone: getAdminOrderStatusTone(order.status, order.payment_status) }}
+      <NextStepCard
+        tone={nextStep.tone}
+        title={nextStep.title}
+        body={nextStep.body}
+        progress={<OrderProgress order={order} />}
         actions={
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {nextStatuses.map((nextStatus) => (
-              <button key={nextStatus} type="button" onClick={() => openStatusDialog(nextStatus)} className="btn btn--secondary btn--sm">
-                Marcar {getAdminOrderStatusLabel(nextStatus).toLowerCase()}
-              </button>
-            ))}
-            {canAssignDriver ? (
-              <button type="button" onClick={() => openAssignmentModal()} className="btn btn--secondary btn--sm">
-                Asignar reparto
-              </button>
-            ) : null}
-            {canCancel ? (
-              <button type="button" onClick={() => setCancellationOpen(true)} className="btn btn--ghost btn--sm" style={{ color: 'var(--acme-red)' }}>
-                Cancelar pedido
-              </button>
-            ) : null}
-          </div>
+          nextStatuses.length > 0 || canAssignDriver || canCancel ? (
+            <>
+              {canCancel ? (
+                <button type="button" onClick={() => setCancellationOpen(true)} className="btn btn--ghost btn--sm" style={{ color: 'var(--acme-red)' }}>
+                  Cancelar pedido
+                </button>
+              ) : null}
+              {canAssignDriver ? (
+                <button
+                  type="button"
+                  onClick={() => openAssignmentModal()}
+                  className={`btn ${nextStatuses.length === 0 && !order.current_driver_label ? 'btn--primary' : 'btn--secondary'} btn--sm`}
+                >
+                  {order.current_driver_label ? 'Cambiar repartidor' : 'Asignar repartidor'}
+                </button>
+              ) : null}
+              {nextStatuses.map((nextStatus) => (
+                <button key={nextStatus} type="button" onClick={() => openStatusDialog(nextStatus)} className="btn btn--primary btn--sm">
+                  Marcar como {getAdminOrderStatusLabel(nextStatus).toLowerCase()}
+                </button>
+              ))}
+            </>
+          ) : null
         }
       />
 
-      {awaitingPayment ? (
-        <div style={{ padding: '12px 14px', borderRadius: '12px', background: '#fff7ed', border: '1px solid #fed7aa', color: '#9a3412', fontWeight: 600 }}>
-          Este pedido aun no tiene el pago confirmado. No se prepara ni se asigna reparto hasta que el pago figure como pagado.
-        </div>
-      ) : null}
-
       <AdminTabs
         tabs={[
-          { id: 'summary', label: 'Resumen' },
-          { id: 'items', label: 'Items', badge: String(order.items.length) },
-          { id: 'operations', label: 'Operacion', badge: String(order.assignments.length) },
-          { id: 'support', label: 'Soporte', badge: String(order.incidents.length + order.evidences.length) },
-          { id: 'payments', label: 'Pago', badge: String(order.payments.length + order.refunds.length) },
+          { id: 'summary', label: 'Pedido' },
+          { id: 'operations', label: 'Reparto e historial', badge: order.assignments.length ? String(order.assignments.length) : undefined },
+          { id: 'payments', label: 'Pagos', badge: order.payments.length + order.refunds.length ? String(order.payments.length + order.refunds.length) : undefined },
+          { id: 'support', label: 'Soporte', badge: order.incidents.length + order.evidences.length ? String(order.incidents.length + order.evidences.length) : undefined },
         ]}
         activeTabId={activeTab}
         onChange={(tabId) => setActiveTab(tabId as DetailTab)}
@@ -388,149 +633,137 @@ export function OrderDetailAdminPage() {
 
       {activeTab === 'summary' ? (
         <AdminTabPanel>
-          <SectionCard title="Resumen comercial" description="Vista rapida para tomar decisiones operativas sin perder contexto del pedido.">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
-              {[
-                { label: 'Subtotal', value: formatMoney(order.subtotal, order.currency) },
-                { label: 'Descuentos', value: formatMoney(order.discount_total + order.coupon_discount_total, order.currency) },
-                { label: 'Entrega', value: formatMoney(order.delivery_fee, order.currency) },
-                { label: 'Servicio', value: formatMoney(order.service_fee, order.currency) },
-                { label: 'Propina', value: formatMoney(order.tip_amount, order.currency) },
-                { label: 'Total', value: formatMoney(order.total, order.currency) },
-              ].map((item) => (
-                <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
-                  <strong>{item.value}</strong>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '20px', alignItems: 'start' }}>
+            <SectionCard
+              title="Que se prepara"
+              description={`${order.items.reduce((sum, item) => sum + item.quantity, 0)} productos`}
+            >
+              {order.special_instructions ? (
+                <div
+                  style={{
+                    padding: '12px 14px',
+                    borderRadius: '12px',
+                    background: 'var(--acme-orange-light)',
+                    color: 'var(--acme-text)',
+                    fontSize: '14px',
+                  }}
+                >
+                  <strong>Nota del cliente:</strong> {order.special_instructions}
                 </div>
-              ))}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Metodo de pago</div>
-                <strong>{order.payment_method_label}</strong>
-                <div style={{ marginTop: '8px' }}>
-                  <StatusPill label={order.payment_status || 'sin estado'} tone={order.payment_status === 'failed' ? 'danger' : 'info'} />
-                </div>
-              </div>
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Reparto actual</div>
-                <strong>{order.current_driver_label || 'Sin asignar'}</strong>
-                <div style={{ color: '#6b7280', marginTop: '8px' }}>{order.zone_name || 'Sin zona de entrega'}</div>
-              </div>
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Cupon</div>
-                <strong>{order.coupon_code || 'Sin cupon'}</strong>
-                <div style={{ color: '#6b7280', marginTop: '8px' }}>{order.cash_change_for ? `Vuelto para ${order.cash_change_for}` : 'Sin vuelto solicitado'}</div>
-              </div>
-            </div>
-            {order.special_instructions ? (
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Instrucciones</div>
-                <strong>{order.special_instructions}</strong>
-              </div>
-            ) : null}
-          </SectionCard>
-
-          <AdminInlineRelationTable
-            title="Entrega"
-            description="Snapshot editable del pedido para soporte o correcciones operativas."
-            actions={
-              <button type="button" onClick={openDeliveryModal} className="btn btn--secondary btn--sm">
-                {order.delivery_detail ? 'Editar entrega' : 'Completar entrega'}
-              </button>
-            }
-          >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Direccion</div>
-                <strong>{order.delivery_detail?.address_snapshot || 'Sin direccion registrada'}</strong>
-              </div>
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Destinatario</div>
-                <strong>{order.delivery_detail?.recipient_name || order.customer_label}</strong>
-                <div style={{ color: '#6b7280', marginTop: '6px' }}>{order.delivery_detail?.recipient_phone || 'Sin telefono'}</div>
-              </div>
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Referencia</div>
-                <strong>{order.delivery_detail?.reference_snapshot || 'Sin referencia'}</strong>
-              </div>
-            </div>
-          </AdminInlineRelationTable>
-
-          <AdminInlineRelationTable title="Cronologia operativa" description="Timestamps principales del pedido desde que entra hasta que se cierra.">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
-              {[
-                { label: 'Recibido', value: order.placed_at },
-                { label: 'Confirmado', value: order.accepted_at },
-                { label: 'Preparando', value: order.preparing_at },
-                { label: 'Listo', value: order.ready_at },
-                { label: 'Salida', value: order.picked_up_at },
-                { label: 'Entregado', value: order.delivered_at },
-                { label: 'Cancelado', value: order.cancelled_at },
-              ].map((item) => (
-                <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
-                  <strong>{item.value ? formatDateTime(item.value) : 'Pendiente'}</strong>
-                </div>
-              ))}
-            </div>
-          </AdminInlineRelationTable>
-        </AdminTabPanel>
-      ) : null}
-
-      {activeTab === 'items' ? (
-        <AdminTabPanel>
-          <SectionCard title="Items y personalizaciones" description="La vista integra order_items con sus order_item_modifiers sin separar la experiencia.">
-            <AdminDataTable
-              rows={order.items}
-              getRowId={(item) => item.id}
-              emptyMessage="No hay items en este pedido."
-              columns={[
-                {
-                  id: 'product',
-                  header: 'Producto',
-                  render: (item) => (
-                    <div style={{ display: 'grid', gap: '6px' }}>
-                      <strong>{item.product_name_snapshot}</strong>
-                      {item.notes ? <span style={{ color: '#6b7280' }}>Nota: {item.notes}</span> : null}
-                    </div>
-                  ),
-                },
-                {
-                  id: 'qty',
-                  header: 'Cantidad',
-                  render: (item) => item.quantity,
-                },
-                {
-                  id: 'unit',
-                  header: 'Unitario',
-                  render: (item) => formatMoney(item.unit_price, order.currency),
-                },
-                {
-                  id: 'mods',
-                  header: 'Modificadores',
-                  render: (item) =>
-                    item.modifiers.length > 0 ? (
-                      <div style={{ display: 'grid', gap: '6px' }}>
+              ) : null}
+              {order.items.length === 0 ? (
+                <EmptyValue>Este pedido no tiene productos.</EmptyValue>
+              ) : (
+                <div style={{ display: 'grid' }}>
+                  {order.items.map((item, index) => (
+                    <div
+                      key={item.id}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'auto 1fr auto',
+                        gap: '12px',
+                        alignItems: 'start',
+                        padding: '12px 0',
+                        borderTop: index === 0 ? 'none' : '1px solid var(--acme-border)',
+                      }}
+                    >
+                      <span
+                        style={{
+                          minWidth: '34px',
+                          padding: '4px 8px',
+                          borderRadius: '8px',
+                          background: 'var(--acme-purple-light)',
+                          color: 'var(--acme-purple)',
+                          fontWeight: 800,
+                          textAlign: 'center',
+                          fontVariantNumeric: 'tabular-nums',
+                        }}
+                      >
+                        {item.quantity}×
+                      </span>
+                      <div style={{ display: 'grid', gap: '3px' }}>
+                        <strong style={{ fontSize: '15px' }}>{item.product_name_snapshot}</strong>
                         {item.modifiers.map((modifier) => (
-                          <span key={modifier.id}>
-                            {modifier.option_name_snapshot} x{modifier.quantity} ({formatMoney(modifier.price_delta, order.currency)})
+                          <span key={modifier.id} style={{ fontSize: '13px', color: 'var(--acme-text-muted)' }}>
+                            + {modifier.option_name_snapshot}
+                            {modifier.quantity > 1 ? ` x${modifier.quantity}` : ''}
                           </span>
                         ))}
+                        {item.notes ? (
+                          <span style={{ fontSize: '13px', color: 'var(--acme-orange)', fontWeight: 600 }}>Nota: {item.notes}</span>
+                        ) : null}
                       </div>
+                      <span style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{formatMoney(item.line_total, order.currency)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </SectionCard>
+
+            <div style={{ display: 'grid', gap: '20px' }}>
+              <SectionCard
+                title={order.fulfillment_type === 'pickup' ? 'Cliente' : 'Cliente y entrega'}
+                actions={
+                  <button type="button" onClick={openDeliveryModal} className="btn btn--ghost btn--sm">
+                    Editar
+                  </button>
+                }
+              >
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
+                  <InfoRow label="Recibe">{order.delivery_detail?.recipient_name || order.customer_label}</InfoRow>
+                  <InfoRow label="Telefono">
+                    {order.delivery_detail?.recipient_phone ? (
+                      <a href={`tel:${order.delivery_detail.recipient_phone}`} style={{ color: 'var(--acme-purple)' }}>
+                        {order.delivery_detail.recipient_phone}
+                      </a>
                     ) : (
-                      'Sin modificadores'
-                    ),
-                },
-                {
-                  id: 'total',
-                  header: 'Total',
-                  align: 'right',
-                  render: (item) => formatMoney(item.line_total, order.currency),
-                },
-              ]}
-            />
-          </SectionCard>
+                      <EmptyValue>Sin telefono</EmptyValue>
+                    )}
+                  </InfoRow>
+                  {order.fulfillment_type !== 'pickup' ? (
+                    <>
+                      <InfoRow label="Direccion">
+                        {order.delivery_detail?.address_snapshot || <EmptyValue>Sin direccion</EmptyValue>}
+                      </InfoRow>
+                      <InfoRow label="Referencia">
+                        {order.delivery_detail?.reference_snapshot || <EmptyValue>Sin referencia</EmptyValue>}
+                      </InfoRow>
+                      <InfoRow label="Repartidor">
+                        {order.current_driver_label || <EmptyValue>Sin asignar</EmptyValue>}
+                      </InfoRow>
+                      <InfoRow label="Zona">{order.zone_name || <EmptyValue>Sin zona</EmptyValue>}</InfoRow>
+                    </>
+                  ) : null}
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Cobro">
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  <ReceiptRow label="Productos" value={formatMoney(order.subtotal, order.currency)} />
+                  {discounts > 0 ? (
+                    <ReceiptRow
+                      label={order.coupon_code ? `Descuento (${order.coupon_code})` : 'Descuento'}
+                      value={`- ${formatMoney(discounts, order.currency)}`}
+                      muted
+                    />
+                  ) : null}
+                  {order.delivery_fee > 0 ? <ReceiptRow label="Delivery" value={formatMoney(order.delivery_fee, order.currency)} muted /> : null}
+                  {order.service_fee > 0 ? <ReceiptRow label="Servicio" value={formatMoney(order.service_fee, order.currency)} muted /> : null}
+                  {order.tax_amount > 0 ? <ReceiptRow label="Impuestos" value={formatMoney(order.tax_amount, order.currency)} muted /> : null}
+                  {order.tip_amount > 0 ? <ReceiptRow label="Propina" value={formatMoney(order.tip_amount, order.currency)} muted /> : null}
+                  <div style={{ height: '1px', background: 'var(--acme-border)', margin: '4px 0' }} />
+                  <ReceiptRow label="Total" value={formatMoney(order.total, order.currency)} strong />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <span style={{ fontSize: '14px', color: 'var(--acme-text-muted)' }}>
+                    {order.payment_method_label || 'Sin metodo de pago'}
+                    {order.cash_change_for ? ` · Vuelto para ${order.cash_change_for}` : ''}
+                  </span>
+                  <StatusPill label={paymentMeta.label} tone={paymentMeta.tone} />
+                </div>
+              </SectionCard>
+            </div>
+          </div>
         </AdminTabPanel>
       ) : null}
 
@@ -538,7 +771,7 @@ export function OrderDetailAdminPage() {
         <AdminTabPanel>
           <AdminInlineRelationTable
             title="Asignaciones de reparto"
-            description="Esta tabla concentra order_assignments y el estado operativo de cada intento de reparto."
+            description="Repartidores a los que se ofrecio este pedido y en que quedo cada intento."
             actions={
               canAssignDriver ? (
                 <button type="button" onClick={() => openAssignmentModal()} className="btn btn--secondary btn--sm">
@@ -558,7 +791,7 @@ export function OrderDetailAdminPage() {
                   render: (assignment) => (
                     <div style={{ display: 'grid', gap: '6px' }}>
                       <strong>{assignment.driver_label || 'Sin repartidor'}</strong>
-                      <span style={{ color: '#6b7280' }}>
+                      <span style={{ color: 'var(--acme-text-muted)' }}>
                         {assignment.driver_status || 'sin estado'} {assignment.is_online ? '/ online' : ''}
                       </span>
                     </div>
@@ -589,7 +822,7 @@ export function OrderDetailAdminPage() {
             />
           </AdminInlineRelationTable>
 
-          <AdminInlineRelationTable title="Historial de estado" description="Trazabilidad completa registrada en order_status_history.">
+          <AdminInlineRelationTable title="Historial de estado" description="Cada cambio de estado, quien lo hizo y cuando.">
             <AdminTimeline
               items={order.history.map((item) => ({
                 id: item.id,
@@ -601,7 +834,7 @@ export function OrderDetailAdminPage() {
             />
           </AdminInlineRelationTable>
 
-          <AdminInlineRelationTable title="Cancelaciones" description="Registro de order_cancellations ligado al pedido.">
+          <AdminInlineRelationTable title="Cancelaciones" description="Quien cancelo el pedido y por que.">
             <AdminDataTable
               rows={order.cancellations}
               getRowId={(cancellation) => cancellation.id}
@@ -621,7 +854,7 @@ export function OrderDetailAdminPage() {
         <AdminTabPanel>
           <AdminInlineRelationTable
             title="Incidencias"
-            description="order_incidents se usa para soporte, disputas y seguimiento postventa."
+            description="Reclamos o problemas reportados con este pedido."
             actions={
               <button type="button" onClick={() => openIncidentModal()} className="btn btn--secondary btn--sm">
                 Registrar incidencia
@@ -639,7 +872,7 @@ export function OrderDetailAdminPage() {
                   render: (incident) => (
                     <div style={{ display: 'grid', gap: '6px' }}>
                       <strong>{incident.incident_type}</strong>
-                      <span style={{ color: '#6b7280' }}>{incident.driver_label || 'Sin repartidor asociado'}</span>
+                      <span style={{ color: 'var(--acme-text-muted)' }}>{incident.driver_label || 'Sin repartidor asociado'}</span>
                     </div>
                   ),
                 },
@@ -663,7 +896,7 @@ export function OrderDetailAdminPage() {
 
           <AdminInlineRelationTable
             title="Evidencias"
-            description="order_evidences se integra como soporte de entrega, reclamos y verificacion."
+            description="Fotos o archivos que respaldan la entrega o un reclamo."
             actions={
               <button
                 type="button"
@@ -689,7 +922,7 @@ export function OrderDetailAdminPage() {
                   header: 'Archivo',
                   render: (evidence) =>
                     evidence.file_url ? (
-                      <a href={evidence.file_url} target="_blank" rel="noreferrer" style={{ color: '#2563eb' }}>
+                      <a href={evidence.file_url} target="_blank" rel="noreferrer" style={{ color: 'var(--acme-purple)', fontWeight: 600 }}>
                         Abrir archivo
                       </a>
                     ) : (
@@ -708,7 +941,7 @@ export function OrderDetailAdminPage() {
         <AdminTabPanel>
           <AdminInlineRelationTable
             title="Pagos"
-            description="payments concentra intentos o cobros asociados al pedido."
+            description="Cobros e intentos de cobro de este pedido."
             actions={
               <button type="button" onClick={() => openPaymentModal()} className="btn btn--secondary btn--sm">
                 Registrar pago
@@ -726,7 +959,7 @@ export function OrderDetailAdminPage() {
                   render: (payment) => (
                     <div style={{ display: 'grid', gap: '6px' }}>
                       <strong>{payment.payment_method_label}</strong>
-                      <span style={{ color: '#6b7280' }}>{payment.provider || 'Sin provider'}</span>
+                      <span style={{ color: 'var(--acme-text-muted)' }}>{payment.provider || 'Sin provider'}</span>
                     </div>
                   ),
                 },
@@ -750,7 +983,7 @@ export function OrderDetailAdminPage() {
 
           <AdminInlineRelationTable
             title="Transacciones"
-            description="payment_transactions queda visible dentro de la misma ficha, no como tabla tecnica separada."
+            description="Respuestas de la pasarela de pago para cada cobro."
             actions={
               <button
                 type="button"
@@ -779,8 +1012,8 @@ export function OrderDetailAdminPage() {
           </AdminInlineRelationTable>
 
           <AdminInlineRelationTable
-            title="Refunds"
-            description="refunds concentra devoluciones parciales o totales ligadas al pedido."
+            title="Devoluciones"
+            description="Dinero devuelto al cliente, total o parcial."
             actions={
               <button
                 type="button"
@@ -790,14 +1023,14 @@ export function OrderDetailAdminPage() {
                 }}
                 className="btn btn--secondary btn--sm"
               >
-                Registrar refund
+                Registrar devolucion
               </button>
             }
           >
             <AdminDataTable
               rows={order.refunds}
               getRowId={(refund) => refund.id}
-              emptyMessage="No hay refunds registrados."
+              emptyMessage="No hay devoluciones registradas."
               columns={[
                 { id: 'payment', header: 'Pago', render: (refund) => refund.payment_label || 'Sin pago' },
                 { id: 'amount', header: 'Monto', render: (refund) => formatMoney(refund.amount, order.currency) },
@@ -814,14 +1047,14 @@ export function OrderDetailAdminPage() {
 
       <AdminActionDialog
         open={statusDialogOpen}
-        title={`Marcar pedido como ${getAdminOrderStatusLabel(statusForm.next_status)}`}
+        title={`Marcar pedido como ${getAdminOrderStatusLabel(statusForm.next_status).toLowerCase()}`}
         description="Confirma que el pedido ya esta preparado. Desde aqui el repartidor se encarga de los siguientes estados."
         confirmLabel="Confirmar listo"
         isLoading={mutating}
         onConfirm={handleStatusUpdate}
         onClose={() => setStatusDialogOpen(false)}
       >
-        <FieldGroup label="Nota operativa">
+        <FieldGroup label="Nota (opcional)">
           <TextAreaField value={statusForm.note} onChange={(event) => setStatusForm((current) => ({ ...current, note: event.target.value }))} />
         </FieldGroup>
       </AdminActionDialog>
@@ -829,7 +1062,7 @@ export function OrderDetailAdminPage() {
       <AdminModalForm
         open={deliveryOpen}
         title="Entrega del pedido"
-        description="Actualiza order_delivery_details para mantener el snapshot operativo consistente."
+        description="Corrige los datos de entrega si el cliente los cambio."
         onClose={() => setDeliveryOpen(false)}
         actions={
           <>
@@ -904,7 +1137,7 @@ export function OrderDetailAdminPage() {
           <TextAreaField value={assignmentForm.reason} onChange={(event) => setAssignmentForm((current) => ({ ...current, reason: event.target.value }))} />
         </FieldGroup>
         {order.available_drivers.length === 0 ? (
-          <div style={{ color: '#6b7280' }}>No hay repartidores creados en la base por ahora, pero la ficha ya queda lista para cuando existan.</div>
+          <div style={{ color: 'var(--acme-text-muted)' }}>No hay repartidores creados en la base por ahora, pero la ficha ya queda lista para cuando existan.</div>
         ) : null}
       </AdminModalForm>
 
@@ -942,7 +1175,7 @@ export function OrderDetailAdminPage() {
       <AdminModalForm
         open={incidentOpen}
         title={incidentForm.id ? 'Actualizar incidencia' : 'Registrar incidencia'}
-        description="La incidencia se guarda en order_incidents dentro de la ficha del pedido."
+        description="Describe el problema para darle seguimiento."
         onClose={() => setIncidentOpen(false)}
         actions={
           <>
@@ -1031,7 +1264,7 @@ export function OrderDetailAdminPage() {
       <AdminModalForm
         open={paymentOpen}
         title={paymentForm.id ? 'Editar pago' : 'Registrar pago'}
-        description="La ficha usa payments como detalle integrado del pedido, no como modulo separado."
+        description="Registra un cobro hecho fuera de la pasarela o corrige uno existente."
         onClose={() => setPaymentOpen(false)}
         actions={
           <>
@@ -1078,7 +1311,7 @@ export function OrderDetailAdminPage() {
       <AdminModalForm
         open={transactionOpen}
         title="Registrar transaccion"
-        description="Usa payment_transactions para reflejar cobros, autorizaciones o respuestas manuales del gateway."
+        description="Registra a mano una respuesta de la pasarela de pago."
         onClose={() => setTransactionOpen(false)}
         actions={
           <>
@@ -1135,7 +1368,7 @@ export function OrderDetailAdminPage() {
 
       <AdminModalForm
         open={refundOpen}
-        title="Registrar refund"
+        title="Registrar devolucion"
         description="La devolucion queda visible dentro del mismo pedido y ligada al pago correspondiente."
         onClose={() => setRefundOpen(false)}
         actions={
@@ -1144,7 +1377,7 @@ export function OrderDetailAdminPage() {
               Cancelar
             </button>
             <button type="button" onClick={handleRefundSave} disabled={mutating || !refundForm.amount} className="btn btn--primary">
-              {mutating ? 'Guardando...' : 'Guardar refund'}
+              {mutating ? 'Guardando...' : 'Guardar devolucion'}
             </button>
           </>
         }

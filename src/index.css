@@ -302,6 +302,7 @@ p { margin: 0; }
 
 .portal-sidebar__nav-label {
   padding: 8px 10px 6px;
+  flex-shrink: 0;
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
@@ -318,6 +319,51 @@ p { margin: 0; }
   margin: 0;
 }
 
+/* Grupos del menú lateral */
+.portal-sidebar__group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.portal-sidebar__group + .portal-sidebar__group {
+  margin-top: 12px;
+}
+
+.portal-sidebar__group-label {
+  padding: 6px 10px 4px;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.portal-sidebar__group-divider {
+  display: none;
+  height: 1px;
+  margin: 4px 10px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* En modo minimizado: sin etiquetas, divider fino en su lugar */
+.portal-shell--minimized .portal-sidebar__group-label {
+  display: none;
+}
+
+.portal-shell--minimized .portal-sidebar__group-divider {
+  display: block;
+  align-self: stretch;
+}
+
+.portal-shell--minimized .portal-sidebar__group {
+  align-items: center;
+}
+
 .portal-shell--minimized .portal-sidebar__nav {
   padding: 16px 8px;
   align-items: center;
@@ -329,6 +375,7 @@ p { margin: 0; }
   align-items: center;
   gap: 11px;
   padding: 10px 12px;
+  flex-shrink: 0;
   border-radius: var(--acme-radius-md);
   color: rgba(255, 255, 255, 0.6);
   font-weight: 500;
@@ -574,6 +621,7 @@ p { margin: 0; }
 .portal-header__search {
   flex: 0 1 340px;
   margin: 0 16px;
+  position: relative;
 }
 
 .portal-header__search-input-wrapper {
@@ -596,10 +644,26 @@ p { margin: 0; }
   box-shadow: 0 0 0 3px rgba(77, 20, 140, 0.06);
 }
 
-.portal-header__search-placeholder {
+.portal-header__search-input {
   font-size: 13px;
   font-weight: 500;
   flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--acme-text);
+  font-family: inherit;
+}
+
+.portal-header__search-input::placeholder {
+  color: var(--acme-text-muted);
+}
+
+.portal-header__search-input-wrapper:focus-within {
+  border-color: rgba(77, 20, 140, 0.35);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(77, 20, 140, 0.08);
 }
 
 .portal-header__search-kbd {
@@ -614,31 +678,55 @@ p { margin: 0; }
   box-shadow: 0 1px 0 rgba(0,0,0,0.06);
 }
 
-.portal-header-action {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--acme-radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--acme-text-muted);
-  transition: all 0.18s ease;
-  border: 1px solid transparent;
+/* Resultados del buscador de módulos */
+.portal-header__search-results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  background: var(--acme-surface);
+  border: 1px solid var(--acme-border);
+  border-radius: var(--acme-radius-md);
+  box-shadow: var(--acme-shadow-lg);
+  overflow: hidden;
+  animation: dropdownFadeIn 0.14s ease;
+}
+
+.portal-header__search-result {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
   background: transparent;
-  position: relative;
+  border: none;
+  cursor: pointer;
+  transition: background 0.12s ease;
 }
 
-.portal-header-action:hover {
-  background: var(--acme-surface-muted);
-  color: var(--acme-purple);
-  border-color: var(--acme-border);
+.portal-header__search-result--active {
+  background: var(--acme-purple-light);
 }
 
-.portal-header-divider {
-  width: 1px;
-  height: 22px;
-  background: var(--acme-border);
-  margin: 0 6px;
+.portal-header__search-result-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--acme-text);
+}
+
+.portal-header__search-result-desc {
+  font-size: 11.5px;
+  color: var(--acme-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portal-header__search-empty {
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: var(--acme-text-muted);
 }
 
 .portal-user-btn {
@@ -869,7 +957,11 @@ p { margin: 0; }
   max-width: 1360px;
   margin: 0 auto;
   width: 100%;
-  animation: fadeInUp 0.3s ease both;
+  /* "backwards" y no "both": con "both" se retiene el transform del ultimo
+     keyframe para siempre, y un transform != none convierte a este
+     contenedor en el bloque contenedor de sus descendientes position:fixed
+     (modales, dropdowns, toasts), que dejan de anclarse al viewport. */
+  animation: fadeInUp 0.3s ease backwards;
 }
 
 /* =====================================================
@@ -945,61 +1037,60 @@ p { margin: 0; }
    STAT CARDS
    ===================================================== */
 
+/* Definición canónica única de .stat-card (consolida las dos variantes
+   históricas: __icon/__foot del dashboard de sucursal y
+   __badge/__icon-box/__help de las páginas admin). */
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 16px;
-  margin-bottom: 28px;
+  /* auto-fill y no auto-fit: con auto-fit una tarjeta sola se estira a todo
+     el ancho. Y 200px entran cinco en pantalla amplia, sin la huerfana. */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
 }
 
 .stat-card {
-  padding: 22px 24px;
+  padding: 16px 18px;
   background: var(--acme-surface);
   border-radius: var(--acme-radius-lg);
   border: 1px solid var(--acme-border);
   box-shadow: var(--acme-shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  animation: fadeInUp 0.35s ease both;
-  transition: box-shadow 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
+  gap: 8px;
+  animation: fadeInUp 0.35s ease backwards;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   position: relative;
   overflow: hidden;
 }
 
-/* Subtle colored top border accent per card theme */  
-.stat-card::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--acme-purple), var(--acme-orange));
-  opacity: 0;
-  transition: opacity 0.22s ease;
-}
-
+/* Subtle colored top border accent per card theme */
 .stat-card:hover {
-  box-shadow: var(--acme-shadow-lg);
-  transform: translateY(-3px);
   border-color: var(--acme-border-strong);
 }
 
-.stat-card:hover::before {
-  opacity: 1;
+.stat-card__badge {
+  position: absolute;
+  top: 0; right: 0;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle at top right, var(--acme-purple-light) 0%, transparent 70%);
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .stat-card__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
 }
 
 .stat-card__label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--acme-text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--acme-text-faint);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
 .stat-card__icon {
@@ -1012,17 +1103,38 @@ p { margin: 0; }
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
+.stat-card__icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--acme-surface-muted);
+  color: var(--acme-text-muted);
+}
+
 .stat-card__value {
-  font-size: 34px;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1;
+  font-size: 27px;
+  font-weight: 800;
+  color: var(--acme-text);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  /* Cifras de ancho fijo: los numeros quedan alineados entre tarjetas. */
+  font-variant-numeric: tabular-nums;
 }
 
 .stat-card__foot {
   font-size: 12px;
   color: var(--acme-text-faint);
   font-weight: 500;
+}
+
+.stat-card__help {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--acme-text-muted);
+  margin-top: 0;
 }
 
 /* Icon color variants */
@@ -1061,7 +1173,7 @@ p { margin: 0; }
   box-shadow: var(--acme-shadow-sm);
   display: grid;
   gap: 20px;
-  animation: fadeInUp 0.4s ease both;
+  animation: fadeInUp 0.4s ease backwards;
   transition: box-shadow 0.2s ease;
 }
 
@@ -1236,7 +1348,7 @@ p { margin: 0; }
   box-shadow: var(--acme-shadow-sm);
   padding: 20px;
   transition: box-shadow 0.18s ease, transform 0.18s ease;
-  animation: fadeInUp 0.3s ease both;
+  animation: fadeInUp 0.3s ease backwards;
 }
 
 .order-card:hover {
@@ -1325,18 +1437,52 @@ p { margin: 0; }
   align-items: center;
   justify-content: center;
   gap: 7px;
-  padding: 9px 18px;
+  /* min-height fija: los botones quedan a la misma altura que los selects e
+     inputs cuando comparten una fila de acciones. */
+  min-height: 42px;
+  padding: 9px 16px;
   border-radius: var(--acme-radius-md);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: -0.01em;
   cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
+  /* Solo color y sombra: "all" tambien animaba tamano y posicion, lo que
+     hacia saltar la fila al pasar el mouse. */
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
   border: 1px solid transparent;
   white-space: nowrap;
   text-decoration: none;
-  position: relative;
-  overflow: hidden;
+}
+
+/* El icono nunca se deforma aunque el texto sea largo. */
+.btn > svg {
+  flex-shrink: 0;
+}
+
+/* Anillo de foco: sin esto no se ve donde esta parado el teclado, que en un
+   panel de administracion es un problema de uso, no de estetica. */
+.btn:focus-visible,
+.input-field:focus-visible,
+.admin-field:focus-visible {
+  outline: 2px solid var(--acme-purple);
+  outline-offset: 2px;
+}
+
+/* Boton de solo icono para acciones de fila: cuadrado y sin padding lateral
+   de texto. Requiere aria-label en el markup. */
+.btn--icon {
+  padding: 0;
+  width: 34px;
+  min-height: 34px;
+  border-radius: var(--acme-radius-sm);
+}
+
+/* Agrupa acciones relacionadas manteniendo el ritmo horizontal. */
+.btn-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .btn--primary {
@@ -1348,8 +1494,7 @@ p { margin: 0; }
 .btn--primary:hover:not(:disabled) {
   background: linear-gradient(135deg, var(--acme-purple-mid) 0%, #7c3aed 100%);
   border-color: var(--acme-purple-mid);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(77,20,140,0.32), inset 0 1px 0 rgba(255,255,255,0.15);
+  box-shadow: 0 2px 8px rgba(77,20,140,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 .btn--primary:active:not(:disabled) {
   transform: translateY(0);
@@ -1375,7 +1520,6 @@ p { margin: 0; }
 }
 .btn--success:hover:not(:disabled) {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  transform: translateY(-1px);
   box-shadow: 0 5px 14px rgba(16,185,129,0.35);
 }
 
@@ -1389,7 +1533,6 @@ p { margin: 0; }
   color: #fff;
   border-color: var(--acme-red);
   box-shadow: 0 4px 12px rgba(239,68,68,0.3);
-  transform: translateY(-1px);
 }
 
 .btn--orange {
@@ -1400,7 +1543,6 @@ p { margin: 0; }
 }
 .btn--orange:hover:not(:disabled) {
   background: linear-gradient(135deg, #e55a00 0%, #cc5200 100%);
-  transform: translateY(-1px);
   box-shadow: 0 5px 14px rgba(255,98,0,0.35);
 }
 
@@ -1543,7 +1685,7 @@ p { margin: 0; }
   align-items: center;
   gap: 14px;
   transition: all 0.15s ease;
-  animation: fadeInUp 0.3s ease both;
+  animation: fadeInUp 0.3s ease backwards;
   position: relative;
   overflow: hidden;
 }
@@ -1628,7 +1770,7 @@ p { margin: 0; }
   display: grid;
   gap: 14px;
   transition: all 0.15s ease;
-  animation: fadeInUp 0.35s ease both;
+  animation: fadeInUp 0.35s ease backwards;
 }
 
 .hour-card:hover {
@@ -1736,7 +1878,7 @@ p { margin: 0; }
   border-radius: var(--acme-radius-xl);
   overflow: hidden;
   box-shadow: var(--acme-shadow-sm);
-  animation: fadeInUp 0.35s ease both;
+  animation: fadeInUp 0.35s ease backwards;
 }
 
 .category-group__header {
@@ -1833,7 +1975,7 @@ p { margin: 0; }
   gap: 14px;
   align-items: flex-start;
   transition: all 0.15s ease;
-  animation: fadeInUp 0.3s ease both;
+  animation: fadeInUp 0.3s ease backwards;
 }
 
 .staff-card:hover {
@@ -1941,6 +2083,106 @@ p { margin: 0; }
 }
 
 /* =====================================================
+   PORTAL ERROR STATE
+   ===================================================== */
+
+.portal-errorState {
+  display: grid;
+  gap: 8px;
+  padding: 18px 20px;
+  border-radius: var(--acme-radius-lg);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: var(--acme-red-light);
+  color: var(--acme-red);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.portal-errorState__title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.portal-errorState__desc {
+  color: var(--acme-red);
+  opacity: 0.85;
+  font-weight: 500;
+  margin: 0;
+}
+
+.portal-errorState__retry {
+  justify-self: start;
+  padding: 8px 16px;
+  border-radius: var(--acme-radius-md);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: var(--acme-surface);
+  color: var(--acme-red);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.portal-errorState__retry:hover {
+  background: var(--acme-red-light);
+}
+
+/* =====================================================
+   ADMIN DATA TABLE
+   ===================================================== */
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--acme-radius-lg);
+  border: 1px solid var(--acme-border);
+  background: var(--acme-surface);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table thead tr {
+  background: var(--acme-surface-muted);
+}
+
+.admin-table th {
+  padding: 12px 16px;
+  text-align: left;
+  color: var(--acme-text-faint);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--acme-border);
+}
+
+.admin-table td {
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: top;
+  color: var(--acme-text);
+  font-size: 14px;
+}
+
+.admin-table th[data-align='center'],
+.admin-table td[data-align='center'] { text-align: center; }
+.admin-table th[data-align='right'],
+.admin-table td[data-align='right'] { text-align: right; }
+
+.admin-table tbody tr {
+  border-top: 1px solid var(--acme-border);
+  transition: background 0.12s ease;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--acme-surface-muted);
+}
+
+/* =====================================================
    PORTAL HEADER BAR (legacy support)
    ===================================================== */
 
@@ -1962,11 +2204,48 @@ p { margin: 0; }
    LOADING STATE
    ===================================================== */
 
-.loading-shimmer {
+/* Skeleton loading blocks (componentes en shared/Skeleton.tsx) */
+.skeleton {
   background: linear-gradient(90deg, var(--acme-surface-muted) 25%, #e8edf5 50%, var(--acme-surface-muted) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--acme-radius-sm);
+}
+
+.inline-spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border: 2px solid var(--acme-border);
+  border-top-color: var(--acme-purple);
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Animaciones de entrada utilitarias (reemplazan animationDelay inline dispersos) */
+.anim-fade-up {
+  animation: fadeInUp 0.35s ease backwards;
+}
+
+.anim-stagger-1 { animation-delay: 0.05s; }
+.anim-stagger-2 { animation-delay: 0.10s; }
+.anim-stagger-3 { animation-delay: 0.15s; }
+.anim-stagger-4 { animation-delay: 0.20s; }
+.anim-stagger-5 { animation-delay: 0.25s; }
+.anim-stagger-6 { animation-delay: 0.30s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: var(--acme-surface-muted);
+  }
+  .stat-card,
+  .anim-fade-up {
+    animation: none;
+  }
+  .inline-spinner {
+    animation-duration: 1.6s;
+  }
 }
 
 /* =====================================================
@@ -2352,89 +2631,9 @@ p { margin: 0; }
 
 /* =====================================================
    DASHBOARD PREMIUM COMPONENTS
+   (la definición canónica de .stat-grid/.stat-card vive
+   arriba, junto al resto de componentes de página)
    ===================================================== */
-
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-}
-
-.stat-card {
-  background: var(--acme-surface);
-  border: 1px solid var(--acme-border);
-  border-radius: var(--acme-radius-xl);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--acme-purple-light);
-  box-shadow: 0 12px 24px -10px rgba(77, 20, 140, 0.12);
-}
-
-.stat-card__badge {
-  position: absolute;
-  top: 0; right: 0;
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle at top right, var(--acme-purple-light) 0%, transparent 70%);
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.stat-card__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.stat-card__icon-box {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--acme-surface-muted);
-  color: var(--acme-text-muted);
-  transition: all 0.3s ease;
-}
-
-.stat-card:hover .stat-card__icon-box {
-  background: var(--acme-purple);
-  color: #fff;
-  transform: scale(1.1) rotate(-5deg);
-}
-
-.stat-card__label {
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--acme-text-faint);
-}
-
-.stat-card__value {
-  font-size: 32px;
-  font-weight: 900;
-  color: var(--acme-text);
-  line-height: 1;
-  letter-spacing: -0.03em;
-}
-
-.stat-card__help {
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--acme-text-muted);
-  margin-top: 4px;
-}
 
 /* Scope Selector Cards */
 .scope-grid {
@@ -2609,3 +2808,77 @@ p { margin: 0; }
 
 
 
+
+/* ——— Tema de mapas (Leaflet) ———————————————————————
+   Los tiles de OpenStreetMap son mas saturados que un basemap tipo Google
+   Maps. En vez de pagar un proveedor con API key, se suavizan por CSS: el
+   filtro va en el pane de tiles, asi que los pines conservan su color. */
+
+/* leaflet.css define su propio fondo #ddd y puede cargarse despues que este
+   archivo, asi que aca hace falta ganar por peso, no por orden. */
+.leaflet-container {
+  background: #f2f4f7 !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.leaflet-tile-pane {
+  filter: saturate(0.6) brightness(1.07) contrast(0.93);
+}
+
+/* Controles de zoom al estilo Google Maps */
+.leaflet-control-zoom {
+  border: none !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.05);
+}
+
+.leaflet-control-zoom a {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  background: #fff;
+  color: #3c4043;
+  border: none !important;
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.leaflet-control-zoom a:hover {
+  background: #f1f3f4;
+  color: #202124;
+}
+
+.leaflet-control-zoom a:first-child {
+  border-bottom: 1px solid #e8eaed !important;
+}
+
+/* La licencia ODbL de OpenStreetMap exige el credito, asi que no se quita:
+   se deja discreto. El prefijo "Leaflet" si se elimina, por codigo. */
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.76) !important;
+  backdrop-filter: blur(3px);
+  border-radius: 6px 0 0 0;
+  padding: 2px 7px !important;
+  font-size: 10px !important;
+  color: #70757a !important;
+}
+
+.leaflet-control-attribution a {
+  color: #70757a !important;
+  text-decoration: none;
+}
+
+.leaflet-tooltip {
+  border: none;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #202124;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.22);
+}
+
+.leaflet-tooltip-top::before {
+  border-top-color: #fff;
+}

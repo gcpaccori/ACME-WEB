@@ -1,8 +1,11 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { AdminSearchBar } from '../../../../components/admin/AdminSearchBar';
+import { IconArrowRight } from '../../../../components/admin/AdminIcons';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
-import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { SectionSkeleton } from '../../../../components/shared/Skeleton';
+import { ErrorBanner } from '../../../../components/shared/ErrorBanner';
 import { TextField } from '../../../../components/ui/TextField';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminCustomersService, CustomerAdminRecord, CustomerOrderRatingRecord } from '../../../../core/services/adminCustomersService';
@@ -126,19 +129,6 @@ export function CustomersAdminPage() {
         { label: 'Modo', value: 'Consulta', tone: 'info' },
       ]}
     >
-      <SectionCard title="Filtrado de clientes" description="Busca por nombre, correo o teléfono para encontrar rapidamente a un cliente frecuente.">
-        <div style={{ position: 'relative' }}>
-          <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--acme-text-faint)', zIndex: 1, pointerEvents: 'none' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </div>
-          <TextField 
-            value={query} 
-            onChange={(event) => setQuery(event.target.value)} 
-            placeholder="Escribe el nombre, correo o teléfono del cliente..." 
-            style={{ paddingLeft: '48px' }}
-          />
-        </div>
-      </SectionCard>
 
       <SectionCard title="Calificaciones de tus clientes" description="Lo que los clientes calificaron al recibir sus pedidos: al negocio y al repartidor que los llevó.">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
@@ -161,10 +151,20 @@ export function CustomersAdminPage() {
       </SectionCard>
 
       <SectionCard title="Clientes del comercio" description="Se listan clientes con pedidos o carritos vinculados al comercio actual.">
+        <AdminSearchBar
+          value={query}
+          onChange={setQuery}
+          placeholder="Buscar por nombre, correo o telefono"
+          label="Buscar clientes"
+          total={records.length}
+          shown={filteredRecords.length}
+          noun="clientes"
+        />
+
         {loading ? (
-          <LoadingScreen />
+          <SectionSkeleton lines={5} />
         ) : error ? (
-          <div style={{ color: '#b91c1c' }}>{error}</div>
+          <ErrorBanner message={error} />
         ) : (
           <AdminDataTable
             rows={filteredRecords}
@@ -238,12 +238,13 @@ export function CustomersAdminPage() {
                 align: 'right',
                 width: '140px',
                 render: (record) => (
-                  <Link 
-                    to={AppRoutes.portal.admin.customerDetail.replace(':customerId', record.id)} 
-                    className="btn btn--sm btn--ghost" 
-                    style={{ color: 'var(--acme-purple)', fontWeight: 700 }}
+                  <Link
+                    to={AppRoutes.portal.admin.customerDetail.replace(':customerId', record.id)}
+                    className="btn btn--sm btn--secondary"
+                    aria-label={`Ver ficha de ${record.full_name || 'el cliente'}`}
                   >
-                    Abrir ficha
+                    Ver ficha
+                    <IconArrowRight size={13} />
                   </Link>
                 ),
               },

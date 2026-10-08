@@ -1,6 +1,9 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
+import { IconEdit } from '../../../../components/admin/AdminIcons';
+import { DataTile } from '../../../../components/admin/DataTile';
+import { ModuleIcon } from '../../../../components/admin/ModuleIcon';
 import { AdminDrawer } from '../../../../components/admin/AdminDrawer';
 import { AdminEntityHeader } from '../../../../components/admin/AdminEntityHeader';
 import { CheckboxField, FieldGroup, NumberField, SelectField } from '../../../../components/admin/AdminFields';
@@ -10,6 +13,7 @@ import { AdminPageFrame, FormStatusBar, SectionCard, StatusPill } from '../../..
 import { AdminTabPanel, AdminTabs } from '../../../../components/admin/AdminTabs';
 import { AdminTimeline } from '../../../../components/admin/AdminTimeline';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { ErrorBanner } from '../../../../components/shared/ErrorBanner';
 import { TextField } from '../../../../components/ui/TextField';
 import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
@@ -69,10 +73,11 @@ function getDriverTone(status: string) {
   return 'info' as const;
 }
 
+// Tonos del enum driver_state: offline, available, busy, paused
 function getStateTone(status: string) {
   const normalized = status.trim().toLowerCase();
-  if (normalized === 'idle' || normalized === 'available') return 'success' as const;
-  if (normalized === 'delivering' || normalized === 'assigned') return 'info' as const;
+  if (normalized === 'available') return 'success' as const;
+  if (normalized === 'busy') return 'info' as const;
   if (normalized === 'offline') return 'neutral' as const;
   return 'warning' as const;
 }
@@ -286,7 +291,7 @@ export function DriverDetailAdminPage() {
   }
 
   if (error && !detail) {
-    return <div style={{ color: '#b91c1c' }}>{error}</div>;
+    return <ErrorBanner message={error} />;
   }
 
   if (!detail) {
@@ -327,23 +332,31 @@ export function DriverDetailAdminPage() {
         description={`${detail.email || 'Sin email'} / ${detail.phone || 'Sin telefono'} / ${detail.vehicle_type_label || 'Sin tipo de vehiculo'}`}
         status={{ label: detail.status || 'sin estado', tone: getDriverTone(detail.status) }}
         actions={
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button type="button" onClick={openRootModal} className="btn btn--secondary btn--sm">
+          <>
+            {/* "Editar ficha" es la accion principal: ahi se verifica y se
+                habilita al repartidor. Antes se veia igual que consultar los
+                tipos de vehiculo, que es solo lectura. */}
+            <button type="button" onClick={openRootModal} className="btn btn--primary btn--sm">
+              <IconEdit size={13} />
               Editar ficha
             </button>
             <button type="button" onClick={openStateModal} className="btn btn--secondary btn--sm">
+              <ModuleIcon icon="toggle-right" size={13} />
               Editar estado
             </button>
             <button type="button" onClick={() => openShiftModal()} className="btn btn--secondary btn--sm">
+              <ModuleIcon icon="clock" size={13} />
               Agregar turno
             </button>
             <button type="button" onClick={() => openCashModal()} className="btn btn--secondary btn--sm">
+              <ModuleIcon icon="dollar-sign" size={13} />
               Registrar cobranza
             </button>
-            <button type="button" onClick={() => setVehicleTypesDrawerOpen(true)} className="btn btn--secondary btn--sm">
-              Ver tipos de vehiculo
+            <button type="button" onClick={() => setVehicleTypesDrawerOpen(true)} className="btn btn--ghost btn--sm">
+              <ModuleIcon icon="truck" size={13} />
+              Tipos de vehiculo
             </button>
-          </div>
+          </>
         }
       />
 
@@ -362,25 +375,36 @@ export function DriverDetailAdminPage() {
         <AdminTabPanel>
           <SectionCard title="Resumen operativo" description="Vista rapida para validar onboarding, disponibilidad y nivel de riesgo del repartidor.">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
-              {[
+              {([
+                // Los dos primeros son los que habilitan al repartidor a operar:
+                // la app exige is_verified && profiles.is_active para dejarlo
+                // salir de la pantalla de revision. Van al frente porque el
+                // resto del resumen no dice nada sobre el onboarding.
+                { label: 'Verificacion', value: detail.is_verified ? 'Verificado' : 'Pendiente', tone: detail.is_verified ? 'ok' : 'warn' },
+                { label: 'Perfil', value: detail.is_active ? 'Activo' : 'Inactivo', tone: detail.is_active ? 'ok' : 'warn' },
                 { label: 'Rating', value: detail.rating_avg.toFixed(1) },
                 { label: 'Estado en vivo', value: detail.current_state_status || 'offline' },
                 { label: 'Online', value: detail.is_online ? 'Si' : 'No' },
                 { label: 'Pedido actual', value: detail.current_order_code ? `#${detail.current_order_code}` : 'Sin pedido' },
                 { label: 'Ultima senal', value: detail.last_seen_at ? formatDateTime(detail.last_seen_at) : 'Sin senal' },
                 { label: 'Alta', value: detail.joined_at ? formatDateTime(detail.joined_at) : 'Sin fecha' },
-              ].map((item) => (
-                <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
-                  <strong>{item.value}</strong>
-                </div>
+              ] as Array<{ label: string; value: string; tone?: 'ok' | 'warn' }>).map((item) => (
+                <DataTile
+                  key={item.label}
+                  label={item.label}
+                  value={
+                    <span style={{ color: item.tone === 'ok' ? 'var(--acme-green)' : item.tone === 'warn' ? 'var(--acme-orange)' : undefined }}>
+                      {item.value}
+                    </span>
+                  }
+                />
               ))}
             </div>
           </SectionCard>
 
           <AdminInlineRelationTable
             title="Estado en vivo"
-            description="driver_current_state se usa como tablero operativo en vivo y no como CRUD suelto."
+            description="Disponibilidad del repartidor en este momento. La cambia el, desde su app, al entrar en turno."
             actions={
               <button type="button" onClick={openStateModal} className="btn btn--secondary btn--sm">
                 Editar estado
@@ -388,34 +412,36 @@ export function DriverDetailAdminPage() {
             }
           >
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Estado</div>
-                <div style={{ marginTop: '8px' }}>
-                  <StatusPill label={detail.current_state_status || 'offline'} tone={getStateTone(detail.current_state_status)} />
-                </div>
-              </div>
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Conexion</div>
-                <strong>{detail.is_online ? 'Online' : 'Offline'}</strong>
-                <div style={{ color: '#6b7280', marginTop: '6px' }}>
-                  {detail.last_seen_at ? `Ultima senal ${formatDateTime(detail.last_seen_at)}` : 'Sin ultima senal'}
-                </div>
-              </div>
-              <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                <div style={{ color: '#6b7280', fontSize: '13px' }}>Ubicacion actual</div>
-                <strong>
-                  {detail.last_lat || detail.last_lng ? `${detail.last_lat || '-'}, ${detail.last_lng || '-'}` : 'Sin coordenadas'}
-                </strong>
-                <div style={{ color: '#6b7280', marginTop: '6px' }}>
-                  {detail.current_order_id ? (
-                    <Link to={AppRoutes.portal.admin.orderDetail.replace(':orderId', detail.current_order_id)} style={{ color: '#2563eb' }}>
+              <DataTile
+                label="Estado"
+                value={<StatusPill label={detail.current_state_status || 'offline'} tone={getStateTone(detail.current_state_status)} />}
+              />
+              <DataTile
+                label="Conexion"
+                value={detail.is_online ? 'Online' : 'Offline'}
+                hint={detail.last_seen_at ? `Ultima senal ${formatDateTime(detail.last_seen_at)}` : 'Sin ultima senal'}
+              />
+              <DataTile
+                label="Ubicacion actual"
+                value={
+                  detail.last_lat || detail.last_lng
+                    ? `${detail.last_lat || '-'}, ${detail.last_lng || '-'}`
+                    : 'Sin coordenadas'
+                }
+                empty={!detail.last_lat && !detail.last_lng}
+                hint={
+                  detail.current_order_id ? (
+                    <Link
+                      to={AppRoutes.portal.admin.orderDetail.replace(':orderId', detail.current_order_id)}
+                      style={{ color: 'var(--acme-purple)', fontWeight: 600 }}
+                    >
                       Ver pedido #{detail.current_order_code || detail.current_order_id}
                     </Link>
                   ) : (
                     'Sin pedido en curso'
-                  )}
-                </div>
-              </div>
+                  )
+                }
+              />
             </div>
           </AdminInlineRelationTable>
 
@@ -434,7 +460,7 @@ export function DriverDetailAdminPage() {
                   render: (record) => (
                     <div style={{ display: 'grid', gap: '6px' }}>
                       <strong>#{record.order_code}</strong>
-                      <span style={{ color: '#6b7280' }}>{record.branch_label}</span>
+                      <span style={{ color: 'var(--acme-text-muted)' }}>{record.branch_label}</span>
                     </div>
                   ),
                 },
@@ -447,7 +473,7 @@ export function DriverDetailAdminPage() {
                   align: 'right',
                   width: '150px',
                   render: (record) => (
-                    <Link to={AppRoutes.portal.admin.orderDetail.replace(':orderId', record.order_id)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                    <Link to={AppRoutes.portal.admin.orderDetail.replace(':orderId', record.order_id)} style={{ color: 'var(--acme-purple)', fontWeight: 700 }}>
                       Ver pedido
                     </Link>
                   ),
@@ -480,7 +506,7 @@ export function DriverDetailAdminPage() {
                   render: (record) => (
                     <div style={{ display: 'grid', gap: '6px' }}>
                       <strong>{record.document_type || 'Documento'}</strong>
-                      <span style={{ color: '#6b7280' }}>{record.document_number || 'Sin numero'}</span>
+                      <span style={{ color: 'var(--acme-text-muted)' }}>{record.document_number || 'Sin numero'}</span>
                     </div>
                   ),
                 },
@@ -491,7 +517,7 @@ export function DriverDetailAdminPage() {
                   header: 'Archivo',
                   render: (record) =>
                     record.file_url ? (
-                      <a href={record.file_url} target="_blank" rel="noreferrer" style={{ color: '#2563eb' }}>
+                      <a href={record.file_url} target="_blank" rel="noreferrer" style={{ color: 'var(--acme-purple)', fontWeight: 600 }}>
                         Abrir archivo
                       </a>
                     ) : (
@@ -537,7 +563,7 @@ export function DriverDetailAdminPage() {
                   render: (record) => (
                     <div style={{ display: 'grid', gap: '6px' }}>
                       <strong>{[record.brand, record.model].filter(Boolean).join(' ') || 'Vehiculo'}</strong>
-                      <span style={{ color: '#6b7280' }}>{record.plate || 'Sin placa'} / {record.vehicle_type_label}</span>
+                      <span style={{ color: 'var(--acme-text-muted)' }}>{record.plate || 'Sin placa'} / {record.vehicle_type_label}</span>
                     </div>
                   ),
                 },
@@ -596,7 +622,7 @@ export function DriverDetailAdminPage() {
 
           <SectionCard title="Tracking reciente" description="driver_locations se expone como lectura integrada para soporte y monitoreo de reparto.">
             {detail.locations.length === 0 ? (
-              <div style={{ color: '#6b7280' }}>No hay ubicaciones registradas todavia.</div>
+              <div style={{ color: 'var(--acme-text-muted)' }}>No hay ubicaciones registradas todavia.</div>
             ) : (
               <AdminTimeline
                 items={detail.locations.map((location) => ({
@@ -619,21 +645,19 @@ export function DriverDetailAdminPage() {
           <SectionCard title="Vehiculo activo" description="Resumen rapido del vehiculo principal del repartidor.">
             {activeVehicle ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
-                <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '13px' }}>Unidad</div>
-                  <strong>{[activeVehicle.brand, activeVehicle.model].filter(Boolean).join(' ') || 'Vehiculo'}</strong>
-                </div>
-                <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '13px' }}>Placa</div>
-                  <strong>{activeVehicle.plate || 'Sin placa'}</strong>
-                </div>
-                <div style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '13px' }}>Tipo</div>
-                  <strong>{activeVehicle.vehicle_type_label || 'Sin tipo'}</strong>
-                </div>
+                <DataTile
+                  label="Unidad"
+                  value={[activeVehicle.brand, activeVehicle.model].filter(Boolean).join(' ') || 'Vehiculo'}
+                />
+                <DataTile label="Placa" value={activeVehicle.plate || 'Sin placa'} empty={!activeVehicle.plate} />
+                <DataTile
+                  label="Tipo"
+                  value={activeVehicle.vehicle_type_label || 'Sin tipo'}
+                  empty={!activeVehicle.vehicle_type_label}
+                />
               </div>
             ) : (
-              <div style={{ color: '#6b7280' }}>No hay vehiculo activo registrado.</div>
+              <div style={{ color: 'var(--acme-text-muted)' }}>No hay vehiculo activo registrado.</div>
             )}
           </SectionCard>
         </AdminTabPanel>
@@ -660,7 +684,7 @@ export function DriverDetailAdminPage() {
                   header: 'Pedido',
                   render: (record) =>
                     record.order_id ? (
-                      <Link to={AppRoutes.portal.admin.orderDetail.replace(':orderId', record.order_id)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                      <Link to={AppRoutes.portal.admin.orderDetail.replace(':orderId', record.order_id)} style={{ color: 'var(--acme-purple)', fontWeight: 700 }}>
                         #{record.order_code || record.order_id}
                       </Link>
                     ) : (
@@ -687,17 +711,17 @@ export function DriverDetailAdminPage() {
 
           <SectionCard title="Liquidaciones del repartidor" description="driver_settlements y driver_settlement_items se leen juntos para validar pagos, bonos y penalidades.">
             {detail.settlements.length === 0 ? (
-              <div style={{ color: '#6b7280' }}>No hay liquidaciones registradas todavia.</div>
+              <div style={{ color: 'var(--acme-text-muted)' }}>No hay liquidaciones registradas todavia.</div>
             ) : (
               <div style={{ display: 'grid', gap: '18px' }}>
                 {detail.settlements.map((settlement) => (
-                  <div key={settlement.id} style={{ padding: '18px', borderRadius: '16px', background: '#f9fafb', border: '1px solid #e5e7eb', display: 'grid', gap: '14px' }}>
+                  <div key={settlement.id} style={{ padding: '18px', borderRadius: '16px', background: 'var(--acme-surface-muted)', border: '1px solid var(--acme-border)', display: 'grid', gap: '14px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                       <div>
                         <strong>
                           Periodo {formatDateTime(settlement.period_start)} - {formatDateTime(settlement.period_end)}
                         </strong>
-                        <div style={{ color: '#6b7280', marginTop: '6px' }}>
+                        <div style={{ color: 'var(--acme-text-muted)', marginTop: '6px' }}>
                           {settlement.deliveries_count} entregas / generado {formatDateTime(settlement.generated_at)}
                         </div>
                       </div>
@@ -713,8 +737,8 @@ export function DriverDetailAdminPage() {
                         { label: 'Penalidades', value: formatMoney(settlement.penalties) },
                         { label: 'Efectivo', value: formatMoney(settlement.cash_collected) },
                       ].map((item) => (
-                        <div key={item.label} style={{ padding: '12px', borderRadius: '12px', background: '#ffffff', border: '1px solid #e5e7eb' }}>
-                          <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
+                        <div key={item.label} style={{ padding: '12px', borderRadius: '12px', background: 'var(--acme-surface)', border: '1px solid var(--acme-border)' }}>
+                          <div style={{ color: 'var(--acme-text-muted)', fontSize: '13px' }}>{item.label}</div>
                           <strong>{item.value}</strong>
                         </div>
                       ))}
@@ -729,7 +753,7 @@ export function DriverDetailAdminPage() {
                           header: 'Pedido',
                           render: (item) =>
                             item.order_id ? (
-                              <Link to={AppRoutes.portal.admin.orderDetail.replace(':orderId', item.order_id)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                              <Link to={AppRoutes.portal.admin.orderDetail.replace(':orderId', item.order_id)} style={{ color: 'var(--acme-purple)', fontWeight: 700 }}>
                                 #{item.order_code || item.order_id}
                               </Link>
                             ) : (
@@ -800,9 +824,18 @@ export function DriverDetailAdminPage() {
             />
           </FieldGroup>
         </div>
-        <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap' }}>
-          <CheckboxField label="Perfil activo" checked={rootForm.is_active} onChange={(event) => setRootForm((current) => ({ ...current, is_active: event.target.checked }))} />
-          <CheckboxField label="Verificado" checked={rootForm.is_verified} onChange={(event) => setRootForm((current) => ({ ...current, is_verified: event.target.checked }))} />
+        {/* Un div y no un FieldGroup: ese renderiza un <label>, y anidar
+            checkboxes con label propio adentro es invalido y ademas haria
+            que clickear el titulo togglee el primero. */}
+        <div style={{ display: 'grid', gap: '8px' }}>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--acme-text)' }}>Habilitacion para operar</span>
+          <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap' }}>
+            <CheckboxField label="Verificado" checked={rootForm.is_verified} onChange={(event) => setRootForm((current) => ({ ...current, is_verified: event.target.checked }))} />
+            <CheckboxField label="Perfil activo" checked={rootForm.is_active} onChange={(event) => setRootForm((current) => ({ ...current, is_active: event.target.checked }))} />
+          </div>
+          <span style={{ fontSize: '12px', color: 'var(--acme-text-muted)' }}>
+            La app del repartidor exige las dos marcadas para dejarlo salir de la pantalla de revision y recibir pedidos. El estado operativo de arriba no interviene.
+          </span>
         </div>
       </AdminModalForm>
 
@@ -824,15 +857,15 @@ export function DriverDetailAdminPage() {
       >
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
           <FieldGroup label="Estado en vivo">
+            {/* Valores del enum driver_state: offline, available, busy, paused */}
             <SelectField
               value={stateForm.status}
               onChange={(event) => setStateForm((current) => ({ ...current, status: event.target.value }))}
               options={[
                 { value: 'offline', label: 'Offline' },
-                { value: 'idle', label: 'Disponible' },
-                { value: 'assigned', label: 'Asignado' },
-                { value: 'delivering', label: 'En entrega' },
-                { value: 'unavailable', label: 'No disponible' },
+                { value: 'available', label: 'Disponible' },
+                { value: 'busy', label: 'Ocupado' },
+                { value: 'paused', label: 'En pausa' },
               ]}
             />
           </FieldGroup>
@@ -953,13 +986,14 @@ export function DriverDetailAdminPage() {
             <TextField type="datetime-local" value={shiftForm.end_at} onChange={(event) => setShiftForm((current) => ({ ...current, end_at: event.target.value }))} />
           </FieldGroup>
           <FieldGroup label="Estado">
+            {/* Valores del enum shift_status: scheduled, started, ended, cancelled */}
             <SelectField
               value={shiftForm.status}
               onChange={(event) => setShiftForm((current) => ({ ...current, status: event.target.value }))}
               options={[
                 { value: 'scheduled', label: 'Programado' },
-                { value: 'active', label: 'Activo' },
-                { value: 'completed', label: 'Completado' },
+                { value: 'started', label: 'En curso' },
+                { value: 'ended', label: 'Finalizado' },
                 { value: 'cancelled', label: 'Cancelado' },
               ]}
             />
@@ -1010,7 +1044,7 @@ export function DriverDetailAdminPage() {
           </FieldGroup>
         </div>
         {detail.order_options.length === 0 ? (
-          <div style={{ color: '#6b7280' }}>Aun no hay pedidos relacionados a este repartidor para vincular una cobranza.</div>
+          <div style={{ color: 'var(--acme-text-muted)' }}>Aun no hay pedidos relacionados a este repartidor para vincular una cobranza.</div>
         ) : null}
       </AdminModalForm>
 
@@ -1022,7 +1056,7 @@ export function DriverDetailAdminPage() {
       >
         <div style={{ display: 'grid', gap: '12px' }}>
           {detail.vehicle_type_options.map((item) => (
-            <div key={item.id} style={{ padding: '14px', borderRadius: '14px', border: '1px solid #e5e7eb', background: '#f9fafb', display: 'grid', gap: '8px' }}>
+            <div key={item.id} style={{ padding: '14px', borderRadius: '14px', border: '1px solid var(--acme-border)', background: 'var(--acme-surface-muted)', display: 'grid', gap: '8px' }}>
               <strong>{item.name}</strong>
               <StatusPill label={item.code} tone="info" />
             </div>

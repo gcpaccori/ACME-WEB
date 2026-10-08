@@ -1,9 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { IconPlus } from '../../../../components/admin/AdminIcons';
 import type { CSSProperties } from 'react';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
-import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { SectionSkeleton } from '../../../../components/shared/Skeleton';
+import { ErrorBanner } from '../../../../components/shared/ErrorBanner';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminService, ProductAdminSummary } from '../../../../core/services/adminService';
 import { PortalContext } from '../../../auth/session/PortalContext';
@@ -15,7 +17,7 @@ function productThumbStyle(imageUrl: string | null | undefined): CSSProperties {
         height: '52px',
         borderRadius: '14px',
         background: `center / cover no-repeat url(${imageUrl})`,
-        border: '1px solid #e5e7eb',
+        border: '1px solid var(--acme-border)',
         flex: '0 0 auto',
       }
     : {
@@ -23,7 +25,7 @@ function productThumbStyle(imageUrl: string | null | undefined): CSSProperties {
         height: '52px',
         borderRadius: '14px',
         background: 'linear-gradient(135deg, rgba(255,98,0,.18), rgba(255,177,122,.28))',
-        border: '1px solid #e5e7eb',
+        border: '1px solid var(--acme-border)',
         flex: '0 0 auto',
       };
 }
@@ -76,16 +78,16 @@ export function ProductsAdminPage() {
           to={AppRoutes.portal.admin.productNew}
           className="btn btn--primary"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <IconPlus />
           Nuevo producto
         </Link>
       }
     >
       <SectionCard title="Productos del comercio" description="La lista ya resume categoria, precio y estado para entrar a configuracion por local y modificadores.">
         {loading ? (
-          <LoadingScreen />
+          <SectionSkeleton lines={5} />
         ) : error ? (
-          <div style={{ color: '#b91c1c' }}>{error}</div>
+          <ErrorBanner message={error} />
         ) : (
           <AdminDataTable
             rows={products}

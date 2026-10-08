@@ -4,7 +4,7 @@ import { CheckboxField, FieldGroup, NumberField, SelectField } from '../../../..
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
 import { AdminModalForm } from '../../../../components/admin/AdminModalForm';
 import { AdminPageFrame, FormStatusBar, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
-import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { SectionSkeleton } from '../../../../components/shared/Skeleton';
 import { TextField } from '../../../../components/ui/TextField';
 import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
@@ -15,6 +15,7 @@ import {
   SettlementsOverview,
 } from '../../../../core/services/adminSettlementsService';
 import { PortalContext } from '../../../auth/session/PortalContext';
+import { IconPlus } from '../../../../components/admin/AdminIcons';
 
 function formatMoney(value: number) {
   return new Intl.NumberFormat('es-PE', {
@@ -173,7 +174,8 @@ export function SettlementsAdminPage() {
           }}
           className="btn btn--primary"
         >
-          Nueva regla
+          <IconPlus />
+            Nueva regla
         </button>
       }
     >
@@ -193,7 +195,7 @@ export function SettlementsAdminPage() {
       </SectionCard>
 
       {loading ? (
-        <LoadingScreen />
+        <SectionSkeleton lines={5} />
       ) : (
         <>
           <div className="stat-grid" style={{ marginBottom: '24px' }}>
@@ -307,7 +309,7 @@ export function SettlementsAdminPage() {
                   align: 'right',
                   width: '160px',
                   render: (record) => (
-                    <Link to={AppRoutes.portal.admin.merchantSettlementDetail.replace(':settlementId', record.id)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                    <Link to={AppRoutes.portal.admin.merchantSettlementDetail.replace(':settlementId', record.id)} style={{ color: 'var(--acme-purple)', fontWeight: 700 }}>
                       Ver detalle
                     </Link>
                   ),
@@ -328,7 +330,7 @@ export function SettlementsAdminPage() {
                   render: (record) => (
                     <div style={{ display: 'grid', gap: '6px' }}>
                       <strong>{record.driver_label || 'Sin repartidor'}</strong>
-                      <span style={{ color: '#6b7280' }}>{record.deliveries_count} entregas</span>
+                      <span style={{ color: 'var(--acme-text-muted)' }}>{record.deliveries_count} entregas</span>
                     </div>
                   ),
                 },
@@ -350,7 +352,7 @@ export function SettlementsAdminPage() {
                   align: 'right',
                   width: '160px',
                   render: (record) => (
-                    <Link to={AppRoutes.portal.admin.driverSettlementDetail.replace(':settlementId', record.id)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                    <Link to={AppRoutes.portal.admin.driverSettlementDetail.replace(':settlementId', record.id)} style={{ color: 'var(--acme-purple)', fontWeight: 700 }}>
                       Ver detalle
                     </Link>
                   ),

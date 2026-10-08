@@ -1,8 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { IconPlus } from '../../../../components/admin/AdminIcons';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
-import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { SectionSkeleton } from '../../../../components/shared/Skeleton';
+import { ErrorBanner } from '../../../../components/shared/ErrorBanner';
 import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminService, BranchAdminSummary } from '../../../../core/services/adminService';
@@ -60,16 +62,16 @@ export function BranchesPage() {
           to={AppRoutes.portal.admin.branchNew}
           className="btn btn--primary"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <IconPlus />
           Nueva sucursal
         </Link>
       }
     >
       <SectionCard title="Sucursales registradas" description="Cada fila abre el editor compuesto de sucursal con horarios, cierres y cobertura.">
         {loading ? (
-          <LoadingScreen />
+          <SectionSkeleton lines={5} />
         ) : error ? (
-          <div style={{ color: '#b91c1c' }}>{error}</div>
+          <ErrorBanner message={error} />
         ) : (
           <AdminDataTable
             rows={branches}
@@ -128,7 +130,11 @@ export function BranchesPage() {
                 align: 'right',
                 width: '120px',
                 render: (branch) => (
-                  <Link to={`${AppRoutes.portal.admin.branches}/${branch.id}`} className="btn btn--sm btn--ghost" style={{ color: 'var(--acme-purple)' }}>
+                  <Link
+                    to={`${AppRoutes.portal.admin.branches}/${branch.id}`}
+                    className="btn btn--sm btn--secondary"
+                    aria-label={`Editar ${branch.name || 'la sucursal'}`}
+                  >
                     Gestionar
                   </Link>
                 ),

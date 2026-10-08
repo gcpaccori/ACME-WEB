@@ -9,6 +9,8 @@ export interface PlatformMerchantRecord {
   id: string;
   trade_name: string;
   legal_name: string;
+  /** Ya venia en el select('*'); solo faltaba mapearlo. */
+  logo_url: string;
   status: string;
   email: string;
   phone: string;
@@ -215,6 +217,7 @@ export const adminPlatformService = {
         id: merchantId,
         trade_name: stringOrEmpty(row.trade_name),
         legal_name: stringOrEmpty(row.legal_name),
+        logo_url: stringOrEmpty(row.logo_url),
         status: stringOrEmpty(row.status) || 'active',
         email: stringOrEmpty(row.email),
         phone: stringOrEmpty(row.phone),
@@ -447,4 +450,19 @@ export const adminPlatformService = {
   saveMerchant: async (merchantId: string, form: MerchantAdminForm) => {
     return adminService.saveMerchant(merchantId, form);
   },
+
+  createMerchant: async (form: MerchantAdminForm) => {
+    return adminService.createMerchant(form);
+  },
+
+  // Valores del enum merchant_status: active, inactive, blocked.
+  createEmptyMerchantForm: (): MerchantAdminForm => ({
+    trade_name: '',
+    legal_name: '',
+    tax_id: '',
+    logo_url: '',
+    phone: '',
+    email: '',
+    status: 'active',
+  }),
 };

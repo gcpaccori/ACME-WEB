@@ -1,15 +1,17 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { AdminSearchBar } from '../../../../components/admin/AdminSearchBar';
 import { FieldGroup, SelectField, TextAreaField } from '../../../../components/admin/AdminFields';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
 import { AdminModalForm } from '../../../../components/admin/AdminModalForm';
 import { AdminPageFrame, FormStatusBar, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
-import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { SectionSkeleton } from '../../../../components/shared/Skeleton';
 import { TextField } from '../../../../components/ui/TextField';
 import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminMessagesService, ConversationCreateForm, MessagesOverview, NotificationOverviewRecord } from '../../../../core/services/adminMessagesService';
 import { PortalContext } from '../../../auth/session/PortalContext';
+import { IconPlus } from '../../../../components/admin/AdminIcons';
 
 function formatDateTime(value: string) {
   if (!value) return 'Sin fecha';
@@ -176,29 +178,24 @@ export function MessagesAdminPage() {
           }}
           className="btn btn--primary"
         >
-          Nueva conversacion
+          <IconPlus />
+            Nueva conversacion
         </button>
       }
     >
-      <SectionCard title="Centro de Operaciones" description="Gestión de soporte, comunicación con repartidores y monitoreo de alertas de sistema.">
-        <div style={{ position: 'relative' }}>
-          <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--acme-text-faint)', zIndex: 1, pointerEvents: 'none' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </div>
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Buscar por cliente, repartidor, pedido o contenido del mensaje..."
-            className="input-field"
-            style={{ paddingLeft: '48px', width: '100%', border: '1px solid var(--acme-bg-soft)', borderRadius: '12px', padding: '12px 12px 12px 48px' }}
-          />
-        </div>
-      </SectionCard>
+      {/* Filtra conversaciones y notificaciones a la vez: sin conteo, que
+          con dos listas seria ambiguo. */}
+      <AdminSearchBar
+        value={query}
+        onChange={setQuery}
+        placeholder="Buscar por pedido, participante o contenido"
+        label="Buscar conversaciones y notificaciones"
+      />
 
       <FormStatusBar dirty={false} saving={mutating} error={error} successMessage={successMessage} />
 
       {loading ? (
-        <LoadingScreen />
+        <SectionSkeleton lines={5} />
       ) : (
         <>
           <div className="stat-grid" style={{ marginBottom: '24px' }}>
@@ -209,17 +206,16 @@ export function MessagesAdminPage() {
               { label: 'Resolución', value: `${((overview?.conversations.filter(c => c.status === 'resolved').length || 0) / (overview?.conversations.length || 1) * 100).toFixed(0)}%`, color: 'var(--acme-green)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="22 11.08 12 19 9 16"/><path d="M22 4L12 14.01 9 11.01"/></svg> },
             ].map((item) => (
               <div key={item.label} className="stat-card">
-                <div className="stat-card__badge" style={{ background: item.color }} />
                 <div className="stat-card__header">
                   <span className="stat-card__label">{item.label}</span>
-                  <div className="stat-card__icon-box">{item.icon}</div>
+                  <div className="stat-card__icon-box" style={{ color: item.color }}>{item.icon}</div>
                 </div>
                 <strong className="stat-card__value">{item.value}</strong>
               </div>
             ))}
           </div>
 
-          <SectionCard title="Bandeja de Conversaciones" description="Hilos persistentes de comunicación con usuarios, staff y socios logísticos.">
+          <SectionCard title="Conversaciones" description="Hilos persistentes de comunicación con usuarios, staff y socios logísticos.">
             <AdminDataTable
               rows={filteredConversations}
               getRowId={(record) => record.id}
@@ -305,7 +301,7 @@ export function MessagesAdminPage() {
                   render: (record) => (
                     <div style={{ display: 'grid', gap: '6px' }}>
                       <strong>{record.user_label || 'Sin usuario'}</strong>
-                      <span style={{ color: '#6b7280' }}>{record.channel || 'sin canal'}</span>
+                      <span style={{ color: 'var(--acme-text-muted)' }}>{record.channel || 'sin canal'}</span>
                     </div>
                   ),
                 },
@@ -315,7 +311,7 @@ export function MessagesAdminPage() {
                   render: (record) => (
                     <div style={{ display: 'grid', gap: '6px' }}>
                       <strong>{record.title || 'Sin titulo'}</strong>
-                      <span style={{ color: '#6b7280' }}>{record.body || 'Sin cuerpo'}</span>
+                      <span style={{ color: 'var(--acme-text-muted)' }}>{record.body || 'Sin cuerpo'}</span>
                     </div>
                   ),
                 },
@@ -325,7 +321,7 @@ export function MessagesAdminPage() {
                   render: (record) => {
                     const target = getNotificationLink(record);
                     return target ? (
-                      <Link to={target} style={{ color: '#2563eb', fontWeight: 700 }}>
+                      <Link to={target} style={{ color: 'var(--acme-purple)', fontWeight: 700 }}>
                         {record.entity_type || 'entidad'}
                       </Link>
                     ) : (
@@ -345,7 +341,7 @@ export function MessagesAdminPage() {
                   width: '160px',
                   render: (record) =>
                     record.read_at ? (
-                      <span style={{ color: '#6b7280' }}>Leida</span>
+                      <span style={{ color: 'var(--acme-text-muted)' }}>Leida</span>
                     ) : (
                       <button type="button" onClick={() => handleNotificationRead(record.id)} className="btn btn--ghost btn--sm">
                         Marcar leida

@@ -8,7 +8,8 @@ import { adminService, CategoryAdminRecord } from '../../../../core/services/adm
 import { hasDirtyState, serializeDirtyState } from '../../../../core/admin/utils/dirtyState';
 import { CheckboxField, FieldGroup, NumberField } from '../../../../components/admin/AdminFields';
 import { TextField } from '../../../../components/ui/TextField';
-import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { TableSkeleton } from '../../../../components/shared/Skeleton';
+import { IconPlus, IconSave } from '../../../../components/admin/AdminIcons';
 
 function createEmptyCategory(): CategoryAdminRecord {
   return {
@@ -108,14 +109,14 @@ export function CategoriesAdminPage() {
       ]}
       actions={
         <button type="button" onClick={startNew} className="btn btn--primary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <IconPlus />
           Nueva categoría
         </button>
       }
     >
       <SectionCard title="Categorias del comercio" description="La lista sirve como fuente unica de seleccion para el resto del catalogo.">
         {loading ? (
-          <LoadingScreen />
+          <TableSkeleton />
         ) : (
           <AdminDataTable
             rows={categories}
@@ -188,7 +189,7 @@ export function CategoriesAdminPage() {
               disabled={!dirty || saving}
               className="btn btn--primary"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <IconSave />
               {saving ? 'Guardando...' : 'Guardar categoría'}
             </button>
           </>
