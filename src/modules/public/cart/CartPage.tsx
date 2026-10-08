@@ -201,6 +201,10 @@ function calculateDistanceKm(origin: GeoPoint, destination: GeoPoint) {
 }
 
 function normalizeCoordinate(value: unknown) {
+  // Number(null) es 0 y Number('') tambien, y ambos pasan Number.isFinite.
+  // Una sucursal sin coordenadas quedaba entonces en (0, 0), la isla nula
+  // del Golfo de Guinea, y el pedido se cotizaba a 8000 km del cliente.
+  if (value === null || value === undefined || value === '') return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
@@ -267,9 +271,9 @@ function getCoverageStatus(point: GeoPoint | null): CoverageStatus | null {
 }
 
 function pointFromAddress(address: CustomerAddressForm | CustomerAddressRecord | null | undefined): GeoPoint | null {
-  const lat = Number(address?.lat);
-  const lng = Number(address?.lng);
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const lat = normalizeCoordinate(address?.lat);
+  const lng = normalizeCoordinate(address?.lng);
+  if (lat === null || lng === null) return null;
   const point = { lat, lng };
   return isOperationalPoint(point) ? point : null;
 }
@@ -328,17 +332,38 @@ function roundTo(value: number, decimals: number) {
   return Math.round((value + Number.EPSILON) * factor) / factor;
 }
 
-function createRouteIcon(color: string, label: string) {
+// Pin tipo mapa con un glifo adentro: cubiertos para el local, persona para
+// el punto de entrega. Antes eran dos circulos con las letras O y D, que no
+// decian cual era cual sin leer la leyenda.
+function createRouteIcon(color: string, glyph: string) {
   const L = window.L;
   if (!L) return undefined;
 
   return L.divIcon({
     className: '',
-    html: `<div style="width:30px;height:30px;border-radius:999px;background:${color};color:white;display:grid;place-items:center;font-size:12px;font-weight:900;border:3px solid white;box-shadow:0 10px 24px rgba(17,24,39,.24);">${label}</div>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
+    html: `<svg width="34" height="44" viewBox="0 0 36 46" xmlns="http://www.w3.org/2000/svg">
+      <path d="M18 0C8.06 0 0 8.06 0 18c0 13.5 18 28 18 28s18-14.5 18-28c0-9.94-8.06-18-18-18z" fill="${color}"/>
+      <path d="M18 1.6C8.94 1.6 1.6 8.94 1.6 18c0 12.2 16.4 25.6 16.4 25.6S34.4 30.2 34.4 18c0-9.06-7.34-16.4-16.4-16.4z"
+            fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="1.4"/>
+      <circle cx="18" cy="18" r="11" fill="#fff"/>
+      <g stroke="${color}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" fill="none">${glyph}</g>
+    </svg>`,
+    iconSize: [34, 44],
+    iconAnchor: [17, 44],
   });
 }
+
+// Cubiertos: tenedor de tres puntas y cuchillo.
+const GLYPH_RESTAURANT = `
+  <path d="M14 12v6.2a1.6 1.6 0 0 0 3.2 0V12"/>
+  <path d="M15.6 12v11.8"/>
+  <path d="M22.4 12c-1.5 0-2.4 1.5-2.4 3.4s.9 3 2.4 3"/>
+  <path d="M22.4 12v11.8"/>`;
+
+// Persona: cabeza y hombros.
+const GLYPH_CUSTOMER = `
+  <circle cx="18" cy="15" r="3.1"/>
+  <path d="M12.4 24.2a5.6 5.6 0 0 1 11.2 0"/>`;
 
 type IconProps = { size?: number };
 const svgBase = (size: number) => ({
@@ -468,8 +493,9 @@ function DeliveryRouteMap({
   locationLoading,
   onUseCurrentLocation,
   onDestinationChange,
+  interactive,
 }: {
-  origin: GeoPoint;
+  origin: GeoPoint | null;
   originLabel: string;
   destination: GeoPoint | null;
   routeTrace: RouteTrace;
@@ -478,6 +504,9 @@ function DeliveryRouteMap({
   locationLoading: boolean;
   onUseCurrentLocation: () => void;
   onDestinationChange: (point: GeoPoint) => void;
+  /** Solo al elegir otra ubicacion se puede mover el punto de entrega.
+   *  Con una direccion ya registrada el mapa es de lectura. */
+  interactive: boolean;
 }) {
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<LeafletApi | null>(null);
@@ -488,6 +517,7 @@ function DeliveryRouteMap({
   const hasAutoFittedMapRef = useRef(false);
   const fittedOriginKeyRef = useRef('');
   const onDestinationChangeRef = useRef(onDestinationChange);
+  const interactiveRef = useRef(interactive);
   const [mapError, setMapError] = useState<string | null>(null);
   const coverageStatus = getCoverageStatus(destination);
 
@@ -495,13 +525,23 @@ function DeliveryRouteMap({
     onDestinationChangeRef.current = onDestinationChange;
   }, [onDestinationChange]);
 
+  useEffect(() => {
+    interactiveRef.current = interactive;
+    const marker = destinationMarkerRef.current;
+    if (!marker?.dragging) return;
+    if (interactive) marker.dragging.enable();
+    else marker.dragging.disable();
+  }, [interactive]);
+
   const syncMap = useCallback(() => {
     const L = window.L;
     const map = leafletMapRef.current;
     if (!L || !map) return;
 
-    const originLatLng: [number, number] = [origin.lat, origin.lng];
-    const originKey = `${origin.lat.toFixed(6)},${origin.lng.toFixed(6)}`;
+    // Sin punto del local el mapa igual se dibuja: el cliente necesita
+    // marcar su entrega, que no depende de donde este la tienda.
+    const originLatLng: [number, number] | null = origin ? [origin.lat, origin.lng] : null;
+    const originKey = origin ? `${origin.lat.toFixed(6)},${origin.lng.toFixed(6)}` : 'sin-origen';
     if (fittedOriginKeyRef.current !== originKey) {
       fittedOriginKeyRef.current = originKey;
       hasAutoFittedMapRef.current = false;
@@ -511,7 +551,7 @@ function DeliveryRouteMap({
     const routeLatLngs: [number, number][] =
       routeTrace.coordinates.length > 1
         ? routeTrace.coordinates.map((point) => [point.lat, point.lng])
-        : destination
+        : destination && originLatLng
           ? [originLatLng, [destination.lat, destination.lng]]
           : [];
 
@@ -529,19 +569,24 @@ function DeliveryRouteMap({
       coveragePolygonRef.current.setLatLngs(coverageLatLngs);
     }
 
-    if (!originMarkerRef.current) {
-      originMarkerRef.current = L.marker(originLatLng, {
-        icon: createRouteIcon('#ff6200', 'O'),
-        interactive: false,
-      }).addTo(map);
+    if (!originLatLng) {
+      originMarkerRef.current?.remove();
+      originMarkerRef.current = null;
     } else {
-      originMarkerRef.current.setLatLng(originLatLng);
+      if (!originMarkerRef.current) {
+        originMarkerRef.current = L.marker(originLatLng, {
+          icon: createRouteIcon('#ea4335', GLYPH_RESTAURANT),
+          interactive: false,
+        }).addTo(map);
+      } else {
+        originMarkerRef.current.setLatLng(originLatLng);
+      }
+      originMarkerRef.current.bindTooltip(originLabel || 'Tienda', {
+        direction: 'top',
+        offset: [0, -12],
+        opacity: 0.95,
+      });
     }
-    originMarkerRef.current.bindTooltip(originLabel || 'Tienda', {
-      direction: 'top',
-      offset: [0, -12],
-      opacity: 0.95,
-    });
 
     if (!destination) {
       destinationMarkerRef.current?.remove();
@@ -549,7 +594,7 @@ function DeliveryRouteMap({
       routeLineRef.current?.remove();
       routeLineRef.current = null;
       if (!hasAutoFittedMapRef.current) {
-        const bounds = L.latLngBounds([originLatLng, ...coverageLatLngs]).pad(0.16);
+        const bounds = L.latLngBounds(originLatLng ? [originLatLng, ...coverageLatLngs] : coverageLatLngs).pad(0.16);
         map.fitBounds(bounds, { maxZoom: 15, animate: false });
         hasAutoFittedMapRef.current = true;
       }
@@ -559,11 +604,11 @@ function DeliveryRouteMap({
     const destinationLatLng: [number, number] = [destination.lat, destination.lng];
     if (!destinationMarkerRef.current) {
       const marker = L.marker(destinationLatLng, {
-        draggable: true,
+        draggable: interactiveRef.current,
         autoPan: true,
         riseOnHover: true,
         zIndexOffset: 1000,
-        icon: createRouteIcon('#4d148c', 'D'),
+        icon: createRouteIcon('#4d148c', GLYPH_CUSTOMER),
       }).addTo(map);
       marker.on('dragend', () => {
         const next = marker.getLatLng();
@@ -597,11 +642,11 @@ function DeliveryRouteMap({
     }
 
     if (!hasAutoFittedMapRef.current) {
-      const bounds = L.latLngBounds([...coverageLatLngs, ...(routeLatLngs.length > 0 ? routeLatLngs : [originLatLng, destinationLatLng])]).pad(0.22);
+      const bounds = L.latLngBounds([...coverageLatLngs, ...(routeLatLngs.length > 0 ? routeLatLngs : originLatLng ? [originLatLng, destinationLatLng] : [destinationLatLng])]).pad(0.22);
       map.fitBounds(bounds, { maxZoom: 16, animate: false });
       hasAutoFittedMapRef.current = true;
     }
-  }, [destination, origin.lat, origin.lng, originLabel, routeTrace.coordinates, routeTrace.source]);
+  }, [destination, origin?.lat, origin?.lng, originLabel, routeTrace.coordinates, routeTrace.source]);
 
   useEffect(() => {
     let cancelled = false;
@@ -615,17 +660,22 @@ function DeliveryRouteMap({
           const map = L.map(mapElementRef.current, {
             zoomControl: false,
             scrollWheelZoom: true,
-          }).setView([origin.lat, origin.lng], 15);
+          }).setView(origin ? [origin.lat, origin.lng] : [HUANCAVELICA_COVERAGE_POLYGON[0].lat, HUANCAVELICA_COVERAGE_POLYGON[0].lng], 14);
 
-          // Basemap claro estilo Google Maps (CARTO Positron) — limpio y profesional, sin API key
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            subdomains: 'abcd',
-            maxZoom: 20,
+          // Se conserva el credito de OpenStreetMap, que su licencia exige, y
+          // se quita el prefijo "Leaflet | " que agrega la libreria.
+          map.attributionControl?.setPrefix(false);
+
+          // OpenStreetMap: libre y sin API key. CARTO se dejo de usar porque
+          // ahora exige clave y estampa "API KEY REQUIRED" sobre los tiles.
+          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
             detectRetina: true,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
           }).addTo(map);
           L.control.zoom({ position: 'bottomright' }).addTo(map);
           map.on('click', (event: LeafletApi) => {
+            if (!interactiveRef.current) return;
             onDestinationChangeRef.current({
               lat: event.latlng.lat,
               lng: event.latlng.lng,
@@ -646,7 +696,7 @@ function DeliveryRouteMap({
     return () => {
       cancelled = true;
     };
-  }, [origin.lat, origin.lng, syncMap]);
+  }, [origin?.lat, origin?.lng, syncMap]);
 
   useEffect(() => {
     return () => {
@@ -671,7 +721,7 @@ function DeliveryRouteMap({
             boxShadow: '0 14px 34px rgba(29,22,48,.10)',
           }}
         />
-        <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap', zIndex: 500 }}>
+        <div style={{ position: 'absolute', top: '12px', left: '12px', display: interactive ? 'flex' : 'none', gap: '8px', flexWrap: 'wrap', zIndex: 500 }}>
           <button
             type="button"
             onClick={onUseCurrentLocation}
@@ -734,7 +784,9 @@ function DeliveryRouteMap({
         </div>
       )}
       <div style={{ color: '#6b7280', fontSize: '12px', lineHeight: 1.5 }}>
-        Usa <strong>Mi ubicacion</strong>, haz click en el mapa o arrastra el marcador morado hasta la puerta o referencia mas cercana.
+        {interactive
+          ? <>Usa <strong>Mi ubicacion</strong>, haz click en el mapa o arrastra el marcador morado hasta la puerta o referencia mas cercana.</>
+          : <>El pin rojo es el local y el morado tu direccion de entrega. Para moverlo, elige <strong>Otra ubicacion</strong>.</>}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px' }}>
         <div style={{ border: '1px solid #e5e7eb', borderRadius: '12px', padding: '10px 12px', display: 'grid', gap: '3px', minWidth: 0 }}>
@@ -1024,7 +1076,7 @@ export function CartPage() {
       try {
         const { data, error } = await supabase
           .from('merchant_branches')
-          .select('id, name, lat, lng')
+          .select('id, name, lat, lng, address:addresses(lat, lng)')
           .eq('id', firstItem.branch_id)
           .maybeSingle();
 
@@ -1034,8 +1086,12 @@ export function CartPage() {
           return;
         }
 
-        const lat = normalizeCoordinate((data as { lat?: unknown } | null)?.lat);
-        const lng = normalizeCoordinate((data as { lng?: unknown } | null)?.lng);
+        // El punto vive en merchant_branches, pero las sucursales guardadas
+        // antes de que el editor lo escribiera ahi solo lo tienen en su
+        // direccion. Se usa como respaldo para no perderlas.
+        const row = data as { lat?: unknown; lng?: unknown; address?: { lat?: unknown; lng?: unknown } | null } | null;
+        const lat = normalizeCoordinate(row?.lat) ?? normalizeCoordinate(row?.address?.lat);
+        const lng = normalizeCoordinate(row?.lng) ?? normalizeCoordinate(row?.address?.lng);
         const name = String((data as { name?: unknown } | null)?.name || firstItem.branch_name || 'Sucursal');
         setBranchLabel(name);
 
@@ -1969,7 +2025,7 @@ export function CartPage() {
                           <label className="account-label">Ruta desde el local</label>
                           {branchLocationLoading ? (
                             <div className="account-alert account-alert--warning">Cargando ubicacion del local...</div>
-                          ) : branchPoint ? (
+                          ) : (
                             <DeliveryRouteMap
                               origin={branchPoint}
                               originLabel={branchLabel || firstItem.branch_name}
@@ -1980,10 +2036,13 @@ export function CartPage() {
                               locationLoading={geolocationLoading}
                               onUseCurrentLocation={handleUseCurrentLocation}
                               onDestinationChange={handleDestinationChange}
+                              interactive={deliveryAddressMode === 'new'}
                             />
-                          ) : (
+                          )}
+                          {!branchLocationLoading && !branchPoint && (
                             <div className="account-alert account-alert--warning">
                               {branchLocationError || 'Este local no tiene ubicacion georreferenciada.'}
+                              {' '}Puedes marcar tu punto de entrega igual; no se podra calcular la ruta desde el local.
                             </div>
                           )}
                           {geolocationError && <div className="account-alert account-alert--warning">{geolocationError}</div>}

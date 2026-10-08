@@ -1,13 +1,15 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
-import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { SectionSkeleton } from '../../../../components/shared/Skeleton';
+import { ErrorBanner } from '../../../../components/shared/ErrorBanner';
 import { getAdminOrderStatusLabel, getAdminOrderStatusTone, isOrderAwaitingPayment, normalizeAdminOrderStatus } from '../../../../core/admin/utils/orderWorkflow';
 import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminOrdersService, OrderAdminRecord } from '../../../../core/services/adminOrdersService';
 import { PortalContext } from '../../../auth/session/PortalContext';
+import { useOrdersLiveRefresh } from '../../orders/useOrdersLiveRefresh';
 
 type OrderFilter = 'all' | 'active' | 'awaiting_payment' | 'issues' | 'finished';
 
@@ -50,22 +52,28 @@ export function OrdersAdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadOrders = async () => {
+  // silent: los refrescos automaticos no muestran el skeleton ni borran la lista.
+  const loadOrders = useCallback(
+    async (options?: { silent?: boolean }) => {
       if (!branchId) return;
-      setLoading(true);
-      setError(null);
+      if (!options?.silent) setLoading(true);
+      if (!options?.silent) setError(null);
       const result = await adminOrdersService.fetchOrders(branchId);
-      setLoading(false);
+      if (!options?.silent) setLoading(false);
       if (result.error) {
-        setError(result.error.message);
+        if (!options?.silent) setError(result.error.message);
         return;
       }
       setOrders(result.data ?? []);
-    };
+    },
+    [branchId]
+  );
 
+  useEffect(() => {
     loadOrders();
-  }, [branchId]);
+  }, [loadOrders]);
+
+  useOrdersLiveRefresh(() => loadOrders({ silent: true }), Boolean(branchId), 'admin-orders-list');
 
   const filteredOrders = useMemo(() => {
     if (filter === 'all') {
@@ -139,9 +147,9 @@ export function OrdersAdminPage() {
         </div>
 
         {loading ? (
-          <LoadingScreen />
+          <SectionSkeleton lines={5} />
         ) : error ? (
-          <div style={{ color: '#b91c1c' }}>{error}</div>
+          <ErrorBanner message={error} />
         ) : (
           <AdminDataTable
             rows={filteredOrders}
@@ -154,7 +162,7 @@ export function OrdersAdminPage() {
                 render: (order) => (
                   <div style={{ display: 'grid', gap: '6px' }}>
                     <strong>Pedido #{order.order_code}</strong>
-                    <span style={{ color: '#6b7280' }}>{order.customer_label}</span>
+                    <span style={{ color: 'var(--acme-text-muted)' }}>{order.customer_label}</span>
                   </div>
                 ),
               },
@@ -164,7 +172,7 @@ export function OrdersAdminPage() {
                 render: (order) => (
                   <div style={{ display: 'grid', gap: '6px' }}>
                     <span>{order.fulfillment_type || 'Sin tipo'}</span>
-                    <span style={{ color: '#6b7280' }}>{order.address_label}</span>
+                    <span style={{ color: 'var(--acme-text-muted)' }}>{order.address_label}</span>
                   </div>
                 ),
               },
@@ -174,7 +182,7 @@ export function OrdersAdminPage() {
                 render: (order) => (
                   <div style={{ display: 'grid', gap: '6px' }}>
                     <span>{order.payment_label}</span>
-                    <span style={{ color: '#6b7280' }}>{order.payment_status || 'sin estado'}</span>
+                    <span style={{ color: 'var(--acme-text-muted)' }}>{order.payment_status || 'sin estado'}</span>
                   </div>
                 ),
               },
@@ -204,7 +212,7 @@ export function OrdersAdminPage() {
                 render: (order) => (
                   <Link
                     to={AppRoutes.portal.admin.orderDetail.replace(':orderId', order.id)}
-                    style={{ color: '#2563eb', fontWeight: 700 }}
+                    style={{ color: 'var(--acme-purple)', fontWeight: 700 }}
                   >
                     Abrir ficha
                   </Link>

@@ -1,13 +1,14 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AdminPageFrame, FormStatusBar, SaveActions, SectionCard } from '../../../../components/admin/AdminScaffold';
 import { CheckboxField, FieldGroup, NumberField, RelationSelect, TextAreaField } from '../../../../components/admin/AdminFields';
 import { AdminTabPanel, AdminTabs } from '../../../../components/admin/AdminTabs';
+import { ImageUploadField } from '../../../../components/shared/ImageUploadField';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
 import { TextField } from '../../../../components/ui/TextField';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { hasDirtyState, serializeDirtyState } from '../../../../core/admin/utils/dirtyState';
-import { adminService, ModifierGroupAdminRecord, ProductAdminForm } from '../../../../core/services/adminService';
+import { adminService, buildProductSku, ModifierGroupAdminRecord, ProductAdminForm } from '../../../../core/services/adminService';
 import { PortalContext } from '../../../auth/session/PortalContext';
 
 export function ProductEditorPage() {
@@ -18,10 +19,26 @@ export function ProductEditorPage() {
   const productId = params.productId;
   const isNew = !productId;
   const [activeTab, setActiveTab] = useState('base');
+  // portal.branches es un array nuevo cada vez que se recarga el contexto, y
+  // eso pasa solo: onAuthStateChange dispara loadPortalContext ante cualquier
+  // evento, incluido el refresco periodico del token y el foco de pestana.
+  // Si el efecto depende de la identidad del array, se vuelve a montar el
+  // formulario y se pierde lo que se este escribiendo. La clave por contenido
+  // hace que branchOptions solo cambie cuando las sucursales cambian de verdad.
+  const branchKey = portal.branches.map((branch) => `${branch.id}:${branch.name}`).join('|');
   const branchOptions = useMemo(
     () => portal.branches.map((branch) => ({ id: branch.id, name: branch.name })),
-    [portal.branches]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [branchKey]
   );
+  // Segunda defensa: el formulario se monta una sola vez por producto.
+  const loadedKeyRef = useRef<string | null>(null);
+  // Mientras nadie toque el SKU a mano, se deriva del nombre. Al editarlo
+  // se respeta lo escrito y deja de regenerarse.
+  const skuTouchedRef = useRef(false);
+  // Sufijo fijo por sesion de edicion: si se regenerara en cada tecla, el SKU
+  // parpadearia mientras se escribe el nombre.
+  const skuSuffixRef = useRef(Math.random().toString(36).slice(2, 6).toUpperCase());
   const [form, setForm] = useState<ProductAdminForm | null>(null);
   const [categories, setCategories] = useState<Array<{ value: string; label: string }>>([]);
   const [modifierGroups, setModifierGroups] = useState<ModifierGroupAdminRecord[]>([]);
@@ -60,6 +77,15 @@ export function ProductEditorPage() {
       ]);
       setModifierGroups(modifierResult.data ?? []);
 
+      // Categorias y modificadores se refrescan siempre, pero el formulario
+      // no se vuelve a montar si ya se cargo para este mismo producto.
+      const loadKey = `${merchantId}:${productId ?? 'new'}`;
+      if (loadedKeyRef.current === loadKey) {
+        setLoading(false);
+        return;
+      }
+      loadedKeyRef.current = loadKey;
+
       if (isNew) {
         const next = adminService.createDefaultProductForm(branchOptions, modifierResult.data ?? []);
         setForm(next);
@@ -87,6 +113,21 @@ export function ProductEditorPage() {
 
   const updateField = <K extends keyof ProductAdminForm>(key: K, value: ProductAdminForm[K]) => {
     setForm((current) => (current ? { ...current, [key]: value } : current));
+    setSuccessMessage(null);
+  };
+
+  // El SKU acompana al nombre solo mientras no se haya editado a mano y solo
+  // en productos nuevos: cambiarle el SKU a uno ya guardado romperia
+  // referencias externas.
+  const updateName = (value: string) => {
+    setForm((current) => {
+      if (!current) return current;
+      const next = { ...current, name: value };
+      if (isNew && !skuTouchedRef.current) {
+        next.sku = value.trim() ? buildProductSku(value, skuSuffixRef.current) : '';
+      }
+      return next;
+    });
     setSuccessMessage(null);
   };
 
@@ -189,10 +230,17 @@ export function ProductEditorPage() {
           <SectionCard title="Datos base" description="El comercio actual se relaciona automaticamente al guardar.">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
               <FieldGroup label="Nombre">
-                <TextField value={form.name} onChange={(event) => updateField('name', event.target.value)} />
+                <TextField value={form.name} onChange={(event) => updateName(event.target.value)} />
               </FieldGroup>
               <FieldGroup label="SKU">
-                <TextField value={form.sku} onChange={(event) => updateField('sku', event.target.value)} />
+                <TextField
+                  value={form.sku}
+                  placeholder="Se genera solo desde el nombre"
+                  onChange={(event) => {
+                    skuTouchedRef.current = true;
+                    updateField('sku', event.target.value);
+                  }}
+                />
               </FieldGroup>
               <FieldGroup label="Precio base">
                 <NumberField value={form.base_price} onChange={(event) => updateField('base_price', event.target.value)} />
@@ -203,8 +251,31 @@ export function ProductEditorPage() {
               <FieldGroup label="Categoria">
                 <RelationSelect value={form.category_id} onChange={(event) => updateField('category_id', event.target.value)} options={categories} />
               </FieldGroup>
-              <FieldGroup label="Imagen URL">
-                <TextField value={form.image_url} onChange={(event) => updateField('image_url', event.target.value)} />
+            </div>
+
+            <div style={{ display: 'grid', gap: '10px' }}>
+              <div style={{ display: 'grid', gap: '3px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--acme-text)' }}>Imagen del producto</span>
+                <span style={{ fontSize: '12px', color: 'var(--acme-text-muted)' }}>
+                  Es la foto que ve el cliente en el marketplace. Sube una propia o pega una URL externa.
+                </span>
+              </div>
+              <ImageUploadField
+                currentUrl={form.image_url}
+                onChange={(url) => updateField('image_url', url)}
+                upload={(file) => adminService.uploadProductImage(merchantId, file, form.image_url)}
+                previewLabel="Imagen actual"
+                emptyLabel="Sin imagen cargada"
+                nounLabel="imagen"
+                previewFit="cover"
+                maxSizeMb={5}
+              />
+              <FieldGroup label="O pegar una URL externa">
+                <TextField
+                  value={form.image_url}
+                  placeholder="https://..."
+                  onChange={(event) => updateField('image_url', event.target.value)}
+                />
               </FieldGroup>
             </div>
             <FieldGroup label="Descripcion">
@@ -223,8 +294,8 @@ export function ProductEditorPage() {
           >
             {form.modifier_groups.length === 0 ? (
               <div style={{ display: 'grid', gap: '12px' }}>
-                <span style={{ color: '#6b7280' }}>Todavia no hay grupos de modificadores creados para este comercio.</span>
-                <Link to={AppRoutes.portal.admin.modifiers} style={{ color: '#2563eb', fontWeight: 700 }}>
+                <span style={{ color: 'var(--acme-text-muted)' }}>Todavia no hay grupos de modificadores creados para este comercio.</span>
+                <Link to={AppRoutes.portal.admin.modifiers} style={{ color: 'var(--acme-purple)', fontWeight: 700 }}>
                   Crear grupos de modificadores
                 </Link>
               </div>
@@ -238,14 +309,14 @@ export function ProductEditorPage() {
                       gap: '12px',
                       padding: '14px',
                       borderRadius: '14px',
-                      border: '1px solid #e5e7eb',
-                      background: group.selected ? '#ffffff' : '#f9fafb',
+                      border: '1px solid var(--acme-border)',
+                      background: group.selected ? 'var(--acme-surface)' : 'var(--acme-surface-muted)',
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
                       <div>
                         <strong>{group.group_name}</strong>
-                        <div style={{ color: '#6b7280', marginTop: '6px' }}>
+                        <div style={{ color: 'var(--acme-text-muted)', marginTop: '6px' }}>
                           {group.is_required ? 'Obligatorio' : 'Opcional'} · Min {group.min_select} · Max {group.max_select}
                         </div>
                       </div>
@@ -262,7 +333,7 @@ export function ProductEditorPage() {
                         onChange={(event) => updateModifierGroup(group.group_id, { sort_order: event.target.value })}
                       />
                     </FieldGroup>
-                    <div style={{ color: '#4b5563' }}>
+                    <div style={{ color: 'var(--acme-text-muted)' }}>
                       Opciones: {group.options.length === 0 ? 'sin opciones' : group.options.map((option) => option.name).join(', ')}
                     </div>
                   </div>
@@ -280,7 +351,7 @@ export function ProductEditorPage() {
               {form.branch_settings.map((setting) => (
                 <div
                   key={setting.branch_id}
-                  style={{ display: 'grid', gap: '12px', padding: '14px', borderRadius: '14px', border: '1px solid #e5e7eb', background: '#f9fafb' }}
+                  style={{ display: 'grid', gap: '12px', padding: '14px', borderRadius: '14px', border: '1px solid var(--acme-border)', background: 'var(--acme-surface-muted)' }}
                 >
                   <strong>{setting.branch_name}</strong>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>

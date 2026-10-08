@@ -1,10 +1,11 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
+import { IconPlus } from '../../../../components/admin/AdminIcons';
 import { CheckboxField, FieldGroup, SelectField } from '../../../../components/admin/AdminFields';
 import { AdminModalForm } from '../../../../components/admin/AdminModalForm';
 import { AdminPageFrame, FormStatusBar, SaveActions, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { AdminTabPanel, AdminTabs } from '../../../../components/admin/AdminTabs';
-import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { TableSkeleton } from '../../../../components/shared/Skeleton';
 import { TextField } from '../../../../components/ui/TextField';
 import { hasDirtyState, serializeDirtyState } from '../../../../core/admin/utils/dirtyState';
 import { AppRoutes } from '../../../../core/constants/routes';
@@ -353,7 +354,7 @@ export function StaffAdminPage() {
             onClick={openCreateModal}
             className="btn btn--primary"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <IconPlus />
             Agregar personal
           </button>
         </div>
@@ -364,7 +365,7 @@ export function StaffAdminPage() {
         description="La seguridad avanzada vive en Plataforma / Seguridad. Aqui solo se opera el equipo del negocio y sus asignaciones."
       >
         {loading ? (
-          <LoadingScreen />
+          <TableSkeleton />
         ) : (
           <AdminDataTable
             rows={records}
@@ -526,7 +527,7 @@ export function StaffAdminPage() {
         </>
       ) : (
         <SectionCard title="Editor" description="Selecciona una persona para revisar perfil y asignaciones operativas.">
-          <div style={{ color: '#6b7280' }}>Aun no hay una ficha seleccionada.</div>
+          <div style={{ color: 'var(--acme-text-muted)' }}>Aun no hay una ficha seleccionada.</div>
         </SectionCard>
       )}
 

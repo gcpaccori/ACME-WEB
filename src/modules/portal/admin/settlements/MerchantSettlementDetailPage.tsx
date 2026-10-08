@@ -1,10 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { DataTile } from '../../../../components/admin/DataTile';
 import { AdminDataTable } from '../../../../components/admin/AdminDataTable';
 import { AdminEntityHeader } from '../../../../components/admin/AdminEntityHeader';
 import { AdminInlineRelationTable } from '../../../../components/admin/AdminInlineRelationTable';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../components/admin/AdminScaffold';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { ErrorBanner } from '../../../../components/shared/ErrorBanner';
 import { getPortalActorLabel, getScopeLabel } from '../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { adminSettlementsService, MerchantSettlementDetail } from '../../../../core/services/adminSettlementsService';
@@ -71,7 +73,7 @@ export function MerchantSettlementDetailPage() {
   }
 
   if (error && !detail) {
-    return <div style={{ color: '#b91c1c' }}>{error}</div>;
+    return <ErrorBanner message={error} />;
   }
 
   if (!detail) {
@@ -117,10 +119,7 @@ export function MerchantSettlementDetailPage() {
             { label: 'Generada', value: formatDateTime(detail.generated_at) },
             { label: 'Pagada', value: detail.paid_at ? formatDateTime(detail.paid_at) : 'Pendiente' },
           ].map((item) => (
-            <div key={item.label} style={{ padding: '14px', borderRadius: '14px', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-              <div style={{ color: '#6b7280', fontSize: '13px' }}>{item.label}</div>
-              <strong>{item.value}</strong>
-            </div>
+            <DataTile key={item.label} label={item.label} value={item.value} />
           ))}
         </div>
       </SectionCard>
@@ -136,7 +135,7 @@ export function MerchantSettlementDetailPage() {
               header: 'Pedido',
               render: (record) =>
                 record.order_id ? (
-                  <Link to={AppRoutes.portal.admin.orderDetail.replace(':orderId', record.order_id)} style={{ color: '#2563eb', fontWeight: 700 }}>
+                  <Link to={AppRoutes.portal.admin.orderDetail.replace(':orderId', record.order_id)} style={{ color: 'var(--acme-purple)', fontWeight: 700 }}>
                     #{record.order_code || record.order_id}
                   </Link>
                 ) : (

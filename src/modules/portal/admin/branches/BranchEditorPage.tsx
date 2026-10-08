@@ -1,9 +1,11 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { IconPlus } from '../../../../components/admin/AdminIcons';
 import { AdminPageFrame, FormStatusBar, SaveActions, SectionCard } from '../../../../components/admin/AdminScaffold';
 import { CheckboxField, FieldGroup, NumberField, SelectField, TextAreaField } from '../../../../components/admin/AdminFields';
 import { AdminTabPanel, AdminTabs } from '../../../../components/admin/AdminTabs';
 import { LoadingScreen } from '../../../../components/shared/LoadingScreen';
+import { LocationPickerField } from '../../../../components/shared/LocationPickerField';
 import { TextField } from '../../../../components/ui/TextField';
 import { AppRoutes } from '../../../../core/constants/routes';
 import { hasDirtyState, serializeDirtyState } from '../../../../core/admin/utils/dirtyState';
@@ -127,6 +129,13 @@ export function BranchEditorPage() {
 
   const updateAddress = (key: keyof BranchAdminForm['address'], value: string) => {
     setForm((current) => (current ? { ...current, address: { ...current.address, [key]: value } } : current));
+    setSuccessMessage(null);
+  };
+
+  // Las dos coordenadas se escriben juntas: un click en el mapa cambia
+  // ambas, y hacerlo en dos setForm encadenados perderia una.
+  const updateCoordinates = (lat: string, lng: string) => {
+    setForm((current) => (current ? { ...current, address: { ...current.address, lat, lng } } : current));
     setSuccessMessage(null);
   };
 
@@ -437,6 +446,20 @@ export function BranchEditorPage() {
                   <TextField value={form.address.country} onChange={(event) => updateAddress('country', event.target.value)} />
                 </FieldGroup>
               </div>
+
+              <div style={{ display: 'grid', gap: '10px' }}>
+                <div style={{ display: 'grid', gap: '3px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--acme-text)' }}>Punto en el mapa</span>
+                  <span style={{ fontSize: '12px', color: 'var(--acme-text-muted)' }}>
+                    Se guarda en merchant_branches.lat y lng. Sin punto, el carrito no puede calcular la distancia de reparto desde este local.
+                  </span>
+                </div>
+                <LocationPickerField
+                  lat={form.address.lat}
+                  lng={form.address.lng}
+                  onChange={(next) => updateCoordinates(next.lat, next.lng)}
+                />
+              </div>
             </div>
           </SectionCard>
 
@@ -612,9 +635,8 @@ export function BranchEditorPage() {
                 type="button" 
                 onClick={addClosure}
                 className="btn btn--secondary"
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '14px' }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <IconPlus />
                 Programar cierre especial
               </button>
             </div>
@@ -712,9 +734,8 @@ export function BranchEditorPage() {
                 type="button" 
                 onClick={addZone}
                 className="btn btn--secondary"
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '14px' }}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <IconPlus />
                 Registrar nueva zona base
               </button>
             </div>

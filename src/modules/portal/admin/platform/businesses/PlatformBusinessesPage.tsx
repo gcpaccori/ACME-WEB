@@ -1,12 +1,26 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { AdminSearchBar } from '../../../../../components/admin/AdminSearchBar';
 import { AdminDataTable } from '../../../../../components/admin/AdminDataTable';
+import { FieldGroup, SelectField } from '../../../../../components/admin/AdminFields';
+import { IconArrowRight, IconPlus, IconSearch } from '../../../../../components/admin/AdminIcons';
+import { AdminModalForm } from '../../../../../components/admin/AdminModalForm';
+import { ModuleIcon } from '../../../../../components/admin/ModuleIcon';
 import { AdminPageFrame, SectionCard, StatusPill } from '../../../../../components/admin/AdminScaffold';
-import { LoadingScreen } from '../../../../../components/shared/LoadingScreen';
+import { SectionSkeleton } from '../../../../../components/shared/Skeleton';
+import { TextField } from '../../../../../components/ui/TextField';
 import { getPortalActorLabel, getScopeLabel } from '../../../../../core/auth/portalAccess';
 import { AppRoutes } from '../../../../../core/constants/routes';
+import { MerchantAdminForm } from '../../../../../core/services/adminService';
 import { adminPlatformService, PlatformMerchantRecord } from '../../../../../core/services/adminPlatformService';
 import { PortalContext } from '../../../../auth/session/PortalContext';
+
+// Valores reales del enum merchant_status.
+const merchantStatusOptions = [
+  { value: 'active', label: 'Activo' },
+  { value: 'inactive', label: 'Inactivo' },
+  { value: 'blocked', label: 'Bloqueado' },
+];
 
 function formatDateTime(value: string) {
   if (!value) return 'Sin fecha';
@@ -29,26 +43,59 @@ function getStatusTone(status: string) {
 
 export function PlatformBusinessesPage() {
   const portal = useContext(PortalContext);
+  const navigate = useNavigate();
   const [records, setRecords] = useState<PlatformMerchantRecord[]>([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      const result = await adminPlatformService.fetchMerchants();
-      setLoading(false);
-      if (result.error) {
-        setError(result.error.message);
-        return;
-      }
-      setRecords(result.data ?? []);
-    };
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createForm, setCreateForm] = useState<MerchantAdminForm>(adminPlatformService.createEmptyMerchantForm());
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    const result = await adminPlatformService.fetchMerchants();
+    setLoading(false);
+    if (result.error) {
+      setError(result.error.message);
+      return;
+    }
+    setRecords(result.data ?? []);
+  };
+
+  useEffect(() => {
     load();
   }, []);
+
+  const openCreate = () => {
+    setCreateForm(adminPlatformService.createEmptyMerchantForm());
+    setCreateError(null);
+    setCreateOpen(true);
+  };
+
+  const submitCreate = async () => {
+    if (!createForm.trade_name.trim()) {
+      setCreateError('El nombre comercial es obligatorio.');
+      return;
+    }
+
+    setCreating(true);
+    setCreateError(null);
+    const result = await adminPlatformService.createMerchant(createForm);
+    setCreating(false);
+
+    if (result.error) {
+      setCreateError(result.error.message);
+      return;
+    }
+
+    setCreateOpen(false);
+    // Al detalle del recien creado: ahi se cargan logo, sedes y responsables.
+    navigate(AppRoutes.portal.admin.platformBusinessDetail.replace(':merchantId', result.data!.id));
+  };
 
   const filteredRecords = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -76,26 +123,39 @@ export function PlatformBusinessesPage() {
         { label: 'Entidad', value: 'Merchants', tone: 'warning' },
         { label: 'Modo', value: 'Plataforma', tone: 'warning' },
       ]}
+      actions={
+        <button type="button" className="btn btn--primary" onClick={openCreate}>
+          <IconPlus />
+          Nuevo negocio
+        </button>
+      }
     >
       {loading ? (
-        <LoadingScreen />
+        <SectionSkeleton lines={5} />
       ) : error ? (
         <div style={{ color: 'var(--acme-red)', padding: '20px' }}>{error}</div>
       ) : (
         <>
-          <SectionCard title="Cifras de Plataforma" description="Consolidado global de la red de negocios y su actividad operativa actual.">
+          <SectionCard title="Cifras de plataforma" description="Consolidado global de la red de negocios.">
             <div className="stat-grid">
               {[
-                { label: 'Total Negocios', value: String(records.length), color: 'var(--acme-purple)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
-                { label: 'Sucursales Activas', value: String(records.reduce((sum, r) => sum + r.active_branches_count, 0)), color: 'var(--acme-green)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="4" y="2" width="16" height="20" rx="2" /><line d="M9 22 9 2M15 22 15 2M4 14 20 14" /></svg> },
-                { label: 'Pedidos Totales', value: String(records.reduce((sum, r) => sum + r.orders_count, 0)), color: 'var(--acme-blue)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg> },
-                { label: 'Promociones', value: String(records.reduce((sum, r) => sum + r.promotions_count, 0)), color: 'var(--acme-purple)', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg> },
+                // Los iconos salen del registro de modulos, igual que en el
+                // Resumen y el sidebar. El de sucursales estaba escrito como
+                // <line d="..."/>, que no es valido: line no acepta `d`, asi
+                // que ese icono se dibujaba vacio.
+                { label: 'Negocios', value: String(records.length), color: 'var(--acme-purple)', icon: 'shop' },
+                { label: 'Sucursales activas', value: String(records.reduce((sum, r) => sum + r.active_branches_count, 0)), color: 'var(--acme-green)', icon: 'map-pin' },
+                { label: 'Pedidos totales', value: String(records.reduce((sum, r) => sum + r.orders_count, 0)), color: 'var(--acme-blue)', icon: 'shopping-cart' },
+                { label: 'Promociones', value: String(records.reduce((sum, r) => sum + r.promotions_count, 0)), color: 'var(--acme-orange)', icon: 'tag' },
               ].map((item) => (
                 <div key={item.label} className="stat-card">
-                  <div className="stat-card__badge" style={{ background: item.color }} />
                   <div className="stat-card__header">
                     <span className="stat-card__label">{item.label}</span>
-                    <div className="stat-card__icon-box">{item.icon}</div>
+                    {/* El color va en el icono. Antes pintaba el badge, que es
+                        un degradado decorativo, y quedaba un cuadrado solido. */}
+                    <div className="stat-card__icon-box" style={{ color: item.color }}>
+                      <ModuleIcon icon={item.icon} size={17} />
+                    </div>
                   </div>
                   <strong className="stat-card__value">{item.value}</strong>
                 </div>
@@ -103,22 +163,22 @@ export function PlatformBusinessesPage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="Búsqueda Avanzada" description="Localiza rápidamente una entidad por nombre comercial, razón social o responsable.">
-            <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--acme-text-faint)', zIndex: 1, pointerEvents: 'none' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              </div>
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Escribe el nombre del comercio, responsable o correo..."
-                className="input-field"
-                style={{ paddingLeft: '48px', width: '100%', border: '1px solid var(--acme-bg-soft)', borderRadius: '12px', padding: '12px 12px 12px 48px' }}
-              />
-            </div>
-          </SectionCard>
+          <SectionCard
+            title="Padrón de negocios"
+            description="Gestión centralizada de comercios y su estado de onboarding."
+          >
+            {/* La busqueda vivia en su propia SectionCard, ocupando una franja
+                entera para un solo campo. Va junto a la tabla que filtra. */}
+            <AdminSearchBar
+              value={query}
+              onChange={setQuery}
+              placeholder="Buscar por nombre, responsable o correo"
+              label="Buscar comercios"
+              total={records.length}
+              shown={filteredRecords.length}
+              noun="comercios"
+            />
 
-          <SectionCard title="Padrón de Negocios" description="Gestión centralizada de comercios. El estado 'Draft' o 'Pending' indica negocios en proceso de onboarding.">
             <AdminDataTable
               rows={filteredRecords}
               getRowId={(record) => record.id}
@@ -126,14 +186,36 @@ export function PlatformBusinessesPage() {
               columns={[
                 {
                   id: 'merchant',
-                  header: 'Negocio / Responsable',
+                  header: 'Negocio',
                   render: (record) => (
-                    <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                      <div className="module-icon-box" style={{ width: '44px', height: '44px', background: 'var(--acme-bg-soft)', color: 'var(--acme-purple)' }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M3 7l9-4 9 4v14H3V7zm4 14V11h3v10m4 0V11h3v10"/></svg>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      {/* El logo identifica el negocio de un vistazo; el icono
+                          generico era el mismo en las 18 filas. */}
+                      <div
+                        className="module-icon-box"
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          flexShrink: 0,
+                          overflow: 'hidden',
+                          background: 'var(--acme-surface-muted)',
+                          color: 'var(--acme-purple)',
+                        }}
+                      >
+                        {record.logo_url ? (
+                          <img
+                            src={record.logo_url}
+                            alt=""
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <ModuleIcon icon="shop" size={18} />
+                        )}
                       </div>
-                      <div className="module-info">
-                        <strong style={{ fontWeight: 800 }}>{record.trade_name || record.legal_name || 'Negocio sin Nombre'}</strong>
+                      <div style={{ display: 'grid', gap: '1px', minWidth: 0 }}>
+                        <strong style={{ fontWeight: 700, fontSize: '14px' }}>
+                          {record.trade_name || record.legal_name || 'Negocio sin nombre'}
+                        </strong>
                         <span style={{ color: 'var(--acme-text-faint)', fontSize: '12px' }}>{record.owner_label}</span>
                       </div>
                     </div>
@@ -141,17 +223,20 @@ export function PlatformBusinessesPage() {
                 },
                 {
                   id: 'operations',
-                  header: 'Infraestructura',
+                  header: 'Sedes y pedidos',
                   render: (record) => (
                     <div style={{ display: 'grid', gap: '2px' }}>
-                      <span style={{ fontWeight: 600, fontSize: '13px' }}>{record.branches_count} Sedes ({record.active_branches_count} ON)</span>
+                      <span style={{ fontWeight: 600, fontSize: '13px' }}>
+                        {record.branches_count} {record.branches_count === 1 ? 'sede' : 'sedes'}
+                        {record.branches_count > 0 ? ` · ${record.active_branches_count} abiertas` : ''}
+                      </span>
                       <span style={{ color: 'var(--acme-text-faint)', fontSize: '11px' }}>{record.orders_count} Pedidos registrados</span>
                     </div>
                   ),
                 },
                 {
                   id: 'growth',
-                  header: 'Capital Humano',
+                  header: 'Equipo',
                   render: (record) => (
                     <div style={{ display: 'grid', gap: '2px' }}>
                       <span style={{ fontWeight: 600, fontSize: '13px' }}>{record.staff_count} Colaboradores</span>
@@ -168,7 +253,7 @@ export function PlatformBusinessesPage() {
                 },
                 {
                   id: 'created',
-                  header: 'Registro',
+                  header: 'Alta',
                   width: '120px',
                   render: (record) => (
                     <span style={{ fontSize: '12px', color: 'var(--acme-text-faint)' }}>{formatDateTime(record.created_at)}</span>
@@ -180,12 +265,13 @@ export function PlatformBusinessesPage() {
                   align: 'right',
                   width: '160px',
                   render: (record) => (
-                    <Link 
-                      to={AppRoutes.portal.admin.platformBusinessDetail.replace(':merchantId', record.id)} 
-                      className="btn btn--sm btn--ghost" 
-                      style={{ color: 'var(--acme-purple)', fontWeight: 700 }}
+                    <Link
+                      to={AppRoutes.portal.admin.platformBusinessDetail.replace(':merchantId', record.id)}
+                      className="btn btn--sm btn--secondary"
+                      aria-label={`Ver ficha de ${record.trade_name || record.legal_name || 'el comercio'}`}
                     >
-                      Ver Detalles
+                      Ver ficha
+                      <IconArrowRight size={13} />
                     </Link>
                   ),
                 },
@@ -194,6 +280,71 @@ export function PlatformBusinessesPage() {
           </SectionCard>
         </>
       )}
+
+      <AdminModalForm
+        open={createOpen}
+        title="Nuevo negocio"
+        description="Se crea el comercio en el padron. El logo, las sedes y los responsables se cargan despues desde su ficha."
+        onClose={() => setCreateOpen(false)}
+        actions={
+          <>
+            <button type="button" className="btn btn--secondary" onClick={() => setCreateOpen(false)} disabled={creating}>
+              Cancelar
+            </button>
+            <button type="button" className="btn btn--primary" onClick={submitCreate} disabled={creating}>
+              {creating ? 'Creando...' : 'Crear negocio'}
+            </button>
+          </>
+        }
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+          <FieldGroup label="Nombre comercial" hint="Unico dato obligatorio. Es el nombre que ve el cliente.">
+            <TextField
+              value={createForm.trade_name}
+              autoFocus
+              placeholder="Ej. Artesano Restaurant"
+              onChange={(event) => setCreateForm((current) => ({ ...current, trade_name: event.target.value }))}
+            />
+          </FieldGroup>
+          <FieldGroup label="Razon social">
+            <TextField
+              value={createForm.legal_name}
+              onChange={(event) => setCreateForm((current) => ({ ...current, legal_name: event.target.value }))}
+            />
+          </FieldGroup>
+          <FieldGroup label="RUC">
+            <TextField
+              value={createForm.tax_id}
+              onChange={(event) => setCreateForm((current) => ({ ...current, tax_id: event.target.value }))}
+            />
+          </FieldGroup>
+          <FieldGroup label="Telefono">
+            <TextField
+              value={createForm.phone}
+              onChange={(event) => setCreateForm((current) => ({ ...current, phone: event.target.value }))}
+            />
+          </FieldGroup>
+          <FieldGroup label="Email">
+            <TextField
+              value={createForm.email}
+              onChange={(event) => setCreateForm((current) => ({ ...current, email: event.target.value }))}
+            />
+          </FieldGroup>
+          <FieldGroup label="Estado">
+            <SelectField
+              value={createForm.status}
+              onChange={(event) => setCreateForm((current) => ({ ...current, status: event.target.value }))}
+              options={merchantStatusOptions}
+            />
+          </FieldGroup>
+        </div>
+
+        {createError && (
+          <div style={{ color: 'var(--acme-red)', fontSize: '13px', fontWeight: 600 }} role="alert">
+            {createError}
+          </div>
+        )}
+      </AdminModalForm>
     </AdminPageFrame>
   );
 }
