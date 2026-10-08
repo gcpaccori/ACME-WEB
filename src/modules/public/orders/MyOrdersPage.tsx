@@ -116,8 +116,8 @@ export function MyOrdersPage() {
             <span aria-hidden="true">★</span>
             <span>
               {porCalificar.length === 1
-                ? `¿Qué tal tu pedido de ${porCalificar[0].merchant_label}? Califica al local y al repartidor.`
-                : `Tienes ${porCalificar.length} pedidos por calificar. Cuéntanos qué tal el local y el repartidor.`}
+                ? `¿Qué tal tu pedido de ${porCalificar[0].merchant_label}? ${porCalificar[0].fulfillment_type === 'pickup' ? 'Califica al local.' : 'Califica al local y al repartidor.'}`
+                : `Tienes ${porCalificar.length} pedidos por calificar. Cuéntanos qué tal te fue.`}
             </span>
             <strong>Calificar</strong>
           </Link>
