@@ -6,6 +6,8 @@ import headerLogo from '../../images/logo/acme-pedidos-off.png';
 import footerLogo from '../../images/logo/acme-white.png';
 import { usePublicStore } from '../../modules/public/store/PublicStoreContext';
 import { MobileAppBanner } from '../components/MobileAppBanner';
+import { CookieBanner } from '../components/CookieBanner';
+import { openCookieSettings } from '../../core/consent/cookieConsent';
 
 function isActive(pathname: string, route: string) {
   return pathname === route;
@@ -614,6 +616,7 @@ export function PublicLayout() {
       </main>
 
       <MobileAppBanner />
+      <CookieBanner />
 
       <footer>
         <div className="acme-footer-top">
@@ -715,6 +718,8 @@ export function PublicLayout() {
         <div className="acme-footer-legal">
           <Link to={AppRoutes.public.terms}>Términos y condiciones</Link>
           <Link to={AppRoutes.public.privacy}>Política de privacidad</Link>
+          <Link to={AppRoutes.public.cookies}>Política de cookies</Link>
+          <a href="#" onClick={(e) => { e.preventDefault(); openCookieSettings(); }}>Configurar cookies</a>
           <Link to={AppRoutes.public.refunds}>Devoluciones y cancelaciones</Link>
           <Link to={AppRoutes.public.complaints}>Libro de Reclamaciones</Link>
         </div>

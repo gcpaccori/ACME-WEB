@@ -7,7 +7,14 @@ export interface CustomerRegistrationPayload {
   phone: string;
   password: string;
   address?: CustomerAddressForm;
+  /** Aceptacion expresa de terminos y politica de privacidad (obligatoria). */
+  accept_terms?: boolean;
+  /** Consentimiento opcional para recibir promociones (Ley 29733 y art. 58 del Codigo del Consumidor). */
+  marketing_opt_in?: boolean;
 }
+
+/** Version de los textos legales que la persona acepta al registrarse. */
+export const LEGAL_TEXTS_VERSION = '2026-10';
 
 export interface CustomerProfileLite {
   full_name: string;
@@ -283,8 +290,20 @@ export const publicCustomerService = {
           full_name: payload.full_name,
           phone: payload.phone,
           primary_address: payload.address ?? null,
+          // Evidencia del consentimiento: que acepto, cuando y que version.
+          terms_accepted_at: payload.accept_terms ? new Date().toISOString() : null,
+          legal_texts_version: payload.accept_terms ? LEGAL_TEXTS_VERSION : null,
+          marketing_opt_in: payload.marketing_opt_in === true,
+          marketing_opt_in_at: new Date().toISOString(),
         },
       },
+    });
+  },
+
+  /** Dar o retirar el consentimiento para promociones. */
+  setMarketingConsent: async (optIn: boolean) => {
+    return supabase.auth.updateUser({
+      data: { marketing_opt_in: optIn, marketing_opt_in_at: new Date().toISOString() },
     });
   },
 
