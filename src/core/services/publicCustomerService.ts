@@ -279,6 +279,15 @@ async function ensureCustomerRow(userId: string) {
   return result;
 }
 
+export interface MyOrderRatingRecord {
+  order_id: string;
+  merchant_score: number;
+  driver_score: number | null;
+  comment: string;
+  rated_at: string;
+  has_driver: boolean;
+}
+
 export const publicCustomerService = {
   signUpCustomer: async (payload: CustomerRegistrationPayload) => {
     return supabase.auth.signUp({
@@ -851,5 +860,30 @@ export const publicCustomerService = {
     }
 
     return { data: { address_id: addressId }, error: null };
+  },
+
+  /** Calificaciones que el cliente ya dio, por pedido. */
+  fetchMyOrderRatings: async () => {
+    const result = await supabase.rpc('my_order_ratings');
+    if (result.error) return { data: null, error: result.error };
+    const data: MyOrderRatingRecord[] = ((result.data ?? []) as any[]).map((row) => ({
+      order_id: stringOrEmpty(row.order_id),
+      merchant_score: numberOrZero(row.merchant_score),
+      driver_score: row.driver_score === null || row.driver_score === undefined ? null : numberOrZero(row.driver_score),
+      comment: stringOrEmpty(row.comment),
+      rated_at: stringOrEmpty(row.rated_at),
+      has_driver: Boolean(row.has_driver),
+    }));
+    return { data, error: null };
+  },
+
+  /** Califica un pedido entregado: al negocio y, si hubo, al repartidor (1 a 5). */
+  submitOrderRating: async (orderId: string, merchantScore: number, driverScore: number | null, comment: string) => {
+    return supabase.rpc('submit_order_rating', {
+      p_order_id: orderId,
+      p_merchant_score: merchantScore,
+      p_driver_score: driverScore,
+      p_comment: comment.trim() || null,
+    });
   },
 };
