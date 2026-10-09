@@ -85,7 +85,7 @@ export function AppRouter() {
           navegando, solo con el link directo. */}
       <Route path="betas" element={<BetasPage />} />
 
-      {/* Checkout de Culqi para la app movil, que lo abre en una vista web.
+      {/* Pasarela de pago (Izipay o Culqi) para la app movil, que lo abre en una vista web.
           Tambien fuera de PublicLayout: dentro de la app, un header con
           navegacion solo estorba. */}
       <Route path="pagar" element={<PayPage />} />

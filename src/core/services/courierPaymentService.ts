@@ -19,6 +19,27 @@ export interface CourierCulqiOrderResponse {
   payment_id: string;
   monto_centimos: number;
   mensaje: string;
+  /** Pasarela con la que el backend abrio el pago. */
+  provider?: 'culqi' | 'izipay' | string;
+  /** Solo Izipay: formToken y clave publica para montar el formulario. */
+  form_token?: string | null;
+  public_key?: string | null;
+  mode?: string | null;
+}
+
+export interface IzipayConfirmPayload {
+  order_id: string;
+  kr_answer: string;
+  kr_hash: string;
+  kr_hash_key?: string;
+}
+
+export interface IzipayConfirmResponse {
+  exito: boolean;
+  courier_order_id: string;
+  payment_status: string;
+  transaccion_id?: string | null;
+  mensaje: string;
 }
 
 export interface CourierChargePayload {
@@ -256,7 +277,18 @@ export const courierPaymentService = {
   },
 
   /**
-   * Pide al backend revisar en Culqi un pago diferido (PagoEfectivo, banca
+   * Izipay — Manda al backend la respuesta firmada del formulario. El backend
+   * verifica la firma y el monto antes de marcar el pedido como pagado.
+   */
+  confirmIzipay(payload: IzipayConfirmPayload) {
+    return requestJson<IzipayConfirmResponse>('/api/courier/payments/izipay/confirm', {
+      method: 'POST',
+      json: payload,
+    });
+  },
+
+  /**
+   * Pide al backend revisar en la pasarela un pago pendiente (PagoEfectivo, banca
    * movil, agentes, billeteras). Si ya se pago, el backend libera el pedido.
    */
   syncPayment(orderId: string) {

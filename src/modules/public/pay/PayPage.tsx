@@ -1,10 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import type { IzipayPaymentData } from '../../../core/payments/izipay';
+import { courierPaymentService } from '../../../core/services/courierPaymentService';
+import { IzipayForm } from './IzipayForm';
 import './PayPage.css';
 
 /**
- * Página que hospeda el checkout de Culqi para la app móvil.
+ * Página que hospeda la pasarela de pago para la app móvil.
  *
+ * Con Izipay (pasarela=izipay) la app manda por el fragmento de la URL
+ * (#token=...&pk=...) el formToken y la clave pública que le dio el backend;
+ * el fragmento no viaja al servidor. Al pagar, esta página manda la respuesta
+ * firmada al backend y vuelve a la app con `acme://culqi?pagado=1`; la app
+ * consulta el estado del pedido con su propia sesión.
+ *
+ * Con Culqi (respaldo):
  * Culqi Checkout es JavaScript y no hay plugin de Flutter, así que la app la
  * abre dentro de una vista web. Aquí solo llegan datos públicos por la URL —la
  * orden de Culqi, el monto y el nombre—; la sesión del cliente nunca sale de la
@@ -44,7 +54,74 @@ function volverALaApp(params: Record<string, string>) {
   window.location.href = `${SENTINELA}?${q}`;
 }
 
+function IzipayPay() {
+  const [params] = useSearchParams();
+  const { hash } = useLocation();
+  const fragment = new URLSearchParams(hash.replace(/^#/, ''));
+  const formToken = fragment.get('token') ?? '';
+  const publicKey = fragment.get('pk') ?? '';
+  const pedidoId = params.get('pedido_id') ?? '';
+  const monto = Number(params.get('monto') ?? 0);
+  const nombre = params.get('nombre') ?? 'Cliente';
+  const pedido = params.get('pedido');
+  const modo = params.get('modo');
+  const [estado, setEstado] = useState<'form' | 'confirmando'>('form');
+  const [error, setError] = useState<string | null>(
+    formToken && publicKey && pedidoId ? null : 'Faltan datos del pago. Vuelve a intentarlo desde la app.'
+  );
+
+  const alPagar = async (data: IzipayPaymentData) => {
+    setEstado('confirmando');
+    try {
+      const r = await courierPaymentService.confirmIzipay({
+        order_id: pedidoId,
+        kr_answer: data.rawClientAnswer,
+        kr_hash: data.hash,
+        kr_hash_key: data.hashKey,
+      });
+      if (r.payment_status === 'failed') {
+        volverALaApp({ error: r.mensaje || 'El pago no se completó.' });
+      } else {
+        volverALaApp(r.payment_status === 'paid' ? { pagado: '1' } : { pendiente: '1' });
+      }
+    } catch {
+      // Izipay ya cobró y avisará al backend por la IPN; la app lo consulta.
+      volverALaApp({ pendiente: '1' });
+    }
+  };
+
+  return (
+    <main className="pay">
+      <div className="pay__card">
+        <h1 className="pay__title">{pedido ? `Pedido #${pedido}` : 'Pagar pedido'}</h1>
+        <p className="pay__amount">S/ {(monto / 100).toFixed(2)}</p>
+        <p className="pay__name">{nombre}</p>
+        {modo === 'TEST' && <p className="pay__test">Modo de prueba: no se cobra dinero real.</p>}
+
+        {error ? (
+          <>
+            <p className="pay__error">{error}</p>
+            <button type="button" className="pay__btn" onClick={() => volverALaApp({ error })}>
+              Volver a la app
+            </button>
+          </>
+        ) : estado === 'confirmando' ? (
+          <p className="pay__hint">Confirmando tu pago…</p>
+        ) : (
+          <IzipayForm formToken={formToken} publicKey={publicKey} onPaid={(d) => void alPagar(d)} />
+        )}
+      </div>
+    </main>
+  );
+}
+
 export function PayPage() {
+  const [params] = useSearchParams();
+  if (params.get('pasarela') === 'izipay') return <IzipayPay />;
+  return <CulqiPay />;
+}
+
+function CulqiPay() {
   const [params] = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [abierto, setAbierto] = useState(false);
