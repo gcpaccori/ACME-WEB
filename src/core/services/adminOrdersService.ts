@@ -978,7 +978,7 @@ export const adminOrdersService = {
     // (/api/webhooks/culqi, /api/webhooks/izipay) o la confirmacion firmada.
     // Solo se permiten pagos manuales para métodos offline (efectivo, transferencia, etc.).
     const requestedStatus = form.status.trim();
-    const isOnlineProvider = ['culqi', 'izipay'].includes((form.provider || '').toLowerCase());
+    const isOnlineProvider = ['culqi', 'izipay', 'izipay_sdk'].includes((form.provider || '').toLowerCase());
     if (isOnlineProvider && requestedStatus === 'paid') {
       return {
         data: null,

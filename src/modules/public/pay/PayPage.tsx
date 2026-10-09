@@ -3,10 +3,16 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import type { IzipayPaymentData } from '../../../core/payments/izipay';
 import { courierPaymentService } from '../../../core/services/courierPaymentService';
 import { IzipayForm } from './IzipayForm';
+import { IzipaySdkForm } from './IzipaySdkForm';
+import { decodeIzipaySdkCheckout, isIzipaySdkUnknown, type IzipaySdkResponse } from '../../../core/payments/izipaySdk';
 import './PayPage.css';
 
 /**
  * Página que hospeda la pasarela de pago para la app móvil.
+ *
+ * Con el SDK de Izipay (pasarela=izipay_sdk: tarjeta, Yape, Plin, QR) la app
+ * manda en el fragmento (#c=...) la configuracion del checkout que le dio el
+ * backend, en JSON y base64url. Vuelve a la app igual que con el formulario.
  *
  * Con Izipay (pasarela=izipay) la app manda por el fragmento de la URL
  * (#token=...&pk=...) el formToken y la clave pública que le dio el backend;
@@ -115,8 +121,69 @@ function IzipayPay() {
   );
 }
 
+function IzipaySdkPay() {
+  const [params] = useSearchParams();
+  const { hash } = useLocation();
+  const [checkout] = useState(() => decodeIzipaySdkCheckout(new URLSearchParams(hash.replace(/^#/, '')).get('c') ?? ''));
+  const pedidoId = params.get('pedido_id') ?? '';
+  const monto = Number(params.get('monto') ?? 0);
+  const nombre = params.get('nombre') ?? 'Cliente';
+  const pedido = params.get('pedido');
+  const modo = params.get('modo');
+  const [estado, setEstado] = useState<'form' | 'confirmando'>('form');
+  const error = checkout && pedidoId ? null : 'Faltan datos del pago. Vuelve a intentarlo desde la app.';
+
+  const alResponder = async (response: IzipaySdkResponse) => {
+    setEstado('confirmando');
+    if (isIzipaySdkUnknown(response)) {
+      volverALaApp({ pendiente: '1' });
+      return;
+    }
+    try {
+      const r = await courierPaymentService.confirmIzipaySdk({
+        order_id: pedidoId,
+        payload_http: response.payloadHttp as string,
+        signature: response.signature as string,
+      });
+      if (r.payment_status === 'failed') {
+        volverALaApp({ error: r.mensaje || 'El pago no se completó.' });
+      } else {
+        volverALaApp(r.payment_status === 'paid' ? { pagado: '1' } : { pendiente: '1' });
+      }
+    } catch {
+      // Si Izipay cobró, avisará al backend por la IPN; la app lo consulta.
+      volverALaApp({ pendiente: '1' });
+    }
+  };
+
+  return (
+    <main className="pay">
+      <div className="pay__card">
+        <h1 className="pay__title">{pedido ? `Pedido #${pedido}` : 'Pagar pedido'}</h1>
+        <p className="pay__amount">S/ {(monto / 100).toFixed(2)}</p>
+        <p className="pay__name">{nombre}</p>
+        {modo === 'TEST' && <p className="pay__test">Modo de prueba: no se cobra dinero real.</p>}
+
+        {error || !checkout ? (
+          <>
+            <p className="pay__error">{error}</p>
+            <button type="button" className="pay__btn" onClick={() => volverALaApp({ error: error || 'Faltan datos del pago.' })}>
+              Volver a la app
+            </button>
+          </>
+        ) : estado === 'confirmando' ? (
+          <p className="pay__hint">Confirmando tu pago…</p>
+        ) : (
+          <IzipaySdkForm checkout={checkout} onResponse={(r) => void alResponder(r)} />
+        )}
+      </div>
+    </main>
+  );
+}
+
 export function PayPage() {
   const [params] = useSearchParams();
+  if (params.get('pasarela') === 'izipay_sdk') return <IzipaySdkPay />;
   if (params.get('pasarela') === 'izipay') return <IzipayPay />;
   return <CulqiPay />;
 }

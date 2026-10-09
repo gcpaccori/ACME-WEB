@@ -12,6 +12,8 @@ import { CustomerAddressForm, CustomerAddressRecord, publicCustomerService } fro
 import { supabase } from '../../../integrations/supabase/client';
 import type { IzipayPaymentData } from '../../../core/payments/izipay';
 import { IzipayForm } from '../pay/IzipayForm';
+import { IzipaySdkForm } from '../pay/IzipaySdkForm';
+import { isIzipaySdkUnknown, type IzipaySdkCheckout, type IzipaySdkResponse } from '../../../core/payments/izipaySdk';
 import { usePublicStore } from '../store/PublicStoreContext';
 
 type DeliveryAddressMode = 'saved' | 'new';
@@ -884,10 +886,13 @@ export function CartPage() {
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   // Formulario de Izipay abierto para un pedido ya creado.
+  // Con el formulario incrustado llegan formToken y publicKey; con el SDK
+  // (tarjeta, Yape, Plin, QR), la configuracion del checkout en sdk.
   const [izipayCheckout, setIzipayCheckout] = useState<{
     orderId: string;
-    formToken: string;
-    publicKey: string;
+    formToken?: string;
+    publicKey?: string;
+    sdk?: IzipaySdkCheckout;
     amount: number;
     mode?: string | null;
   } | null>(null);
@@ -1539,6 +1544,40 @@ export function CartPage() {
     }
   };
 
+  const handleIzipaySdkResponse = async (orderId: string, response: IzipaySdkResponse) => {
+    setIzipayCheckout(null);
+    setSubmitting(true);
+    setCheckoutError(null);
+    setPaymentMessage('Confirmando tu pago...');
+    try {
+      if (isIzipaySdkUnknown(response)) {
+        // Izipay no pudo confirmar el resultado; la pagina del pedido lo
+        // consulta y lo libera si se cobro.
+        setPaymentStatus('pending');
+        finishCheckout(orderId);
+        return;
+      }
+      const result = await courierPaymentService.confirmIzipaySdk({
+        order_id: orderId,
+        payload_http: response.payloadHttp as string,
+        signature: response.signature as string,
+      });
+      if (result.payment_status === 'failed') {
+        setCheckoutError(result.mensaje || 'Izipay no aprobó el pago.');
+        setPaymentMessage('Pedido creado con pago pendiente.');
+        setPaymentStatus('failed');
+        return;
+      }
+      setPaymentStatus(result.payment_status === 'paid' ? 'paid' : 'pending');
+      finishCheckout(orderId);
+    } catch {
+      setPaymentStatus('pending');
+      finishCheckout(orderId);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const closeIzipayCheckout = () => {
     setIzipayCheckout(null);
     setPaymentMessage('Pedido creado con pago pendiente. Puedes reintentar el pago.');
@@ -1569,6 +1608,20 @@ export function CartPage() {
         telefono_cliente: recipientPhone,
         descripcion: `Pedido ACME #${orderId.slice(-6)}`,
       });
+
+      if (checkoutOrder.provider === 'izipay_sdk') {
+        if (!checkoutOrder.izipay_checkout) {
+          throw new Error('Izipay no devolvió el checkout de pago.');
+        }
+        setIzipayCheckout({
+          orderId,
+          sdk: checkoutOrder.izipay_checkout,
+          amount: checkoutOrder.monto_centimos,
+          mode: checkoutOrder.mode,
+        });
+        setPaymentMessage('Paga con tarjeta, Yape o Plin en el checkout seguro de Izipay.');
+        return;
+      }
 
       if (checkoutOrder.provider === 'izipay') {
         if (!checkoutOrder.form_token || !checkoutOrder.public_key) {
@@ -2362,11 +2415,18 @@ export function CartPage() {
             {izipayCheckout.mode === 'TEST' && (
               <p className="izipay-modal__test">Modo de prueba: no se cobra dinero real.</p>
             )}
-            <IzipayForm
-              formToken={izipayCheckout.formToken}
-              publicKey={izipayCheckout.publicKey}
-              onPaid={(data) => void handleIzipayPaid(izipayCheckout.orderId, data)}
-            />
+            {izipayCheckout.sdk ? (
+              <IzipaySdkForm
+                checkout={izipayCheckout.sdk}
+                onResponse={(response) => void handleIzipaySdkResponse(izipayCheckout.orderId, response)}
+              />
+            ) : (
+              <IzipayForm
+                formToken={izipayCheckout.formToken || ''}
+                publicKey={izipayCheckout.publicKey || ''}
+                onPaid={(data) => void handleIzipayPaid(izipayCheckout.orderId, data)}
+              />
+            )}
             <p className="izipay-modal__secure">Pago procesado por Izipay. ACME no ve ni guarda los datos de tu tarjeta.</p>
           </div>
         </div>

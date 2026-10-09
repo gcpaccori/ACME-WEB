@@ -1,4 +1,5 @@
 import { supabase } from '../../integrations/supabase/client';
+import type { IzipaySdkCheckout } from '../payments/izipaySdk';
 
 const DEFAULT_API_URL = 'https://acme-operacione.vercel.app';
 const API_BASE_URL = String(import.meta.env.VITE_ACME_API_URL || DEFAULT_API_URL).replace(/\/+$/, '');
@@ -20,11 +21,19 @@ export interface CourierCulqiOrderResponse {
   monto_centimos: number;
   mensaje: string;
   /** Pasarela con la que el backend abrio el pago. */
-  provider?: 'culqi' | 'izipay' | string;
+  provider?: 'culqi' | 'izipay' | 'izipay_sdk' | string;
   /** Solo Izipay: formToken y clave publica para montar el formulario. */
   form_token?: string | null;
   public_key?: string | null;
   mode?: string | null;
+  /** Solo SDK de Izipay ("izipay_sdk"): token de sesion y configuracion del checkout. */
+  izipay_checkout?: IzipaySdkCheckout | null;
+}
+
+export interface IzipaySdkConfirmPayload {
+  order_id: string;
+  payload_http: string;
+  signature: string;
 }
 
 export interface IzipayConfirmPayload {
@@ -282,6 +291,17 @@ export const courierPaymentService = {
    */
   confirmIzipay(payload: IzipayConfirmPayload) {
     return requestJson<IzipayConfirmResponse>('/api/courier/payments/izipay/confirm', {
+      method: 'POST',
+      json: payload,
+    });
+  },
+
+  /**
+   * SDK de Izipay — Manda al backend la respuesta firmada del checkout
+   * (payloadHttp y signature). El backend verifica la firma y el monto.
+   */
+  confirmIzipaySdk(payload: IzipaySdkConfirmPayload) {
+    return requestJson<IzipayConfirmResponse>('/api/courier/payments/izipay-sdk/confirm', {
       method: 'POST',
       json: payload,
     });
