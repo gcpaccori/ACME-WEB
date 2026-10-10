@@ -2150,7 +2150,7 @@ export function CartPage() {
                         <SummaryRow label="Descuento" value={`-${formatMoney(activeQuote.discount)}`} muted small />
                       )}
                       <SummaryRow
-                        label={`Tarifa de servicio (${(activeQuote.service_fee_rate * 100).toFixed(1)}%)`}
+                        label="Tarifa de servicio"
                         value={formatMoney(activeQuote.service_fee)}
                         muted
                         small
@@ -2183,18 +2183,11 @@ export function CartPage() {
                         muted
                         small
                       />
-                      <SummaryRow
-                        label={`Comision Culqi (${((activeQuote.payment_processing_rate ?? 0) * 100).toFixed(2)}%)`}
-                        value={formatMoney(activeQuote.payment_processing_fee ?? 0)}
-                        muted
-                        small
-                      />
                       <div style={{ borderTop: '1px solid var(--acme-border)', paddingTop: '12px', marginTop: '4px' }}>
                         <SummaryRow label="Total a pagar" value={formatMoney(activeQuote.total)} highlight />
                       </div>
                       <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px', lineHeight: 1.5 }}>
-                        Precio calculado por el servidor. CulqiOnline nacional: 3.44% + fijo referencial; comision inafecta a IGV.
-                        {activeQuote.payment_processing_note ? ` ${activeQuote.payment_processing_note}` : ''}
+                        Precio calculado por el servidor. La tarifa de servicio incluye la comisión de la tarjeta.
                       </div>
                     </>
                   ) : (
