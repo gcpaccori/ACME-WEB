@@ -2150,7 +2150,7 @@ export function CartPage() {
                         <SummaryRow label="Descuento" value={`-${formatMoney(activeQuote.discount)}`} muted small />
                       )}
                       <SummaryRow
-                        label={`Tarifa de servicio (${(activeQuote.service_fee_rate * 100).toFixed(1)}%)`}
+                        label={activeQuote.subtotal - activeQuote.discount > 100 ? 'Tarifa de servicio (12% hasta S/ 100, 8% el resto)' : 'Tarifa de servicio (12%)'}
                         value={formatMoney(activeQuote.service_fee)}
                         muted
                         small
