@@ -735,7 +735,11 @@ export function AccountPage() {
             className="btn-secondary"
             style={{ marginTop: '1rem' }}
             onClick={async () => {
-              await publicStore.signOutCustomer();
+              const result = await publicStore.signOutCustomer();
+              if (result.error) {
+                setError('No pudimos cerrar tu sesión. Revisa tu conexión e inténtalo de nuevo.');
+                return;
+              }
               navigate(AppRoutes.public.home);
             }}
           >
