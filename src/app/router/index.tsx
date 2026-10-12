@@ -12,6 +12,7 @@ import { AccountPage } from '../../modules/public/account/AccountPage';
 import { BusinessPage } from '../../modules/public/business/BusinessPage';
 import { BetasPage } from '../../modules/public/betas/BetasPage';
 import { PayPage } from '../../modules/public/pay/PayPage';
+import { IzipayDemoPage } from '../../modules/public/pay/IzipayDemoPage';
 import { ContactPage } from '../../modules/public/contact/ContactPage';
 import { HazteDriverPage } from '../../modules/public/downloads/HazteDriverPage';
 import { MyOrdersPage } from '../../modules/public/orders/MyOrdersPage';
@@ -89,6 +90,8 @@ export function AppRouter() {
           Tambien fuera de PublicLayout: dentro de la app, un header con
           navegacion solo estorba. */}
       <Route path="pagar" element={<PayPage />} />
+      {/* Boton de Izipay con monto fijo, para la validacion del sitio. */}
+      <Route path="pago-izipay" element={<IzipayDemoPage />} />
 
       <Route path="portal" element={<PortalLayout />}>
         <Route element={<PrivateRoute />}>

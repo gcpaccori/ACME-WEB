@@ -43,6 +43,20 @@ export interface IzipayConfirmPayload {
   kr_hash_key?: string;
 }
 
+export interface IzipayDemoResponse {
+  order_id: string;
+  form_token: string;
+  public_key: string;
+  mode: string;
+  monto_centimos: number;
+}
+
+export interface IzipayDemoConfirmResponse {
+  exito: boolean;
+  payment_status: string;
+  mensaje: string;
+}
+
 export interface IzipayConfirmResponse {
   exito: boolean;
   courier_order_id: string;
@@ -291,6 +305,19 @@ export const courierPaymentService = {
    */
   confirmIzipay(payload: IzipayConfirmPayload) {
     return requestJson<IzipayConfirmResponse>('/api/courier/payments/izipay/confirm', {
+      method: 'POST',
+      json: payload,
+    });
+  },
+
+  /** Izipay — Formulario de la pagina de demostracion (monto fijo, sin pedido). */
+  createIzipayDemo() {
+    return requestJson<IzipayDemoResponse>('/api/courier/payments/izipay/demo', { method: 'POST' });
+  },
+
+  /** Izipay — Verifica la respuesta firmada de la demostracion. No toca pedidos. */
+  confirmIzipayDemo(payload: Omit<IzipayConfirmPayload, 'order_id'>) {
+    return requestJson<IzipayDemoConfirmResponse>('/api/courier/payments/izipay/demo/confirm', {
       method: 'POST',
       json: payload,
     });
