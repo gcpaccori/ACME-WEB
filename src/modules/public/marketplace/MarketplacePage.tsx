@@ -7,6 +7,7 @@ import {
   PublicMarketplaceProduct,
 } from '../../../core/services/publicMarketplaceService';
 import { usePublicStore } from '../store/PublicStoreContext';
+import { getBranchOpenState } from '../../../core/utils/branchSchedule';
 import './MarketplacePage.css';
 
 function formatMoney(value: number, currency = 'PEN') {
@@ -41,8 +42,15 @@ function priceForBranch(product: PublicMarketplaceProduct, branchId: string | nu
   return setting?.price ?? product.base_price;
 }
 
-function isBranchOpen(branch: PublicMarketplaceBranch | null | undefined) {
-  return Boolean(branch?.is_open && branch?.accepting_orders);
+function isBranchOpen(branch: PublicMarketplaceBranch | null | undefined, now: Date) {
+  return getBranchOpenState(branch, now).open;
+}
+
+// "Cerrado ahora · Abre hoy a las 4:00 p. m." cuando se sabe a que hora abre.
+function closedLabel(branch: PublicMarketplaceBranch | null | undefined, now: Date) {
+  if (!branch) return 'Sin sucursal';
+  const { next_opening } = getBranchOpenState(branch, now);
+  return next_opening ? `Cerrado · ${next_opening}` : 'Cerrado ahora';
 }
 
 function merchantCover(merchant: PublicMarketplaceMerchant) {
@@ -183,6 +191,14 @@ export function MarketplacePage() {
     };
   }, []);
 
+  // Reloj de la pagina: abierto/cerrado se recalcula cada minuto, para que un
+  // local no siga en "Abierto" despues de su hora de cierre.
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
   const merchants = useMemo(() => snapshot?.merchants ?? [], [snapshot]);
   const catalogReady = Boolean(snapshot?.full);
   const normalizedQuery = useMemo(() => normalize(deferredQuery), [deferredQuery]);
@@ -191,10 +207,10 @@ export function MarketplacePage() {
   const visibleMerchants = useMemo(() => {
     const withMenu = catalogReady ? merchants.filter((merchant) => merchant.products.length > 0) : merchants;
     return [...withMenu].sort((left, right) => {
-      const openDiff = Number(isBranchOpen(right.branches[0])) - Number(isBranchOpen(left.branches[0]));
+      const openDiff = Number(isBranchOpen(right.branches[0], now)) - Number(isBranchOpen(left.branches[0], now));
       return openDiff || left.trade_name.localeCompare(right.trade_name);
     });
-  }, [catalogReady, merchants]);
+  }, [catalogReady, merchants, now]);
 
   const searchResults = useMemo(() => {
     if (!normalizedQuery) return visibleMerchants.map((merchant) => ({ merchant, matches: [] as string[] }));
@@ -372,7 +388,8 @@ export function MarketplacePage() {
   // ── Vista 2: carta de un local ─────────────────────────────────────────────
   if (activeMerchantId) {
     const cover = activeMerchant ? merchantCover(activeMerchant) : '';
-    const open = isBranchOpen(activeBranch);
+    const open = isBranchOpen(activeBranch, now);
+    const nextOpening = activeBranch ? getBranchOpenState(activeBranch, now).next_opening : '';
     const prep = prepLabel(activeBranch);
 
     return (
@@ -403,7 +420,7 @@ export function MarketplacePage() {
                   <div>
                     <h1>{activeMerchant.trade_name}</h1>
                     <div className="mp-store-head__meta">
-                      <span className={open ? 'mp-badge mp-badge--open' : 'mp-badge'}>{open ? 'Abierto' : 'Cerrado ahora'}</span>
+                      <span className={open ? 'mp-badge mp-badge--open' : 'mp-badge'}>{open ? 'Abierto' : closedLabel(activeBranch, now)}</span>
                       {prep ? <span>{prep}</span> : null}
                       <span>{placeLabel(activeBranch)}</span>
                     </div>
@@ -427,7 +444,11 @@ export function MarketplacePage() {
                 ) : null}
 
                 {!open ? (
-                  <p className="mp-notice">Este local no está recibiendo pedidos en este momento. Puedes ver su carta.</p>
+                  <p className="mp-notice">
+                    {nextOpening
+                      ? `Este local está fuera de horario. ${nextOpening}. Puedes ver su carta.`
+                      : 'Este local no está recibiendo pedidos en este momento. Puedes ver su carta.'}
+                  </p>
                 ) : null}
               </header>
 
@@ -655,7 +676,7 @@ export function MarketplacePage() {
             <div className="mp-grid">
               {searchResults.map(({ merchant, matches }) => {
                 const branch = merchant.branches[0] ?? null;
-                const open = isBranchOpen(branch);
+                const open = isBranchOpen(branch, now);
                 const cover = merchantCover(merchant);
                 const prep = prepLabel(branch);
                 const preview = matches.length > 0 ? matches : merchant.featured_product_names;
@@ -667,7 +688,7 @@ export function MarketplacePage() {
                     onClick={() => openMerchant(merchant.id)}
                   >
                     <div className="mp-store__cover" style={cover ? { backgroundImage: `url(${cover})` } : undefined}>
-                      {!open ? <span className="mp-store__closed">Cerrado ahora</span> : null}
+                      {!open ? <span className="mp-store__closed">{closedLabel(branch, now)}</span> : null}
                     </div>
                     <div className="mp-store__body">
                       <div
