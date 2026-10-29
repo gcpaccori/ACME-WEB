@@ -18,7 +18,8 @@
 -- y la app puede decir "aproximado".
 --
 -- Solo responde al cliente dueno del pedido (o al backend con service role).
--- Para pedidos cerrados (entregado, cancelado, fallido) eta_min es null.
+-- Para pedidos cerrados (entregado, cancelado, fallido) o sin coordenadas del
+-- destino o del local, eta_min es null.
 
 create or replace function public.distancia_km(p_lat1 numeric, p_lng1 numeric, p_lat2 numeric, p_lng2 numeric)
 returns numeric
@@ -107,22 +108,23 @@ begin
   elsif v_order.current_driver_id is not null and v_repartidor_local is not null then
     v_fase := 'yendo_al_local';
     v_minutos := greatest(v_repartidor_local / v_velocidad * 60, v_prep_restante) + 2
-                 + coalesce(v_local_casa, 0) / v_velocidad * 60;
+                 + v_local_casa / v_velocidad * 60;
   else
     v_fase := case when v_status = 'pending_payment' then 'esperando_pago' else 'preparando' end;
-    v_minutos := v_prep_restante + 5 + coalesce(v_local_casa, 0) / v_velocidad * 60;
+    v_minutos := v_prep_restante + 5 + v_local_casa / v_velocidad * 60;
   end if;
 
-  v_minutos := case when v_fase = 'llego' then 0 else greatest(1, ceil(v_minutos)) end;
+  -- Sin coordenadas del destino (o del local) no hay ruta: eta_min null, no un numero inventado.
+  v_minutos := case when v_fase = 'llego' then 0 when v_minutos is not null then greatest(1, ceil(v_minutos)) end;
 
   return jsonb_build_object(
     'order_id', p_order_id,
     'status', v_status,
     'fase', v_fase,
     'eta_min', v_minutos,
-    'eta_at', now() + make_interval(mins => v_minutos::int),
+    'eta_at', case when v_minutos is not null then now() + make_interval(mins => v_minutos::int) end,
     'distancia_km', round(coalesce(case when v_fase = 'en_camino' then v_repartidor_casa end,
-                                   case when v_fase = 'yendo_al_local' then v_repartidor_local + coalesce(v_local_casa, 0) end,
+                                   case when v_fase = 'yendo_al_local' then v_repartidor_local + v_local_casa end,
                                    v_local_casa), 2),
     'repartidor', case when v_driver_lat is null then null else jsonb_build_object(
                     'lat', v_driver_lat, 'lng', v_driver_lng, 'visto_en', v_driver_visto) end,
