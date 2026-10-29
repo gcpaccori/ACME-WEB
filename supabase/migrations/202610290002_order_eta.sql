@@ -86,11 +86,12 @@ begin
   end if;
   v_velocidad := case when v_velocidad is null then c_velocidad_kmh else greatest(v_velocidad, 10) end;
 
-  -- Lo que falta de preparacion: desde que el local lo acepto o empezo.
+  -- Lo que falta de preparacion: desde que el local lo acepto o empezo. Si aun
+  -- no lo acepta (o falta el pago), la preparacion completa sigue pendiente.
   if v_status not in ('ready_for_pickup', 'picked_up', 'on_the_way', 'arrived_waiting') and v_order.ready_at is null then
     v_prep_restante := greatest(0, v_branch.prep
-      - extract(epoch from now() - coalesce(v_order.preparing_at, v_order.accepted_at, v_order.merchant_confirmed_at,
-                                            v_order.placed_at, v_order.created_at)) / 60);
+      - coalesce(extract(epoch from now() - coalesce(v_order.preparing_at, v_order.accepted_at,
+                                                     v_order.merchant_confirmed_at)) / 60, 0));
   end if;
 
   v_local_casa := public.distancia_km(v_branch.lat, v_branch.lng, v_dest.lat, v_dest.lng) * c_factor_calles;
