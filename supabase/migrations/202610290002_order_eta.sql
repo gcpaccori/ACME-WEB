@@ -12,8 +12,13 @@
 --   - Recogido / en camino: de donde esta el repartidor a la casa.
 --
 -- Las distancias son en linea recta por 1.3 (las calles no van rectas). La
--- velocidad es la promedio del repartidor en los ultimos 5 minutos si se movio
--- (minimo 10 km/h); si no, 18 km/h, lo normal de una moto en la ciudad.
+-- velocidad sale de los latidos del repartidor de los ultimos 5 minutos
+-- (distancia recorrida entre puntos / tiempo), porque speed_kmh casi siempre
+-- llega en 0. Solo se usa si cubren al menos 45 segundos y 100 m, y queda entre
+-- 10 y 50 km/h; si no, 18 km/h, lo normal de una moto en la ciudad.
+--
+-- El repartidor llego a la casa cuando orders.arrived_at tiene fecha (la app
+-- del repartidor debe marcarla); entonces eta_min = 0 y fase = 'llego'.
 -- Si el ultimo latido del repartidor tiene mas de 3 minutos, senal_vieja = true
 -- y la app puede decir "aproximado".
 --
@@ -71,7 +76,7 @@ begin
     return jsonb_build_object('order_id', p_order_id, 'fase', 'cerrado', 'status', v_status, 'eta_min', null);
   end if;
 
-  select b.lat, b.lng, coalesce(b.prep_time_avg_min, 20) as prep
+  select b.lat, b.lng, coalesce(nullif(b.prep_time_avg_min, 0), 20) as prep
     into v_branch from public.merchant_branches b where b.id = v_order.branch_id;
   select d.lat, d.lng into v_dest from public.order_delivery_details d where d.order_id = p_order_id;
 
@@ -79,17 +84,21 @@ begin
     select s.last_lat, s.last_lng, s.last_seen_at
       into v_driver_lat, v_driver_lng, v_driver_visto
       from public.driver_current_state s where s.driver_id = v_order.current_driver_id;
-    select avg(l.speed_kmh) into v_velocidad
-      from public.driver_locations l
-     where l.driver_id = v_order.current_driver_id
-       and l.recorded_at >= now() - interval '5 minutes'
-       and l.speed_kmh >= 3;
+    select case when sum(t.horas) >= 45.0 / 3600 and sum(t.km) >= 0.1 then sum(t.km) / sum(t.horas) end
+      into v_velocidad
+      from (select public.distancia_km(lag(l.lat) over w, lag(l.lng) over w, l.lat, l.lng) as km,
+                   extract(epoch from l.recorded_at - lag(l.recorded_at) over w) / 3600 as horas
+              from public.driver_locations l
+             where l.driver_id = v_order.current_driver_id
+               and l.recorded_at >= now() - interval '5 minutes'
+            window w as (order by l.recorded_at)) t
+     where t.km is not null and t.horas > 0;
   end if;
-  v_velocidad := case when v_velocidad is null then c_velocidad_kmh else greatest(v_velocidad, 10) end;
+  v_velocidad := case when v_velocidad is null then c_velocidad_kmh else least(greatest(v_velocidad, 10), 50) end;
 
   -- Lo que falta de preparacion: desde que el local lo acepto o empezo. Si aun
   -- no lo acepta (o falta el pago), la preparacion completa sigue pendiente.
-  if v_status not in ('ready_for_pickup', 'picked_up', 'on_the_way', 'arrived_waiting') and v_order.ready_at is null then
+  if v_status not in ('ready_for_pickup', 'picked_up', 'on_the_way') and v_order.ready_at is null then
     v_prep_restante := greatest(0, v_branch.prep
       - coalesce(extract(epoch from now() - coalesce(v_order.preparing_at, v_order.accepted_at,
                                                      v_order.merchant_confirmed_at)) / 60, 0));
@@ -99,7 +108,7 @@ begin
   v_repartidor_local := public.distancia_km(v_driver_lat, v_driver_lng, v_branch.lat, v_branch.lng) * c_factor_calles;
   v_repartidor_casa := public.distancia_km(v_driver_lat, v_driver_lng, v_dest.lat, v_dest.lng) * c_factor_calles;
 
-  if v_status = 'arrived_waiting' then
+  if v_status in ('picked_up', 'on_the_way') and v_order.arrived_at is not null then
     v_fase := 'llego';
     v_minutos := 0;
   elsif v_status in ('picked_up', 'on_the_way') then
@@ -134,6 +143,7 @@ begin
 end;
 $$;
 
+revoke all on function public.distancia_km(numeric, numeric, numeric, numeric) from public, anon;
 revoke all on function public.order_eta(uuid) from public, anon;
 grant execute on function public.order_eta(uuid) to authenticated;
 do $$
