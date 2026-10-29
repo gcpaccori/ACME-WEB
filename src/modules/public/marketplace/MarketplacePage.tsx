@@ -7,6 +7,7 @@ import {
   PublicMarketplaceProduct,
 } from '../../../core/services/publicMarketplaceService';
 import { usePublicStore } from '../store/PublicStoreContext';
+import { getBranchOpenState } from '../../../core/utils/branchSchedule';
 import './MarketplacePage.css';
 
 function formatMoney(value: number, currency = 'PEN') {
@@ -42,7 +43,14 @@ function priceForBranch(product: PublicMarketplaceProduct, branchId: string | nu
 }
 
 function isBranchOpen(branch: PublicMarketplaceBranch | null | undefined) {
-  return Boolean(branch?.is_open && branch?.accepting_orders);
+  return getBranchOpenState(branch).open;
+}
+
+// "Cerrado ahora · Abre hoy a las 4:00 p. m." cuando se sabe a que hora abre.
+function closedLabel(branch: PublicMarketplaceBranch | null | undefined) {
+  if (!branch) return 'Sin sucursal';
+  const { next_opening } = getBranchOpenState(branch);
+  return next_opening ? `Cerrado · ${next_opening}` : 'Cerrado ahora';
 }
 
 function merchantCover(merchant: PublicMarketplaceMerchant) {
@@ -403,7 +411,7 @@ export function MarketplacePage() {
                   <div>
                     <h1>{activeMerchant.trade_name}</h1>
                     <div className="mp-store-head__meta">
-                      <span className={open ? 'mp-badge mp-badge--open' : 'mp-badge'}>{open ? 'Abierto' : 'Cerrado ahora'}</span>
+                      <span className={open ? 'mp-badge mp-badge--open' : 'mp-badge'}>{open ? 'Abierto' : closedLabel(activeBranch)}</span>
                       {prep ? <span>{prep}</span> : null}
                       <span>{placeLabel(activeBranch)}</span>
                     </div>
@@ -427,7 +435,11 @@ export function MarketplacePage() {
                 ) : null}
 
                 {!open ? (
-                  <p className="mp-notice">Este local no está recibiendo pedidos en este momento. Puedes ver su carta.</p>
+                  <p className="mp-notice">
+                    {activeBranch && getBranchOpenState(activeBranch).next_opening
+                      ? `Este local está fuera de horario. ${getBranchOpenState(activeBranch).next_opening}. Puedes ver su carta.`
+                      : 'Este local no está recibiendo pedidos en este momento. Puedes ver su carta.'}
+                  </p>
                 ) : null}
               </header>
 
@@ -667,7 +679,7 @@ export function MarketplacePage() {
                     onClick={() => openMerchant(merchant.id)}
                   >
                     <div className="mp-store__cover" style={cover ? { backgroundImage: `url(${cover})` } : undefined}>
-                      {!open ? <span className="mp-store__closed">Cerrado ahora</span> : null}
+                      {!open ? <span className="mp-store__closed">{closedLabel(branch)}</span> : null}
                     </div>
                     <div className="mp-store__body">
                       <div

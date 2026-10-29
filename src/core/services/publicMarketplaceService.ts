@@ -1,4 +1,5 @@
 import { supabase } from '../../integrations/supabase/client';
+import type { BranchClosureRow, BranchHourRow } from '../utils/branchSchedule';
 
 export interface PublicMarketplaceModifierOption {
   id: string;
@@ -55,6 +56,8 @@ export interface PublicMarketplaceBranch {
   is_open: boolean;
   accepting_orders: boolean;
   status_code: string;
+  hours: BranchHourRow[];
+  closures: BranchClosureRow[];
 }
 
 export interface PublicMarketplaceMerchant {
@@ -87,6 +90,29 @@ function stringOrEmpty(value: unknown) {
 function numberOrZero(value: unknown) {
   const parsed = Number(value ?? 0);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+// Horario y cierres temporales por sucursal. Si no se pudieron leer, el
+// local queda sin horario y manda su interruptor de abierto/cerrado.
+function groupBranchSchedule(hourRows: unknown, closureRows: unknown) {
+  const hours = new Map<string, BranchHourRow[]>();
+  const closures = new Map<string, BranchClosureRow[]>();
+  ((hourRows ?? []) as any[]).forEach((row) => {
+    const branchId = stringOrEmpty(row.branch_id);
+    if (!hours.has(branchId)) hours.set(branchId, []);
+    hours.get(branchId)!.push({
+      day_of_week: Number(row.day_of_week),
+      open_time: stringOrEmpty(row.open_time),
+      close_time: stringOrEmpty(row.close_time),
+      is_closed: Boolean(row.is_closed ?? false),
+    });
+  });
+  ((closureRows ?? []) as any[]).forEach((row) => {
+    const branchId = stringOrEmpty(row.branch_id);
+    if (!closures.has(branchId)) closures.set(branchId, []);
+    closures.get(branchId)!.push({ starts_at: stringOrEmpty(row.starts_at), ends_at: stringOrEmpty(row.ends_at) });
+  });
+  return { hours, closures };
 }
 
 export interface PublicBrandLogo {
@@ -137,7 +163,7 @@ export const publicMarketplaceService = {
   // Carga ligera para pintar la barra lateral y la cabecera del local al instante,
   // SIN traer productos/modificadores (lo pesado). El catálogo se carga después con fetchSnapshot.
   fetchMerchantsLite: async () => {
-    const [merchantsResult, branchesResult, addressesResult, branchStatusResult, categoriesResult] = await Promise.all([
+    const [merchantsResult, branchesResult, addressesResult, branchStatusResult, branchHoursResult, branchClosuresResult, categoriesResult] = await Promise.all([
       supabase.from('merchants').select('id, trade_name, logo_url, status').order('trade_name', { ascending: true }),
       supabase
         .from('merchant_branches')
@@ -145,6 +171,8 @@ export const publicMarketplaceService = {
         .order('created_at', { ascending: true }),
       supabase.from('addresses').select('id, line1, district, city'),
       supabase.from('merchant_branch_status').select('branch_id, is_open, accepting_orders, status_code'),
+      supabase.from('merchant_branch_hours').select('branch_id, day_of_week, open_time, close_time, is_closed'),
+      supabase.from('merchant_branch_closures').select('branch_id, starts_at, ends_at'),
       supabase.from('categories').select('id, merchant_id, name, sort_order, is_active').eq('is_active', true).order('sort_order', { ascending: true }),
     ]);
 
@@ -156,6 +184,7 @@ export const publicMarketplaceService = {
 
     const addressMap = new Map<string, any>(((addressesResult.data ?? []) as any[]).map((row) => [stringOrEmpty(row.id), row]));
     const branchStatusMap = new Map<string, any>(((branchStatusResult.data ?? []) as any[]).map((row) => [stringOrEmpty(row.branch_id), row]));
+    const scheduleByBranch = groupBranchSchedule(branchHoursResult.data, branchClosuresResult.data);
 
     const branchesByMerchant = new Map<string, any[]>();
     ((branchesResult.data ?? []) as any[]).forEach((b) => {
@@ -193,6 +222,8 @@ export const publicMarketplaceService = {
             is_open: Boolean(branchStatus?.is_open ?? false),
             accepting_orders: Boolean(branchStatus?.accepting_orders ?? branch.accepts_orders ?? false),
             status_code: stringOrEmpty(branchStatus?.status_code || branch.status || 'active'),
+            hours: scheduleByBranch.hours.get(branchId) ?? [],
+            closures: scheduleByBranch.closures.get(branchId) ?? [],
           };
         });
 
@@ -225,6 +256,8 @@ export const publicMarketplaceService = {
       branchesResult,
       addressesResult,
       branchStatusResult,
+      branchHoursResult,
+      branchClosuresResult,
       categoriesResult,
       productsResult,
       settingsResult,
@@ -240,6 +273,8 @@ export const publicMarketplaceService = {
         .order('created_at', { ascending: true }),
       supabase.from('addresses').select('id, line1, district, city'),
       supabase.from('merchant_branch_status').select('branch_id, is_open, accepting_orders, status_code'),
+      supabase.from('merchant_branch_hours').select('branch_id, day_of_week, open_time, close_time, is_closed'),
+      supabase.from('merchant_branch_closures').select('branch_id, starts_at, ends_at'),
       supabase.from('categories').select('id, merchant_id, name, sort_order, is_active').eq('is_active', true).order('sort_order', { ascending: true }),
       supabase
         .from('products')
@@ -275,6 +310,7 @@ export const publicMarketplaceService = {
 
     const addressMap = new Map<string, any>(((addressesResult.data ?? []) as any[]).map((row) => [stringOrEmpty(row.id), row]));
     const branchStatusMap = new Map<string, any>(((branchStatusResult.data ?? []) as any[]).map((row) => [stringOrEmpty(row.branch_id), row]));
+    const scheduleByBranch = groupBranchSchedule(branchHoursResult.data, branchClosuresResult.data);
     const modifierOptionRows = (modifierOptionsResult.data ?? []) as any[];
 
     // Index modifier options by group
@@ -386,6 +422,8 @@ export const publicMarketplaceService = {
             is_open: Boolean(branchStatus?.is_open ?? false),
             accepting_orders: Boolean(branchStatus?.accepting_orders ?? branch.accepts_orders ?? false),
             status_code: stringOrEmpty(branchStatus?.status_code || branch.status || 'active'),
+            hours: scheduleByBranch.hours.get(branchId) ?? [],
+            closures: scheduleByBranch.closures.get(branchId) ?? [],
           };
         });
 
