@@ -55,7 +55,6 @@ interface EditFormState {
 }
 
 const MERCHANT_SCOPE_ROLE_VALUES = new Set(['owner', 'manager']);
-const PLATFORM_ROLE_CODES = new Set(['admin', 'super_admin']);
 
 function getInitialStaffRole(scope: AssignmentScope) {
   return scope === 'merchant' ? 'manager' : 'staff';
@@ -251,11 +250,6 @@ export function PlatformUsersPage() {
     { value: 'support', label: 'Soporte' },
     { value: 'staff', label: 'Staff' },
   ], []);
-
-  const platformRoles = useMemo(
-    () => roles.filter((role) => PLATFORM_ROLE_CODES.has(role.code.toLowerCase())),
-    [roles]
-  );
 
   const createStaffRoleOptions = useMemo(
     () => staffRoleOptions.filter((option) => createForm.assignmentScope === 'branches' || MERCHANT_SCOPE_ROLE_VALUES.has(option.value)),
@@ -795,38 +789,6 @@ export function PlatformUsersPage() {
             </div>
           )}
 
-          <div style={{ display: 'grid', gap: '10px' }}>
-            <strong style={{ fontSize: '13px' }}>Permisos globales de plataforma (Opcional)</strong>
-            <span style={{ fontSize: '12px', color: 'var(--acme-text-faint)' }}>
-              Marca Administrador para que esta cuenta vea y gestione toda la plataforma, no solo su negocio.
-            </span>
-            {platformRoles.length > 0 ? (
-              <div style={{ display: 'grid', gap: '8px' }}>
-                {platformRoles.map((role) => (
-                  <div
-                    key={role.id}
-                    className="scope-card"
-                    style={{ padding: '12px 16px', cursor: 'pointer', borderColor: createForm.roleIds.includes(role.id) ? 'var(--acme-purple)' : undefined }}
-                    onClick={() =>
-                      setCreateForm((c) => ({
-                        ...c,
-                        roleIds: c.roleIds.includes(role.id)
-                          ? c.roleIds.filter((id) => id !== role.id)
-                          : Array.from(new Set([...c.roleIds, role.id])),
-                      }))
-                    }
-                  >
-                    <CheckboxField label={`${role.name} (${role.code})`} checked={createForm.roleIds.includes(role.id)} onChange={() => {}} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <span style={{ fontSize: '12px', color: 'var(--acme-danger, #dc2626)' }}>
-                No se encontró el rol admin en la base de datos. Hay que crearlo primero (migración de roles de plataforma).
-              </span>
-            )}
-          </div>
-
           <div style={{ display: 'grid', gap: '12px' }}>
             <div className="scope-card" style={{ padding: '16px', background: createForm.isActive ? 'rgba(34, 197, 94, 0.05)' : undefined, cursor: 'pointer' }} onClick={() => setCreateForm(c => ({...c, isActive: !c.isActive}))}>
               <CheckboxField label="Usuario Habilitado para Ingresar" checked={createForm.isActive} onChange={() => {}} />
@@ -932,7 +894,8 @@ export function PlatformUsersPage() {
             <div style={{ display: 'grid', gap: '10px' }}>
               <strong style={{ fontSize: '13px' }}>Permisos globales de plataforma (Opcional)</strong>
               <div style={{ display: 'grid', gap: '8px' }}>
-                {platformRoles
+                {roles
+                  .filter((r) => ['admin', 'super_admin'].includes(r.code))
                   .map((role) => (
                     <CheckboxField
                       key={role.id}
