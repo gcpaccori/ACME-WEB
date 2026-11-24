@@ -818,6 +818,24 @@ async function resolvePlatformUserAssignment(
   }
 }
 
+// Si el usuario recibe un rol de plataforma (admin / super_admin) tambien
+// se refleja en profiles.default_role, porque varias politicas RLS
+// (public.is_admin()) solo miran esa columna. Nunca baja el rol aqui.
+async function promotePlatformDefaultRole(adminClient: any, userId: string, roleIds: string[]) {
+  if (roleIds.length === 0) return { error: null }
+  const rolesResult = await adminClient.from('roles').select('id, code').in('id', roleIds)
+  if (rolesResult.error) return { error: rolesResult.error }
+  const codes = new Set(((rolesResult.data ?? []) as any[]).map((row) => stringOrEmpty(row.code).toLowerCase()))
+  const targetRole = codes.has('super_admin') ? 'super_admin' : codes.has('admin') ? 'admin' : ''
+  if (!targetRole) return { error: null }
+  const updateResult = await adminClient.from('profiles').update({ default_role: targetRole }).eq('user_id', userId)
+  if (updateResult.error) {
+    // Si la columna no acepta el valor, el rol igual vive en user_roles.
+    console.warn('[manage-merchant-access] no se pudo fijar default_role', targetRole, updateResult.error.message)
+  }
+  return { error: null }
+}
+
 async function syncPlatformAccessRecord(
   adminClient: ReturnType<typeof createClient>,
   params: {
@@ -1198,8 +1216,13 @@ async function handleCreatePlatformUser(request: Request, body: Record<string, u
     }
   }
 
-  // Ensure profile
+  // Ensure profile (sin pisar un default_role que ya exista, p. ej. admin)
   const now = new Date().toISOString()
+  const existingProfile = await userResult.adminClient
+    .from('profiles')
+    .select('default_role')
+    .eq('user_id', userId)
+    .maybeSingle()
   const profileUpsert = await userResult.adminClient
     .from('profiles')
     .upsert(
@@ -1208,7 +1231,7 @@ async function handleCreatePlatformUser(request: Request, body: Record<string, u
         email,
         full_name: nullableString(fullName),
         phone,
-        default_role: 'customer',
+        default_role: stringOrEmpty(existingProfile.data?.default_role) || 'customer',
         is_active: isActive,
         updated_at: now,
       },
@@ -1293,15 +1316,20 @@ async function handleCreatePlatformUser(request: Request, body: Record<string, u
   // Sync user_roles
   if (roleIds.length > 0) {
     const existingRoles = await userResult.adminClient.from('user_roles').select('id, role_id').eq('user_id', userId)
-    if (!existingRoles.error) {
-      const existingRoleIdSet = new Set(((existingRoles.data ?? []) as any[]).map((row) => stringOrEmpty(row.role_id)))
-      const missingRoleIds = roleIds.filter((roleId) => !existingRoleIdSet.has(roleId))
-      if (missingRoleIds.length > 0) {
-        await userResult.adminClient.from('user_roles').insert(
-          missingRoleIds.map((roleId) => ({ user_id: userId, role_id: roleId }))
-        )
+    if (existingRoles.error) {
+      return jsonResponse({ error: `No se pudieron leer los roles: ${stringOrEmpty(existingRoles.error.message)}` }, 400)
+    }
+    const existingRoleIdSet = new Set(((existingRoles.data ?? []) as any[]).map((row) => stringOrEmpty(row.role_id)))
+    const missingRoleIds = roleIds.filter((roleId) => !existingRoleIdSet.has(roleId))
+    if (missingRoleIds.length > 0) {
+      const insertRoles = await userResult.adminClient.from('user_roles').insert(
+        missingRoleIds.map((roleId) => ({ user_id: userId, role_id: roleId }))
+      )
+      if (insertRoles.error) {
+        return jsonResponse({ error: `No se pudo asignar el rol: ${stringOrEmpty(insertRoles.error.message)}` }, 400)
       }
     }
+    await promotePlatformDefaultRole(userResult.adminClient, userId, roleIds)
   }
 
   const syncAccessResult = await syncPlatformAccessRecord(userResult.adminClient, {
@@ -1465,10 +1493,14 @@ async function handleUpdatePlatformUser(request: Request, body: Record<string, u
 
     const missingRoleIds = roleIds.filter((roleId) => !existingRoleIdSet.has(roleId))
     if (missingRoleIds.length > 0) {
-      await userResult.adminClient.from('user_roles').insert(
+      const insertRoles = await userResult.adminClient.from('user_roles').insert(
         missingRoleIds.map((roleId) => ({ user_id: userId, role_id: roleId }))
       )
+      if (insertRoles.error) {
+        return jsonResponse({ error: `No se pudo asignar el rol: ${stringOrEmpty(insertRoles.error.message)}` }, 400)
+      }
     }
+    await promotePlatformDefaultRole(userResult.adminClient, userId, roleIds)
   }
 
   const syncAccessResult = await syncPlatformAccessRecord(userResult.adminClient, {
